@@ -1,4 +1,5 @@
 import { ISetting, SettingType} from '@rocket.chat/apps-engine/definition/settings';
+import { createSign } from 'crypto';
 
 export const AppSettings: Array<ISetting> = [
     {
