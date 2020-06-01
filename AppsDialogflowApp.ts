@@ -9,12 +9,12 @@ import {
     IRead,
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { App } from '@rocket.chat/apps-engine/definition/App';
+import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
-import { AppSettings } from './AppSettings';
-import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { AppSettings } from './AppSettings';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
