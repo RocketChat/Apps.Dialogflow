@@ -15,6 +15,7 @@ import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettings } from './AppSettings';
+import { DialogflowWrapper } from './DialogflowWrapper';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
@@ -53,6 +54,16 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         if (SettingBotUsername !== LcAgent.username) {
             return;
         }
+
+        const clientEmail = await this.getAppSetting(read, 'Dialogflow-Client-Email');
+        const privateKey = await this.getAppSetting(read, 'Dialogflow-Private-Key');
+
+        const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
+
+        // get the access token
+        const accessToken =  await dialogflowWrapper.getAccessToken(http);
+
+        console.log(accessToken);
 
         const BotMessage = 'Hello from Bot';
 

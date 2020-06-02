@@ -1,25 +1,42 @@
+import { IHttp, IHttpRequest } from '@rocket.chat/apps-engine/definition/accessors';
 import { createSign } from 'crypto';
 import { base64urlEncode } from './helper';
 
 export class DialogflowWrapper {
 
-    private privateId: string;
-    private privateKeyId: string;
     private clientEmail: string;
-    private clientId: string;
     private privateKey: string;
 
-    constructor(privateId: string, privateKeyId: string,
-                clientEmail: string, clientId: string,
-                privateKey: string) {
-        this.privateId = privateId;
-        this.privateKeyId = privateKeyId;
+    constructor(clientEmail: string, privateKey: string) {
         this.clientEmail = clientEmail;
-        this.clientId = clientId;
-        this.privateKey = privateKey;
+        this.privateKey = privateKey.trim().replace(/\\n/gm, '\n');
     }
 
-    public getJWT() {
+    public async getAccessToken(http: IHttp) {
+
+        const authUrl = 'https://oauth2.googleapis.com/token';
+
+        const jwt = this.getJWT();
+
+        console.log('JWT', jwt);
+
+        const httpRequestContent: IHttpRequest = {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            content: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+        };
+
+        const response = await http.post(authUrl, httpRequestContent);
+        console.log(response);
+
+        const responseJSON = JSON.parse((response.content || '{}'));
+        const accessToken = responseJSON.access_token;
+
+        return accessToken;
+    }
+
+    private getJWT() {
         // request format
         // {Base64url encoded header}.{Base64url encoded claim set}.{Base64url encoded signature}
 
