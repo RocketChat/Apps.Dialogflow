@@ -1,5 +1,4 @@
 import { ISetting, SettingType} from '@rocket.chat/apps-engine/definition/settings';
-import { createSign } from 'crypto';
 
 export const AppSettings: Array<ISetting> = [
     {
@@ -19,27 +18,11 @@ export const AppSettings: Array<ISetting> = [
         required: true,
     },
     {
-        id: 'Dialogflow-Private-Key-Id',
-        public: true,
-        type: SettingType.STRING,
-        packageValue: '',
-        i18nLabel: 'Dialogflow Private Key Id',
-        required: true,
-    },
-    {
         id: 'Dialogflow-Client-Email',
         public: true,
         type: SettingType.STRING,
         packageValue: '',
         i18nLabel: 'Dialogflow Client Email',
-        required: true,
-    },
-    {
-        id: 'Dialogflow-Client-Id',
-        public: true,
-        type: SettingType.STRING,
-        packageValue: '',
-        i18nLabel: 'Dialogflow Client Id',
         required: true,
     },
     {
