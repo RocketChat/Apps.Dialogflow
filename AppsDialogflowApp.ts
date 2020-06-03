@@ -3,6 +3,7 @@ import {
     IConfigurationExtend,
     IEnvironmentRead,
     IHttp,
+    IHttpRequest,
     ILogger,
     IModify,
     IPersistence,
@@ -63,14 +64,53 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         // get the access token
         const accessToken =  await dialogflowWrapper.getAccessToken(http);
 
-        console.log(accessToken);
+        console.log('Access Token', accessToken);
 
-        const BotMessage = 'Hello from Bot';
+        const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
+        const sessionId = 'test2';  // TODO: Handle session
 
-        const builder = modify.getNotifier().getMessageBuilder();
-        builder.setRoom(message.room).setText(BotMessage).setSender(LcAgent);
-        modify.getCreator().finish(builder);
+        const dfRequestUrl = `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
 
+        const httpRequestContent: IHttpRequest = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            data: {
+                queryInput: {
+                    text: {
+                    languageCode: 'en',
+                    text: message.text,
+                    },
+                },
+            },
+        };
+
+        http.post(dfRequestUrl, httpRequestContent).then(
+            (response) => {
+                this.getLogger().log('resolved');
+                console.log('-----------------------------' + (response.content || 'empty response'));
+
+                const responseJSON = JSON.parse((response.content || '{}'));
+                let concatMessage: string = '';
+
+                responseJSON.queryResult.fulfillmentMessages.forEach(
+                    (recievedMessage) => {
+                        recievedMessage.text.text.forEach(
+                            (innerMsg) => {
+                                concatMessage += innerMsg + '\n\n\n';
+                            },
+                        );
+                    },
+                );
+
+                const builder = modify.getNotifier().getMessageBuilder();
+                builder.setRoom(message.room).setText(concatMessage).setSender(LcAgent);
+                modify.getCreator().finish(builder);
+            },
+        ).catch(
+            (error) => this.getLogger().log('error'),
+        );
     }
 
     public async getAppSetting(read: IRead, id: string): Promise<any> {
