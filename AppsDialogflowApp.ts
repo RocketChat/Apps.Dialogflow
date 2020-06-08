@@ -19,6 +19,7 @@ import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettings } from './AppSettings';
 import { DialogflowWrapper } from './DialogflowWrapper';
+import { buildDialogflowHTTPRequest } from './helper';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
@@ -60,6 +61,8 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
 
         const clientEmail = await this.getAppSetting(read, 'Dialogflow-Client-Email');
         const privateKey = await this.getAppSetting(read, 'Dialogflow-Private-Key');
+        const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
+        const sessionId = 'test2';  // TODO: Handle session
 
         const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
 
@@ -73,25 +76,9 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         }
         console.log('Access Token', accessToken);
 
-        const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
-        const sessionId = 'test2';  // TODO: Handle session
-
         const dfRequestUrl = `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
 
-        const httpRequestContent: IHttpRequest = {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            data: {
-                queryInput: {
-                    text: {
-                    languageCode: 'en',
-                    text: message.text,
-                    },
-                },
-            },
-        };
+        const httpRequestContent: IHttpRequest = buildDialogflowHTTPRequest(message.text);
 
         try {
             const response = await http.post(dfRequestUrl, httpRequestContent);

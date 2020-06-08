@@ -1,3 +1,5 @@
+import { IHttpRequest } from "@rocket.chat/apps-engine/definition/accessors";
+
 export const base64urlEncode = (str: any) => {
     const utf8str = unescape(encodeURIComponent(str));
     const b64u = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';   // base64url dictionary
@@ -33,4 +35,21 @@ export const base64EncodeData = (data: string, len: number, b64x: string, b64pad
     // tslint:enable:no-bitwise
 
     return dst;
+};
+
+export const buildDialogflowHTTPRequest = (message) => {
+    return {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        data: {
+            queryInput: {
+                text: {
+                languageCode: 'en',
+                text: message,
+                },
+            },
+        },
+    };
 };
