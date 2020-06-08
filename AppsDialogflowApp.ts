@@ -74,7 +74,6 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
             this.getLogger().error('Error getting Access Token', error);
             return;
         }
-        console.log('Access Token', accessToken);
 
         const dfRequestUrl = `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
 
@@ -82,8 +81,6 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
 
         try {
             const response = await http.post(dfRequestUrl, httpRequestContent);
-            this.getLogger().log('resolved');
-            console.log('-----------------------------' + (response.content || 'empty response'));
             const responseJSON = JSON.parse((response.content || '{}'));
 
             if (responseJSON.queryResult) {

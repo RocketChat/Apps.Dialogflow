@@ -1,4 +1,3 @@
-import { IHttpRequest } from "@rocket.chat/apps-engine/definition/accessors";
 
 export const base64urlEncode = (str: any) => {
     const utf8str = unescape(encodeURIComponent(str));

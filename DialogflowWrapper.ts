@@ -27,7 +27,6 @@ export class DialogflowWrapper {
 
         try {
             const response = await http.post(authUrl, httpRequestContent);
-            console.log(response);
 
             const responseJSON = JSON.parse((response.content || '{}'));
 
