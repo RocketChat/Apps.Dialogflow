@@ -18,8 +18,6 @@ export class DialogflowWrapper {
 
         const jwt = this.getJWT();
 
-        console.log('JWT', jwt);
-
         const httpRequestContent: IHttpRequest = {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -27,13 +25,29 @@ export class DialogflowWrapper {
             content: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
         };
 
-        const response = await http.post(authUrl, httpRequestContent);
-        console.log(response);
+        try {
+            const response = await http.post(authUrl, httpRequestContent);
+            console.log(response);
 
-        const responseJSON = JSON.parse((response.content || '{}'));
-        const accessToken = responseJSON.access_token;
+            const responseJSON = JSON.parse((response.content || '{}'));
 
-        return accessToken;
+            if (responseJSON.access_token) {
+                const accessToken = responseJSON.access_token;
+                return accessToken;
+            } else {
+                if (responseJSON.error) {
+                    throw Error(`\
+                    ---------------------Error with Google Credentials-------------------\
+                    Details:- \
+                        Error Message:- ${responseJSON.error} \
+                        Error Description:- ${responseJSON.error_description}`);
+                }
+                throw Error('Error retrieving access token');
+            }
+
+        } catch (error) {
+            throw Error(error);
+        }
     }
 
     private getJWT() {

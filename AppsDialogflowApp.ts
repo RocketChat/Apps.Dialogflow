@@ -1,6 +1,7 @@
 import {
     IAppAccessors,
     IConfigurationExtend,
+    IConfigurationModify,
     IEnvironmentRead,
     IHttp,
     IHttpRequest,
@@ -14,6 +15,7 @@ import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/defini
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
+import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettings } from './AppSettings';
 import { DialogflowWrapper } from './DialogflowWrapper';
@@ -61,9 +63,14 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
 
         const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
 
-        // get the access token
-        const accessToken =  await dialogflowWrapper.getAccessToken(http);
-
+        let accessToken;
+        try {
+            // get the access token
+            accessToken =  await dialogflowWrapper.getAccessToken(http);
+        } catch (error) {
+            this.getLogger().error('Error getting Access Token', error);
+            return;
+        }
         console.log('Access Token', accessToken);
 
         const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
@@ -86,34 +93,53 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
             },
         };
 
-        http.post(dfRequestUrl, httpRequestContent).then(
-            (response) => {
-                this.getLogger().log('resolved');
-                console.log('-----------------------------' + (response.content || 'empty response'));
+        try {
+            const response = await http.post(dfRequestUrl, httpRequestContent);
+            this.getLogger().log('resolved');
+            console.log('-----------------------------' + (response.content || 'empty response'));
+            const responseJSON = JSON.parse((response.content || '{}'));
 
-                const responseJSON = JSON.parse((response.content || '{}'));
-                let concatMessage: string = '';
+            if (responseJSON.queryResult) {
+                const BotResponse = responseJSON.queryResult.fulfillmentText;
 
-                responseJSON.queryResult.fulfillmentMessages.forEach(
-                    (recievedMessage) => {
-                        recievedMessage.text.text.forEach(
-                            (innerMsg) => {
-                                concatMessage += innerMsg + '\n\n\n';
-                            },
-                        );
-                    },
-                );
-
+                // build the message for LC widget
                 const builder = modify.getNotifier().getMessageBuilder();
-                builder.setRoom(message.room).setText(concatMessage).setSender(LcAgent);
-                modify.getCreator().finish(builder);
-            },
-        ).catch(
-            (error) => this.getLogger().log('error'),
-        );
+                builder.setRoom(message.room).setText(BotResponse).setSender(LcAgent);
+                await modify.getCreator().finish(builder);
+            } else {
+                // some error occured
+                throw Error(`An Error occured while connecting to Dialogflows REST API\
+                Error Details:-
+                    message:- ${responseJSON.error.message}\
+                    status:- ${responseJSON.error.message}\
+                Try rechecking the google credentials and your internet connection`);
+            }
+        } catch (error) {
+            this.getLogger().error(error.message);
+        }
     }
 
     public async getAppSetting(read: IRead, id: string): Promise<any> {
         return (await read.getEnvironmentReader().getSettings().getById(id)).value;
+    }
+
+    public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
+        const clientEmail: string = await this.getAppSetting(read, 'Dialogflow-Client-Email');
+        const privateKey: string = await this.getAppSetting(read, 'Dialogflow-Private-Key');
+
+        if (clientEmail.length === 0 || privateKey.length === 0) {
+            this.getLogger().error('Client Email or Private Key Field cannot be empty');
+            return;
+        }
+
+        const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
+
+        try {
+            // get the access token
+            const accessToken =  await dialogflowWrapper.getAccessToken(http);
+            this.getLogger().info('------------------ Google Credentials validation Success ----------------');
+        } catch (error) {
+            this.getLogger().error(error.message);
+        }
     }
 }
