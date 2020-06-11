@@ -10,8 +10,9 @@ import {
     IPersistence,
     IRead,
 } from '@rocket.chat/apps-engine/definition/accessors';
+import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
-import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { ILivechatMessage, ILivechatRoom, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
@@ -19,7 +20,9 @@ import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettings } from './AppSettings';
 import { DialogflowWrapper } from './DialogflowWrapper';
+import { WebhookEndpoint } from './endpoints/webhook-endpoints';
 import { buildDialogflowHTTPRequest } from './helper';
+import { AppPersistence } from './lib/persistence';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
@@ -28,6 +31,13 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
 
     public async initialize(configurationExtend: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
         await this.extendConfiguration(configurationExtend);
+        configurationExtend.api.provideApi({
+            visibility: ApiVisibility.PUBLIC,
+            security: ApiSecurity.UNSECURE,
+            endpoints: [
+                new WebhookEndpoint(this),
+            ],
+        });
         this.getLogger().log('Apps.Dialogflow App Initialized');
     }
 
@@ -38,7 +48,7 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
     public async executePostMessageSent(message: IMessage,
                                         read: IRead,
                                         http: IHttp,
-                                        persistence: IPersistence,
+                                        persis: IPersistence,
                                         modify: IModify): Promise<void> {
 
         const SettingBotUsername: string = await this.getAppSetting(read, 'Lc-Bot-Username');
@@ -53,16 +63,24 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         const lmessage: ILivechatMessage = message;
         const lroom: ILivechatRoom = lmessage.room as ILivechatRoom;
         const LcAgent: IUser = lroom.servedBy ? lroom.servedBy : message.sender;
+        const visitor: IVisitor = lroom.visitor;
 
         // check whether the bot is currently handling the Visitor, if not then return back
         if (SettingBotUsername !== LcAgent.username) {
             return;
         }
 
+        // save the Room id in Persistant storage // TODO: check of room created handler
+        const persistence = new AppPersistence(persis, read.getPersistenceReader());
+        if (visitor) {
+            console.log('------- Room Id in main ---------', lroom.id);
+            persistence.connectVisitorSessionToRoom(lroom.id, visitor.token);
+        }
+
         const clientEmail = await this.getAppSetting(read, 'Dialogflow-Client-Email');
         const privateKey = await this.getAppSetting(read, 'Dialogflow-Private-Key');
         const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
-        const sessionId = 'test2';  // TODO: Handle session
+        const sessionId = visitor.token;
 
         const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
 
