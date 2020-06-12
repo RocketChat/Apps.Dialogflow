@@ -20,8 +20,8 @@ import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettings } from './AppSettings';
 import { DialogflowWrapper } from './DialogflowWrapper';
-import { WebhookEndpoint } from './endpoints/webhook-endpoints';
-import { buildDialogflowHTTPRequest } from './helper';
+import { CloseChat } from './endpoints/CloseChat';
+import { buildDialogflowHTTPRequest, getAppSetting } from './helper';
 import { AppPersistence } from './lib/persistence';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent {
@@ -35,7 +35,7 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
             visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
             endpoints: [
-                new WebhookEndpoint(this),
+                new CloseChat(this),
             ],
         });
         this.getLogger().log('Apps.Dialogflow App Initialized');
@@ -51,7 +51,7 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
                                         persis: IPersistence,
                                         modify: IModify): Promise<void> {
 
-        const SettingBotUsername: string = await this.getAppSetting(read, 'Lc-Bot-Username');
+        const SettingBotUsername: string = await getAppSetting(read, 'Lc-Bot-Username');
         if (message.sender.username === SettingBotUsername) {
             // this msg was sent by the Bot itself, so no need to respond back
             return;
@@ -70,17 +70,11 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
             return;
         }
 
-        // save the Room id in Persistant storage // TODO: check of room created handler
-        const persistence = new AppPersistence(persis, read.getPersistenceReader());
-        if (visitor) {
-            console.log('------- Room Id in main ---------', lroom.id);
-            persistence.connectVisitorSessionToRoom(lroom.id, visitor.token);
-        }
-
-        const clientEmail = await this.getAppSetting(read, 'Dialogflow-Client-Email');
-        const privateKey = await this.getAppSetting(read, 'Dialogflow-Private-Key');
-        const projectId = await this.getAppSetting(read, 'Dialogflow-Project-Id');
+        const clientEmail = await getAppSetting(read, 'Dialogflow-Client-Email');
+        const privateKey = await getAppSetting(read, 'Dialogflow-Private-Key');
+        const projectId = await getAppSetting(read, 'Dialogflow-Project-Id');
         const sessionId = visitor.token;
+        this.saveVisitorSession(lroom, read, persis);
 
         const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
 
@@ -121,13 +115,9 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         }
     }
 
-    public async getAppSetting(read: IRead, id: string): Promise<any> {
-        return (await read.getEnvironmentReader().getSettings().getById(id)).value;
-    }
-
     public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
-        const clientEmail: string = await this.getAppSetting(read, 'Dialogflow-Client-Email');
-        const privateKey: string = await this.getAppSetting(read, 'Dialogflow-Private-Key');
+        const clientEmail: string = await getAppSetting(read, 'Dialogflow-Client-Email');
+        const privateKey: string = await getAppSetting(read, 'Dialogflow-Private-Key');
 
         if (clientEmail.length === 0 || privateKey.length === 0) {
             this.getLogger().error('Client Email or Private Key Field cannot be empty');
@@ -143,5 +133,22 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
         } catch (error) {
             this.getLogger().error(error.message);
         }
+    }
+
+    /**
+     *
+     * @description - save visitor.token and room id.
+     *   - This will provide a mapping between visitor.token n room id.
+     *   - This is required for implementing webhooks since all webhook endpoints require `sessionId`
+     *     which is the same as visitor.token. Using the `sessionId` we will be able to get the roomId
+     */
+    private async saveVisitorSession(room: ILivechatRoom, read: IRead, persis: IPersistence) {
+        // Connect Room id with Visitor Token (Session Id for Dialogflow)
+        const persistence = new AppPersistence(persis, read.getPersistenceReader());
+
+        const lroom: ILivechatRoom = room as ILivechatRoom;
+        const visitor: IVisitor = lroom.visitor;
+        console.log('------- Session Id in Main ---------', visitor.token);
+        await persistence.connectVisitorSessionToRoom(lroom.id, visitor.token);
     }
 }

@@ -1,3 +1,4 @@
+import { IRead } from '@rocket.chat/apps-engine/definition/accessors';
 
 export const base64urlEncode = (str: any) => {
     const utf8str = unescape(encodeURIComponent(str));
@@ -51,4 +52,8 @@ export const buildDialogflowHTTPRequest = (message) => {
             },
         },
     };
+};
+
+export const getAppSetting = async (read: IRead, id: string): Promise<any> => {
+    return (await read.getEnvironmentReader().getSettings().getById(id)).value;
 };
