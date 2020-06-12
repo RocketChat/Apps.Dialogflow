@@ -1,16 +1,23 @@
 import { ISetting, SettingType} from '@rocket.chat/apps-engine/definition/settings';
 
+export enum AppSettingId {
+    DialogflowBotUsername = 'dialogflow_bot_username',
+    DialogflowProjectId = 'dialogflow_project_id',
+    DialogflowClientEmail = 'dialogflow_client_email',
+    DialogFlowPrivateKey = 'dialogflow_private_key',
+}
+
 export const AppSettings: Array<ISetting> = [
     {
-        id: 'Lc-Bot-Username',
+        id: AppSettingId.DialogflowBotUsername,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Livechat Bot Username',
+        i18nLabel: 'Bot Username',
         required: true,
     },
     {
-        id: 'Dialogflow-Project-Id',
+        id: AppSettingId.DialogflowProjectId,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -18,7 +25,7 @@ export const AppSettings: Array<ISetting> = [
         required: true,
     },
     {
-        id: 'Dialogflow-Client-Email',
+        id: AppSettingId.DialogflowClientEmail,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -26,7 +33,7 @@ export const AppSettings: Array<ISetting> = [
         required: true,
     },
     {
-        id: 'Dialogflow-Private-Key',
+        id: AppSettingId.DialogFlowPrivateKey,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
