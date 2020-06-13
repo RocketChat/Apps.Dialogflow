@@ -1,6 +1,6 @@
 import { IHttp, IHttpRequest, ILogger, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { getAppSetting } from '../helper';
 import { AppSettingId } from '../AppSettings';
+import { getAppSetting } from '../helper';
 
 // A helper class to interact with RocketChat's REST API
 export class RocketChatSDK {

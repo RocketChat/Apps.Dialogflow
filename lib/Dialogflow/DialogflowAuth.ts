@@ -57,7 +57,7 @@ export class DialogflowAuth {
         const claimSet = this.getClaimSet();
         const signature = this.getSignature(header, claimSet);
         // combining all together to form jwt
-        const jwt = header + '.' + claimSet + '.' + signature;
+        const jwt = `${ header }.${ claimSet }.${ signature }`;
         return jwt;
     }
 
