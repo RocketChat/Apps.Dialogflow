@@ -34,7 +34,7 @@ export class CloseChat extends ApiEndpoint {
         if (!sessionId) { return this.sendResponse(HttpStatusCode.BAD_REQUEST, 'Error: Session Id not present in request'); }
 
         try {
-            await this.processCloseChatRequest(persis, read, http, sessionId);
+            await this.processCloseChatRequest(read, modify, sessionId);
             this.app.getLogger().info('Close chat request handled successfully');
             return this.sendResponse(HttpStatusCode.OK, 'Success');
         } catch (error) {
@@ -43,15 +43,12 @@ export class CloseChat extends ApiEndpoint {
         }
     }
 
-    private async processCloseChatRequest(persis: IPersistence, read: IRead, http: IHttp, sessionId: string) {
-        const persistence = new AppPersistence(persis, read.getPersistenceReader());
-        const serverSDK: RocketChatSDK = new RocketChatSDK(http, read, this.app.getLogger());
+    private async processCloseChatRequest(read: IRead, modify: IModify, sessionId: string) {
+        const serverSDK: RocketChatSDK = new RocketChatSDK(modify, read);
 
         const roomId = sessionId;       // Session Id from Dialogflow will be the same as Room id
-        const visitorToken = await persistence.getConnectedVisitorToken(sessionId);
-        if (!visitorToken) { throw Error('Session Id not found in database'); }
 
-        serverSDK.closeChat(roomId, visitorToken);
+        await serverSDK.closeChat(roomId);
     }
 
     private sendResponse(status: HttpStatusCode, result: string): IApiResponse {

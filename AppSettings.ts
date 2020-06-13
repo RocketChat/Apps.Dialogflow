@@ -5,7 +5,6 @@ export enum AppSettingId {
     DialogflowProjectId = 'dialogflow_project_id',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
-    RocketChatServerURL = 'rocketchat_server_url',
 }
 
 export const AppSettings: Array<ISetting> = [
@@ -15,15 +14,6 @@ export const AppSettings: Array<ISetting> = [
         type: SettingType.STRING,
         packageValue: '',
         i18nLabel: 'Bot Username',
-        required: true,
-    },
-    {
-        id: AppSettingId.RocketChatServerURL,
-        public: true,
-        type: SettingType.STRING,
-        packageValue: '',
-        i18nLabel: 'Rocket Chat Server URL',
-        i18nDescription: 'You can find this at `Setting -> General -> Site URL`. Please note, Do not include a backslash at the end of url',
         required: true,
     },
     {

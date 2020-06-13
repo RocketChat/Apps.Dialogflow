@@ -1,49 +1,22 @@
-import { IHttp, IHttpRequest, ILogger, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { AppSettingId } from '../AppSettings';
-import { getAppSetting } from '../helper';
+import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
 // A helper class to interact with RocketChat's REST API
 export class RocketChatSDK {
 
-    constructor(private http: IHttp, private read: IRead, private logger: ILogger) { }
+    constructor(private modify: IModify, private read: IRead) { }
 
     /**
      *
      * @param rid {string}
-     * @param visitorToken {string}
      *
      */
-    public async closeChat(rid: string, visitorToken: string) {
-        const httpRequest: IHttpRequest = this.buildHttpRequest({ rid, token: visitorToken });
-        const RocketChatServerUrl = await this.getServerUrl();
+    public async closeChat(rid: string) {
+        const room: IRoom = (await this.read.getRoomReader().getById(rid)) as IRoom;
+        if (!room) { throw Error('Error: Room Id not valid'); }
 
-        await this.http.post(`${RocketChatServerUrl}/api/v1/livechat/room.close`, httpRequest)
-            .then(() => {
-                this.logger.info('Closed Livechat room with Room id ' + rid);
-            })
-            .catch((error) => {
-                this.logger.error(error);
-                throw Error('Error: Error occured while using Rocket.Chat Rest Api. See App Logs for more detail');
-            });
-    }
-
-    private buildHttpRequest(data: any): IHttpRequest {
-        return {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            data: {
-                ...data,
-            },
-        };
-    }
-
-    private async getServerUrl() {
-        const RocketChatServerUrl: string = await getAppSetting(this.read, AppSettingId.RocketChatServerURL);
-        if (!RocketChatServerUrl.startsWith('http')) {
-            throw Error('Error: Invalid Rocket Chat Server URL');
-        }
-        return RocketChatServerUrl;
+        const result = await this.modify.getUpdater().getLivechatUpdater().closeRoom(room, '');
+        if (!result) { throw new Error('Error: Internal Server Error. Could not close the chat'); }
     }
 
 }

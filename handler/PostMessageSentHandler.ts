@@ -7,7 +7,6 @@ import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettingId } from '../AppSettings';
 import { getAppSetting } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
-import { AppPersistence } from '../lib/persistence';
 
 export class PostMessageSentHandler {
     constructor(private app: IApp,
@@ -31,20 +30,17 @@ export class PostMessageSentHandler {
         }
 
         // send request to dialogflow
-        if (!this.message.text) { return; }
+        if (!this.message.text || (this.message.text && this.message.text.trim().length === 0)) { return; }
         const messageText: string = this.message.text;
 
         const sessionId: string = this.getSessionId();
+        console.log('------- Session Id in Main ---------', sessionId);
 
         const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, sessionId, messageText);
         const response = await dialogflowSDK.sendMessage();
 
         // forward the recieved message to Visitor
         await this.sendMessageToVisitor(response);
-
-        // save session in persistant storage
-        await this.saveVisitorSession();
-
     }
 
     private async sendMessageToVisitor(message: string) {
@@ -72,21 +68,5 @@ export class PostMessageSentHandler {
      */
     private getSessionId(): string {
         return this.getLivechatRoom().id;
-    }
-
-    /**
-     *
-     * @description - save visitor.token and session id.
-     *   - This will provide a mapping between visitor.token n session id.
-     *   - This is required for implementing webhooks since all webhook endpoints require `sessionId`
-     *     which is the same as room.id. Using the `sessionId` we will be able to get the visitor.token
-     */
-    private async saveVisitorSession() {
-        const persistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
-
-        const sessionId = this.getSessionId();
-        const visitorToken = this.getLivechatRoom().visitor.token;
-        console.log('------- Session Id in Main ---------', sessionId);
-        await persistence.connectSessionIdToVisitorToken(sessionId, visitorToken);
     }
 }
