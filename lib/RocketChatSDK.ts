@@ -1,5 +1,6 @@
 import { IHttp, IHttpRequest, ILogger, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { getAppSetting } from '../helper';
+import { AppSettingId } from '../AppSettings';
 
 // A helper class to interact with RocketChat's REST API
 export class RocketChatSDK {
@@ -38,7 +39,7 @@ export class RocketChatSDK {
     }
 
     private async getServerUrl() {
-        const RocketChatServerUrl: string = await getAppSetting(this.read, 'Rocket-Chat-Server-URL');
+        const RocketChatServerUrl: string = await getAppSetting(this.read, AppSettingId.RocketChatServerURL);
         if (!RocketChatServerUrl.startsWith('http')) {
             throw Error('Error: Invalid Rocket Chat Server URL');
         }

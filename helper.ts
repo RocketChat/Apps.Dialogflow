@@ -37,23 +37,6 @@ export const base64EncodeData = (data: string, len: number, b64x: string, b64pad
     return dst;
 };
 
-export const buildDialogflowHTTPRequest = (message) => {
-    return {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        data: {
-            queryInput: {
-                text: {
-                languageCode: 'en',
-                text: message,
-                },
-            },
-        },
-    };
-};
-
 export const getAppSetting = async (read: IRead, id: string): Promise<any> => {
     return (await read.getEnvironmentReader().getSettings().getById(id)).value;
 };

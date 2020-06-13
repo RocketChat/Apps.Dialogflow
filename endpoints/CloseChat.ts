@@ -47,9 +47,9 @@ export class CloseChat extends ApiEndpoint {
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const serverSDK: RocketChatSDK = new RocketChatSDK(http, read, this.app.getLogger());
 
-        const roomId = await persistence.getConnectedRoomId(sessionId);
-        const visitorToken = sessionId;     // Visitor token is the same as sessionId
-        if (!roomId) { throw Error('Session Id not found in database'); }
+        const roomId = sessionId;       // Session Id from Dialogflow will be the same as Room id
+        const visitorToken = await persistence.getConnectedVisitorToken(sessionId);
+        if (!visitorToken) { throw Error('Session Id not found in database'); }
 
         serverSDK.closeChat(roomId, visitorToken);
     }

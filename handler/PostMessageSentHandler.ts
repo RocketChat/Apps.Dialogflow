@@ -1,13 +1,12 @@
-import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
-
-import { IHttp, IHttpRequest, ILogger, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
-import { ILivechatMessage, ILivechatRoom, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
+import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettingId } from '../AppSettings';
-import { DialogflowWrapper } from '../DialogflowWrapper';
-import { buildDialogflowHTTPRequest, getAppSetting } from '../helper';
+import { getAppSetting } from '../helper';
+import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
 import { AppPersistence } from '../lib/persistence';
 
 export class PostMessageSentHandler {
@@ -26,77 +25,68 @@ export class PostMessageSentHandler {
         } else if (this.message.room.type !== RoomType.LIVE_CHAT) {
             // check whether this is a Livechat message
             return;
-        }
-
-        const lmessage: ILivechatMessage = this.message;
-        const lroom: ILivechatRoom = lmessage.room as ILivechatRoom;
-        const LcAgent: IUser = lroom.servedBy ? lroom.servedBy : this.message.sender;
-        const visitor: IVisitor = lroom.visitor;
-
-        // check whether the bot is currently handling the Visitor, if not then return back
-        if (SettingBotUsername !== LcAgent.username) {
+        } else if (SettingBotUsername !== this.getBotUser().username) {
+            // check whether the bot is currently handling the Visitor, if not then return back
             return;
         }
 
-        const clientEmail = await getAppSetting(this.read, AppSettingId.DialogflowClientEmail);
-        const privateKey = await getAppSetting(this.read, AppSettingId.DialogFlowPrivateKey);
-        const projectId = await getAppSetting(this.read, AppSettingId.DialogflowProjectId);
-        const sessionId = visitor.token;
-        this.saveVisitorSession(lroom, this.read, this.persis);
+        // send request to dialogflow
+        if (!this.message.text) { return; }
+        const messageText: string = this.message.text;
 
-        const dialogflowWrapper: DialogflowWrapper = new DialogflowWrapper(clientEmail, privateKey);
+        const sessionId: string = this.getSessionId();
 
-        let accessToken;
-        try {
-            // get the access token
-            accessToken =  await dialogflowWrapper.getAccessToken(this.http);
-        } catch (error) {
-            this.app.getLogger().error('Error getting Access Token', error);
-            return;
-        }
+        const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, sessionId, messageText);
+        const response = await dialogflowSDK.sendMessage();
 
-        const dfRequestUrl = `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
+        // forward the recieved message to Visitor
+        await this.sendMessageToVisitor(response);
 
-        const httpRequestContent: IHttpRequest = buildDialogflowHTTPRequest(this.message.text);
+        // save session in persistant storage
+        await this.saveVisitorSession();
 
-        try {
-            const response = await this.http.post(dfRequestUrl, httpRequestContent);
-            const responseJSON = JSON.parse((response.content || '{}'));
+    }
 
-            if (responseJSON.queryResult) {
-                const BotResponse = responseJSON.queryResult.fulfillmentText;
+    private async sendMessageToVisitor(message: string) {
+        const sender: IUser = this.getBotUser();
 
-                // build the message for LC widget
-                const builder = this.modify.getNotifier().getMessageBuilder();
-                builder.setRoom(this.message.room).setText(BotResponse).setSender(LcAgent);
-                await this.modify.getCreator().finish(builder);
-            } else {
-                // some error occured
-                throw Error(`An Error occured while connecting to Dialogflows REST API\
-                Error Details:-
-                    message:- ${responseJSON.error.message}\
-                    status:- ${responseJSON.error.message}\
-                Try rechecking the google credentials and your internet connection`);
-            }
-        } catch (error) {
-            this.app.getLogger().error(error.message);
-        }
+        // build the message for Livechat widget
+        const builder = this.modify.getNotifier().getMessageBuilder();
+        builder.setRoom(this.message.room).setText(message).setSender(sender);
+        await this.modify.getCreator().finish(builder);
+    }
+
+    private getBotUser(): IUser {
+        const lroom: ILivechatRoom = this.getLivechatRoom();
+        if (!lroom.servedBy) { throw Error('Error!! Room.servedBy field is undefined'); }
+        return lroom.servedBy;
+    }
+
+    private getLivechatRoom(): ILivechatRoom {
+        return ((this.message as ILivechatMessage).room as ILivechatRoom);
+    }
+
+    /**
+     * @description: Returns a session Id. Session Id is used to maintain sessions of Dialogflow.
+     *      Note that the Session Id is the same as Room Id
+     */
+    private getSessionId(): string {
+        return this.getLivechatRoom().id;
     }
 
     /**
      *
-     * @description - save visitor.token and room id.
-     *   - This will provide a mapping between visitor.token n room id.
+     * @description - save visitor.token and session id.
+     *   - This will provide a mapping between visitor.token n session id.
      *   - This is required for implementing webhooks since all webhook endpoints require `sessionId`
-     *     which is the same as visitor.token. Using the `sessionId` we will be able to get the roomId
+     *     which is the same as room.id. Using the `sessionId` we will be able to get the visitor.token
      */
-    private async saveVisitorSession(room: ILivechatRoom, read: IRead, persis: IPersistence) {
-        // Connect Room id with Visitor Token (Session Id for Dialogflow)
-        const persistence = new AppPersistence(persis, read.getPersistenceReader());
+    private async saveVisitorSession() {
+        const persistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
 
-        const lroom: ILivechatRoom = room as ILivechatRoom;
-        const visitor: IVisitor = lroom.visitor;
-        console.log('------- Session Id in Main ---------', visitor.token);
-        await persistence.connectVisitorSessionToRoom(lroom.id, visitor.token);
+        const sessionId = this.getSessionId();
+        const visitorToken = this.getLivechatRoom().visitor.token;
+        console.log('------- Session Id in Main ---------', sessionId);
+        await persistence.connectSessionIdToVisitorToken(sessionId, visitorToken);
     }
 }

@@ -4,18 +4,17 @@ import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket
 export class AppPersistence {
     constructor(private readonly persistence: IPersistence, private readonly persistenceRead: IPersistenceRead) {}
 
-    public async connectVisitorSessionToRoom(roomId: string, sessionId: string): Promise<void> {
+    public async connectSessionIdToVisitorToken(sessionId: string, visitorToken: string): Promise<void> {
         const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
         await this.persistence.updateByAssociations([sessionAssociation], {
-            roomId,
-            sessionId,
+            visitorToken,
         }, true);
     }
 
-    public async getConnectedRoomId(sessionId: string): Promise<string | undefined> {
+    public async getConnectedVisitorToken(sessionId: string): Promise<string | undefined> {
         const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
 
         const [result] = await this.persistenceRead.readByAssociations([sessionAssociation]);
-        return result && (result as any).roomId ? (result as any).roomId : undefined;
+        return result && (result as any).visitorToken ? (result as any).visitorToken : undefined;
     }
 }
