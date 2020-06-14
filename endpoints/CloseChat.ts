@@ -1,6 +1,5 @@
-import { HttpStatusCode, IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { AppPersistence } from '../lib/persistence';
 import { RocketChatSDK } from '../lib/RocketChatSDK';
 
 /**
