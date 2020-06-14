@@ -1,4 +1,7 @@
 import { IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 export const base64urlEncode = (str: any) => {
     const utf8str = unescape(encodeURIComponent(str));
@@ -39,4 +42,22 @@ export const base64EncodeData = (data: string, len: number, b64x: string, b64pad
 
 export const getAppSetting = async (read: IRead, id: string): Promise<any> => {
     return (await read.getEnvironmentReader().getSettings().getById(id)).value;
+};
+
+export const getBotUser = (message: IMessage): IUser => {
+    const lroom: ILivechatRoom = getLivechatRoom(message);
+    if (!lroom.servedBy) { throw Error('Error!! Room.servedBy field is undefined'); }
+    return lroom.servedBy;
+};
+
+export const getLivechatRoom = (message: IMessage): ILivechatRoom => {
+    return ((message as ILivechatMessage).room as ILivechatRoom);
+};
+
+/**
+ * @description: Returns a session Id. Session Id is used to maintain sessions of Dialogflow.
+ *      Note that the Session Id is the same as Room Id
+ */
+export const getSessionId = (message: IMessage): string => {
+    return getLivechatRoom(message).id;
 };
