@@ -4,8 +4,9 @@ import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettingId } from '../AppSettings';
-import { getAppSetting, getBotUser, getSessionId } from '../helper';
+import { getAppSetting, getBotUser, getLivechatRoom, getSessionId } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
+import { AppPersistence } from '../lib/persistence';
 
 export class PostMessageSentHandler {
     constructor(private app: IApp,
@@ -40,6 +41,9 @@ export class PostMessageSentHandler {
 
         // forward the recieved message to Visitor
         await this.sendMessageToVisitor(response);
+
+        // save session in persistant storage
+        await this.saveVisitorSession();
     }
 
     private async sendMessageToVisitor(message: string) {
@@ -50,4 +54,20 @@ export class PostMessageSentHandler {
         builder.setRoom(this.message.room).setText(message).setSender(sender);
         await this.modify.getCreator().finish(builder);
     }
+
+    /**
+     *
+     * @description - save visitor.token and session id.
+     *   - This will provide a mapping between visitor.token n session id.
+     *   - This is required for implementing `perform-handover` webhooks since it requires a Visitor object
+     *     which can be obtained from using visitor.token we save here in Persistant storage
+     */
+    private async saveVisitorSession() {
+        const persistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
+
+        const sessionId = getSessionId(this.message);
+        const visitorToken = getLivechatRoom(this.message).visitor.token;
+        await persistence.connectVisitorTokenToSessionId(sessionId, visitorToken);
+    }
+
 }

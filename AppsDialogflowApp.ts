@@ -16,6 +16,7 @@ import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { AppSettings } from './AppSettings';
 import { CloseChat } from './endpoints/CloseChat';
+import { PerformHandover } from './endpoints/PerformHandover';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
@@ -31,6 +32,7 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
             security: ApiSecurity.UNSECURE,
             endpoints: [
                 new CloseChat(this),
+                new PerformHandover(this),
             ],
         });
         this.getLogger().log('Apps.Dialogflow App Initialized');
