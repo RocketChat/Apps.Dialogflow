@@ -4,9 +4,11 @@ import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSettingId } from '../AppSettings';
+import { IParsedDialogflowResponse } from '../definition/IParsedDialogflowResponse';
 import { getAppSetting, getBotUser, getLivechatRoom, getSessionId } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
 import { AppPersistence } from '../lib/persistence';
+import { SynchronousHandover } from '../lib/SynchronousHandover';
 
 export class PostMessageSentHandler {
     constructor(private app: IApp,
@@ -37,13 +39,21 @@ export class PostMessageSentHandler {
         console.log('------- Session Id in Main ---------', sessionId);
 
         const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, sessionId, messageText);
-        const response = await dialogflowSDK.sendMessage();
+        const response: IParsedDialogflowResponse = await dialogflowSDK.sendMessage();
 
         // forward the recieved message to Visitor
-        await this.sendMessageToVisitor(response);
+        await this.sendMessageToVisitor(response.message);
 
         // save session in persistant storage
         await this.saveVisitorSession();
+
+        // synchronous handover check
+        const syncHandover: SynchronousHandover = new SynchronousHandover(this.read, this.persis, this.modify);
+        if (response.isFallback) {
+            await syncHandover.processFallbackIntent(sessionId);
+        } else {
+            await syncHandover.resetFallbackIntentCounter(sessionId);
+        }
     }
 
     private async sendMessageToVisitor(message: string) {

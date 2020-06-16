@@ -1,5 +1,6 @@
 import { IHttp, IHttpRequest, IHttpResponse, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { AppSettingId } from '../../AppSettings';
+import { IParsedDialogflowResponse } from '../../definition/IParsedDialogflowResponse';
 import { getAppSetting } from '../../helper';
 import { DialogflowAuth } from './DialogflowAuth';
 
@@ -10,7 +11,7 @@ export class DialogflowSDK {
                 private sessionId: string,
                 private messageText: string) {}
 
-    public async sendMessage() {
+    public async sendMessage(): Promise<IParsedDialogflowResponse> {
         const dialogflowServerURL = await this.getDialogflowURL(this.sessionId);
 
         const httpRequestContent: IHttpRequest = this.buildDialogflowHTTPRequest(this.messageText);
@@ -22,12 +23,15 @@ export class DialogflowSDK {
         return parsedMessage;
     }
 
-    private parseDialogflowRequest(response: IHttpResponse): string {
+    private parseDialogflowRequest(response: IHttpResponse): IParsedDialogflowResponse {
         if (!response.content) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
         const responseJSON = JSON.parse(response.content);
 
         if (responseJSON.queryResult) {
-            const parsedMessage = responseJSON.queryResult.fulfillmentText;
+            const parsedMessage: IParsedDialogflowResponse = {
+                message: responseJSON.queryResult.fulfillmentText,
+                isFallback: responseJSON.queryResult.intent.isFallback ? responseJSON.queryResult.intent.isFallback : false,
+            };
             return parsedMessage;
         } else {
             // some error occured. Dialogflow's response has a error field containing more info abt error

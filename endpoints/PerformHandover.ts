@@ -53,7 +53,7 @@ export class PerformHandover extends ApiEndpoint {
         const serverSDK: RocketChatSDK = new RocketChatSDK(modify, read);
 
         const visitorToken: string = (await persistence.getConnectedVisitorToken(sessionId)) as string;
-        if (!visitorToken) { throw Error('Error: No Token found for sessionId. Session Id must be invalid'); }
+        if (!visitorToken) { throw new Error('Error: No Token found for sessionId. Session Id must be invalid'); }
 
         const roomId: string = sessionId;       // Session Id from Dialogflow will be the same as Room id
 

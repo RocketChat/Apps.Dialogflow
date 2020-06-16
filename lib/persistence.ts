@@ -17,4 +17,22 @@ export class AppPersistence {
         const [result] = await this.persistenceRead.readByAssociations([sessionAssociation]);
         return result && (result as any).visitorToken ? (result as any).visitorToken : undefined;
     }
+
+    public async updateFallbackCounter(sessionId: string, fallbackCounter: number): Promise<void> {
+        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
+        const fallbackAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'fallback-counter');
+
+        await this.persistence.updateByAssociations([sessionAssociation, fallbackAssociation], {
+            fallbackCounter,
+        }, true);
+    }
+
+    public async getFallbackCount(sessionId: string): Promise<number | undefined> {
+        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
+        const fallbackAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'fallback-counter');
+
+        const [result] = await this.persistenceRead.readByAssociations([sessionAssociation, fallbackAssociation]);
+        return result && (result as any).fallbackCounter ? (result as any).fallbackCounter : undefined;
+    }
+
 }
