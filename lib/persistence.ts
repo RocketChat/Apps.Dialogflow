@@ -6,15 +6,18 @@ export class AppPersistence {
 
     public async connectVisitorTokenToSessionId(sessionId: string, visitorToken: string): Promise<void> {
         const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
-        await this.persistence.updateByAssociations([sessionAssociation], {
+        const visitorTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'visitor-token');
+
+        await this.persistence.updateByAssociations([sessionAssociation, visitorTokenAssociation], {
             visitorToken,
         }, true);
     }
 
     public async getConnectedVisitorToken(sessionId: string): Promise<string | undefined> {
         const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
+        const visitorTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'visitor-token');
 
-        const [result] = await this.persistenceRead.readByAssociations([sessionAssociation]);
+        const [result] = await this.persistenceRead.readByAssociations([sessionAssociation, visitorTokenAssociation]);
         return result && (result as any).visitorToken ? (result as any).visitorToken : undefined;
     }
 }
