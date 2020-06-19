@@ -14,7 +14,7 @@ export class RocketChatSDK {
      */
     public async closeChat(rid: string) {
         const room: IRoom = (await this.read.getRoomReader().getById(rid)) as IRoom;
-        if (!room) { throw Error('Error: Room Id not valid'); }
+        if (!room) { throw new Error('Error: Room Id not valid'); }
 
         const result = await this.modify.getUpdater().getLivechatUpdater().closeRoom(room, '');
         if (!result) { throw new Error('Error: Internal Server Error. Could not close the chat'); }
@@ -24,23 +24,25 @@ export class RocketChatSDK {
      *
      * @param rid (required)
      * @param visitorToken (required)
-     * @param targetDepartmentName (required)
+     * @param targetDepartmentName (optional)
      */
-    public async performHandover(rid: string, visitorToken: string, targetDepartmentName: string) {
+    public async performHandover(rid: string, visitorToken: string, targetDepartmentName?: string) {
         const room: ILivechatRoom = (await this.read.getRoomReader().getById(rid)) as ILivechatRoom;
-        if (!room) { throw Error('Error: Room Id not valid'); }
+        if (!room) { throw new Error('Error: Room Id not valid'); }
 
         const visitor: IVisitor = (await this.read.getLivechatReader().getLivechatVisitorByToken(visitorToken)) as IVisitor;
-        if (!visitor) { throw Error('Error: Visitor Id not valid'); }
+        if (!visitor) { throw new Error('Error: Visitor Id not valid'); }
 
         const livechatTransferData: ILivechatTransferData = {
             currentRoom: room,
         };
 
-        // Fill livechatTransferData.targetDepartment param
-        const targetDepartment: IDepartment = (await this.read.getLivechatReader().getLivechatDepartmentByIdOrName(targetDepartmentName)) as IDepartment;
-        if (!targetDepartment) { throw Error('Error: Department Name is not valid'); }
-        livechatTransferData.targetDepartment = targetDepartment.id;
+        // Fill livechatTransferData.targetDepartment param if required
+        if (targetDepartmentName) {
+            const targetDepartment: IDepartment = (await this.read.getLivechatReader().getLivechatDepartmentByIdOrName(targetDepartmentName)) as IDepartment;
+            if (!targetDepartment) { throw new Error('Error: Department Name is not valid'); }
+            livechatTransferData.targetDepartment = targetDepartment.id;
+        }
 
         const result = await this.modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
             .catch((error) => {
