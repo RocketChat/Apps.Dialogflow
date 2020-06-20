@@ -9,7 +9,7 @@ import { RocketChatSDK } from '../lib/RocketChatSDK';
  *
  * Input:
  *      1. Session Id from Dialogflow (required)
- *      2. Name of the Target Department (required)
+ *      2. Name of the Target Department (optional)
  *
  * Input Format Type: JSON
  *
@@ -35,8 +35,7 @@ export class PerformHandover extends ApiEndpoint {
 
         const sessionId = request.content.sessionId;
         if (!sessionId) { return this.sendResponse(HttpStatusCode.BAD_REQUEST, 'Error: Session Id not present in request'); }
-        const targetDepartmentName: string = request.content.targetDepartmentName;
-        if (!targetDepartmentName) { return this.sendResponse(HttpStatusCode.BAD_REQUEST, 'Error: Target Department not present in request'); }
+        const targetDepartmentName: string | undefined = request.content.targetDepartmentName;
 
         try {
             await this.processHandoverRequest(read, modify, persis, sessionId, targetDepartmentName);
@@ -48,7 +47,7 @@ export class PerformHandover extends ApiEndpoint {
         }
     }
 
-    private async processHandoverRequest(read: IRead, modify: IModify, persis: IPersistence, sessionId: string, targetDepartmentName: string) {
+    private async processHandoverRequest(read: IRead, modify: IModify, persis: IPersistence, sessionId: string, targetDepartmentName?: string) {
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const serverSDK: RocketChatSDK = new RocketChatSDK(modify, read);
 
