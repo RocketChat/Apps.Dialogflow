@@ -59,6 +59,6 @@ export const AppSettings: Array<ISetting> = [
         packageValue: '',
         i18nLabel: 'Target Department for Handover',
         i18nDescription: 'Upon bot-to-liveagent handover, the visitor will be transferred to this Department',
-        required: true,
+        required: false,
     },
 ];

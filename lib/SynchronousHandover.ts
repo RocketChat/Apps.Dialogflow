@@ -24,8 +24,7 @@ export class SynchronousHandover {
             const visitorToken: string = (await this.persistence.getConnectedVisitorToken(sessionId)) as string;
             if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
 
-            const targetDepartmentName: string = await getAppSetting(this.read, AppSettingId.FallbackTargetDepartment);
-            if (!targetDepartmentName) { throw new Error('Error! Target Department app Setting not found.'); }
+            const targetDepartmentName: string | undefined = await getAppSetting(this.read, AppSettingId.FallbackTargetDepartment);
 
             const roomId: string = sessionId;       // Session Id from Dialogflow will be the same as Room id
 
