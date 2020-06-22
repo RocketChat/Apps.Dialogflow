@@ -63,8 +63,8 @@ The app provides api's to trigger specific actions. The URL for the API can be f
 
 1. **Close Chat**<br/>
     To close a chat
-    - REST API Documentation for this endpoint can be found [here](https://github.com/RocketChat/Apps.Dialogflow/docs/api-endpoints/close-chat.md)
+    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/close-chat.md)
 2. **Perform-Handover**<br/>
     To perform a handover
-    - REST API Documentation for this endpoint can be found [here](https://github.com/RocketChat/Apps.Dialogflow/docs/api-endpoints/perform-handover.md)
+    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
 
