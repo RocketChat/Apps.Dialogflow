@@ -19,7 +19,7 @@ import { AppSettings } from './AppSettings';
 import { CloseChat } from './endpoints/CloseChat';
 import { PerformHandover } from './endpoints/PerformHandover';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
-import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssigned';
+import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssignedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
