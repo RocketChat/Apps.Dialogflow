@@ -1,18 +1,20 @@
 import { IHttp, IHttpRequest } from '@rocket.chat/apps-engine/definition/accessors';
 import { createSign } from 'crypto';
+import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
 import { base64urlEncode } from '../../helper';
 
 export class DialogflowAuth {
 
     private clientEmail: string;
     private privateKey: string;
+    private jwtExpiration: Date;
 
     constructor(clientEmail: string, privateKey: string) {
         this.clientEmail = clientEmail;
         this.privateKey = privateKey.trim().replace(/\\n/gm, '\n');
     }
 
-    public async getAccessToken(http: IHttp) {
+    public async getAccessToken(http: IHttp): Promise<IDialogflowAccessToken> {
 
         const authUrl = 'https://oauth2.googleapis.com/token';
 
@@ -31,7 +33,11 @@ export class DialogflowAuth {
             const responseJSON = JSON.parse((response.content || '{}'));
 
             if (responseJSON.access_token) {
-                const accessToken = responseJSON.access_token;
+                const token = responseJSON.access_token;
+                const accessToken: IDialogflowAccessToken = {
+                    token,
+                    expiration: this.jwtExpiration,
+                };
                 return accessToken;
             } else {
                 if (responseJSON.error) {
@@ -47,6 +53,10 @@ export class DialogflowAuth {
         } catch (error) {
             throw Error(error);
         }
+    }
+
+    public getAccessTokenExpiration(): Date {
+        return this.jwtExpiration;
     }
 
     private getJWT() {
@@ -74,6 +84,9 @@ export class DialogflowAuth {
         let currentUnixTime = Date.now();
         const hourInc = 1000 * 60 * 30; // an hour
         let oneHourInFuture = currentUnixTime + hourInc;
+        // record the expiration date-time
+        this.jwtExpiration = new Date(oneHourInFuture);
+
         // convert milliseconds to seconds
         currentUnixTime = Math.round(currentUnixTime / 1000);
         oneHourInFuture = Math.round(oneHourInFuture / 1000);

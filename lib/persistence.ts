@@ -1,5 +1,6 @@
 import { IPersistence, IPersistenceRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
+import { IDialogflowAccessToken } from '../definition/IDialogflowAccessToken';
 
 export class AppPersistence {
     constructor(private readonly persistence: IPersistence, private readonly persistenceRead: IPersistenceRead) {}
@@ -36,6 +37,22 @@ export class AppPersistence {
 
         const [result] = await this.persistenceRead.readByAssociations([sessionAssociation, fallbackAssociation]);
         return result && (result as any).fallbackCounter ? (result as any).fallbackCounter : undefined;
+    }
+
+    public async connectAccessTokenToSessionId(sessionId: string, accessToken: IDialogflowAccessToken) {
+        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
+        const accessTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'access-token');
+        await this.persistence.updateByAssociations([sessionAssociation, accessTokenAssociation], {
+            ...accessToken,
+        }, true);
+    }
+
+    public async getConnectedAccessToken(sessionId: string) {
+        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
+        const accessTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'access-token');
+
+        const [result] = await this.persistenceRead.readByAssociations([sessionAssociation, accessTokenAssociation]);
+        return result && (result as IDialogflowAccessToken) ? result as IDialogflowAccessToken : undefined;
     }
 
 }

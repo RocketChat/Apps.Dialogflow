@@ -38,7 +38,7 @@ export class PostMessageSentHandler {
         const sessionId: string = getSessionId(this.message);
         console.log('------- Session Id in Main ---------', sessionId);
 
-        const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, sessionId, messageText);
+        const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, this.persis, sessionId, messageText);
         const response: IParsedDialogflowResponse = await dialogflowSDK.sendMessage();
 
         // forward the recieved message to Visitor

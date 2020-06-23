@@ -1,13 +1,16 @@
-import { IHttp, IHttpRequest, IHttpResponse, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IHttpRequest, IHttpResponse, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { AppSettingId } from '../../AppSettings';
+import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
 import { IParsedDialogflowResponse } from '../../definition/IParsedDialogflowResponse';
 import { getAppSetting } from '../../helper';
+import { AppPersistence } from '../persistence';
 import { DialogflowAuth } from './DialogflowAuth';
 
 export class DialogflowSDK {
 
     constructor(private http: IHttp,
                 private read: IRead,
+                private persis: IPersistence,
                 private sessionId: string,
                 private messageText: string) {}
 
@@ -54,13 +57,30 @@ export class DialogflowSDK {
     }
 
     private async getAccessToken() {
+        const persistance: AppPersistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
+
         const clientEmail = await getAppSetting(this.read, AppSettingId.DialogflowClientEmail);
+        if (!clientEmail) { throw new Error('Error! Client email not provided in setting'); }
+
+        // check is there is a valid access token
+        const oldAccessToken: IDialogflowAccessToken = (await persistance.getConnectedAccessToken(this.sessionId)) as IDialogflowAccessToken;
+        if (oldAccessToken) {
+            // check expiration
+            if (!this.hasExpired(oldAccessToken.expiration)) {
+                return oldAccessToken.token;
+            }
+        }
+
         const privateKey = await getAppSetting(this.read, AppSettingId.DialogFlowPrivateKey);
-        const dialogflowAuthHellper: DialogflowAuth = new DialogflowAuth(clientEmail, privateKey);
+        if (!privateKey) { throw new Error('Error! Private Key not provided in setting'); }
+        const dialogflowAuthHelper: DialogflowAuth = new DialogflowAuth(clientEmail, privateKey);
         try {
             // get the access token
-            const accessToken =  await dialogflowAuthHellper.getAccessToken(this.http);
-            return accessToken;
+            const accessToken: IDialogflowAccessToken =  await dialogflowAuthHelper.getAccessToken(this.http);
+            // save this token to persistant storage
+            await persistance.connectAccessTokenToSessionId(this.sessionId, accessToken);
+
+            return accessToken.token;
         } catch (error) {
             throw Error('Error getting Access Token' + error);
         }
@@ -81,6 +101,11 @@ export class DialogflowSDK {
                 },
             },
         };
+    }
+
+    private hasExpired(expiration: Date): boolean {
+        if (!expiration) { return true; }
+        return Date.now() >= expiration.getTime();
     }
 
 }
