@@ -11,6 +11,7 @@ import {
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
+import { IPostLivechatAgentAssigned, ILivechatEventContext } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
@@ -19,8 +20,9 @@ import { CloseChat } from './endpoints/CloseChat';
 import { PerformHandover } from './endpoints/PerformHandover';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
+import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssigned';
 
-export class AppsDialogflowApp extends App implements IPostMessageSent {
+export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -58,5 +60,10 @@ export class AppsDialogflowApp extends App implements IPostMessageSent {
     public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
         const onSettingUpdatedHandler: OnSettingUpdatedHandler = new OnSettingUpdatedHandler(this, read, http);
         await onSettingUpdatedHandler.run();
+    }
+
+    public async executePostLivechatAgentAssigned(context: ILivechatEventContext, read: IRead, http: IHttp, persistence: IPersistence): Promise<void> {
+        const postLivechatAgentAssignedHandler = new PostLivechatAgentAssignedHandler(context, read, http, persistence);
+        await postLivechatAgentAssignedHandler.run();
     }
 }

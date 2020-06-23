@@ -44,9 +44,6 @@ export class PostMessageSentHandler {
         // forward the recieved message to Visitor
         await this.sendMessageToVisitor(response.message);
 
-        // save session in persistant storage
-        await this.saveVisitorSession();
-
         // synchronous handover check
         const syncHandover: SynchronousHandover = new SynchronousHandover(this.read, this.persis, this.modify);
         if (response.isFallback) {
@@ -63,21 +60,6 @@ export class PostMessageSentHandler {
         const builder = this.modify.getNotifier().getMessageBuilder();
         builder.setRoom(this.message.room).setText(message).setSender(sender);
         await this.modify.getCreator().finish(builder);
-    }
-
-    /**
-     *
-     * @description - save visitor.token and session id.
-     *   - This will provide a mapping between visitor.token n session id.
-     *   - This is required for implementing `perform-handover` webhooks since it requires a Visitor object
-     *     which can be obtained from using visitor.token we save here in Persistant storage
-     */
-    private async saveVisitorSession() {
-        const persistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
-
-        const sessionId = getSessionId(this.message);
-        const visitorToken = getLivechatRoom(this.message).visitor.token;
-        await persistence.connectVisitorTokenToSessionId(sessionId, visitorToken);
     }
 
 }
