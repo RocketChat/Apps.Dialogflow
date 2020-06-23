@@ -11,7 +11,7 @@ import {
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
-import { IPostLivechatAgentAssigned, ILivechatEventContext } from '@rocket.chat/apps-engine/definition/livechat';
+import { ILivechatEventContext, IPostLivechatAgentAssigned } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
@@ -19,8 +19,8 @@ import { AppSettings } from './AppSettings';
 import { CloseChat } from './endpoints/CloseChat';
 import { PerformHandover } from './endpoints/PerformHandover';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
-import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssigned';
+import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
 export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
@@ -28,7 +28,7 @@ export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLiv
     }
 
     public async initialize(configurationExtend: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
-        await this.extendConfiguration(configurationExtend);
+        AppSettings.forEach((setting) => configurationExtend.settings.provideSetting(setting));
         configurationExtend.api.provideApi({
             visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
@@ -38,10 +38,6 @@ export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLiv
             ],
         });
         this.getLogger().log('Apps.Dialogflow App Initialized');
-    }
-
-    public async extendConfiguration(configuration: IConfigurationExtend): Promise<void> {
-        AppSettings.forEach((setting) => configuration.settings.provideSetting(setting));
     }
 
     public async executePostMessageSent(message: IMessage,
