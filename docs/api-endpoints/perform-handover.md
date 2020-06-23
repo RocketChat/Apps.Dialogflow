@@ -5,7 +5,7 @@
 * **URL**
 
     REST API URL can be found on Apps Page <br />
-    Sample Url for eg: <br /> `http://localhost:3000//api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-handover`
+    Sample Url for eg: <br /> `http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-handover`
 
 * **Method:**
 
