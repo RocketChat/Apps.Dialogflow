@@ -1,0 +1,10 @@
+{
+    "bot_username": "Bot Username",
+    "dialogflow_project_id": "Dialogflow Project Id",
+    "dialogflow_client_email": "Dialogflow Client Email",
+    "dialogflow_private_key": "Dialogflow Private Key",
+    "fallback_threshold_limit_for_handover": "Fallback threshold limit for handover",
+    "fallback_threshold_limit_for_handover_description": "The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`",
+    "target_department_for_handover": "Target Department for Handover",
+    "target_department_for_handover_description": "Upon bot-to-liveagent handover, the visitor will be transferred to this Department"
+}

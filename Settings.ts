@@ -15,7 +15,7 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Bot Username',
+        i18nLabel: 'bot_username',
         required: true,
     },
     {
@@ -23,7 +23,7 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Dialogflow Project Id',
+        i18nLabel: 'dialogflow_project_id',
         required: true,
     },
     {
@@ -31,7 +31,7 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Dialogflow Client Email',
+        i18nLabel: 'dialogflow_client_email',
         required: true,
     },
     {
@@ -39,7 +39,7 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Dialogflow Private Key',
+        i18nLabel: 'dialogflow_private_key',
         required: true,
     },
     {
@@ -48,8 +48,8 @@ export const settings: Array<ISetting> = [
         type: SettingType.NUMBER,
         packageValue: 3,
         value: 3,
-        i18nLabel: 'Fallback threshold for handover',
-        i18nDescription: 'The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`',
+        i18nLabel: 'fallback_threshold_limit_for_handover',
+        i18nDescription: 'fallback_threshold_limit_for_handover_description',
         required: true,
     },
     {
@@ -57,8 +57,8 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'Target Department for Handover',
-        i18nDescription: 'Upon bot-to-liveagent handover, the visitor will be transferred to this Department',
+        i18nLabel: 'target_department_for_handover',
+        i18nDescription: 'target_department_for_handover_description',
         required: false,
     },
 ];
