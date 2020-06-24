@@ -1,6 +1,6 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { getAppSetting } from '../helper';
-import { AppSetting } from '../Settings';
+import { AppSetting } from '../config/Settings';
+import { getAppSetting } from './helper';
 import { AppPersistence } from './persistence';
 import { RocketChatSDK } from './RocketChatSDK';
 

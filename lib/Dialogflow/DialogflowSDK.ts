@@ -1,8 +1,8 @@
 import { IHttp, IHttpRequest, IHttpResponse, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { AppSetting } from '../../config/Settings';
 import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
 import { IDialogflowResponse } from '../../definition/IDialogflowResponse';
-import { getAppSetting } from '../../helper';
-import { AppSetting } from '../../Settings';
+import { getAppSetting } from '../helper';
 import { AppPersistence } from '../persistence';
 import { DialogflowAuth } from './DialogflowAuth';
 

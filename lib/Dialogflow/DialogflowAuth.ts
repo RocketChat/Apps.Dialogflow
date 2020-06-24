@@ -1,7 +1,7 @@
 import { IHttp, IHttpRequest } from '@rocket.chat/apps-engine/definition/accessors';
 import { createSign } from 'crypto';
 import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
-import { base64urlEncode } from '../../helper';
+import { base64urlEncode } from '../helper';
 
 export class DialogflowAuth {
 

@@ -1,8 +1,8 @@
 import { IHttp, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
-import { getAppSetting } from '../helper';
+import { AppSetting } from '../config/Settings';
 import { DialogflowAuth } from '../lib/Dialogflow/DialogflowAuth';
-import { AppSetting } from '../Settings';
+import { getAppSetting } from '../lib/helper';
 
 export class OnSettingUpdatedHandler {
     constructor(private app: IApp, private read: IRead, private http: IHttp) {}

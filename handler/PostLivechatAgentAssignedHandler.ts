@@ -1,9 +1,9 @@
 import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 
 import { IHttp, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { getAppSetting } from '../helper';
+import { AppSetting } from '../config/Settings';
+import { getAppSetting } from '../lib/helper';
 import { AppPersistence } from '../lib/persistence';
-import { AppSetting } from '../Settings';
 
 export class PostLivechatAgentAssignedHandler {
     constructor(private context: ILivechatEventContext,

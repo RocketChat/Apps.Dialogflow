@@ -15,12 +15,12 @@ import { ILivechatEventContext, IPostLivechatAgentAssigned } from '@rocket.chat/
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
+import { settings } from './config/Settings';
 import { CloseChat } from './endpoints/CloseChat';
 import { PerformHandover } from './endpoints/PerformHandover';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssignedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
-import { settings } from './Settings';
 
 export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {

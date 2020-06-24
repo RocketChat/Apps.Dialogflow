@@ -3,11 +3,11 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { AppSetting } from '../config/Settings';
 import { IDialogflowResponse } from '../definition/IDialogflowResponse';
-import { getAppSetting, getBotUser, getSessionId } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
+import { getAppSetting, getBotUser, getSessionId } from '../lib/helper';
 import { SynchronousHandover } from '../lib/SynchronousHandover';
-import { AppSetting } from '../Settings';
 
 export class PostMessageSentHandler {
     constructor(private app: IApp,
