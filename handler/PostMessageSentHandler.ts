@@ -22,10 +22,12 @@ export class PostMessageSentHandler {
         if (this.message.sender.username === SettingBotUsername) {
             // this msg was sent by the Bot itself, so no need to respond back
             return;
-        } else if (this.message.room.type !== RoomType.LIVE_CHAT) {
+        }
+        if (this.message.room.type !== RoomType.LIVE_CHAT) {
             // check whether this is a Livechat message
             return;
-        } else if (SettingBotUsername !== getBotUser(this.message).username) {
+        }
+        if (SettingBotUsername !== getBotUser(this.message).username) {
             // check whether the bot is currently handling the Visitor, if not then return back
             return;
         }
