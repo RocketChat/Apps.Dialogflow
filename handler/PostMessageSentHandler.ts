@@ -3,8 +3,8 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { IParsedDialogflowResponse } from '../definition/IParsedDialogflowResponse';
-import { getAppSetting, getBotUser, getLivechatRoom, getSessionId } from '../helper';
+import { IDialogflowResponse } from '../definition/IDialogflowResponse';
+import { getAppSetting, getBotUser, getSessionId } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
 import { SynchronousHandover } from '../lib/SynchronousHandover';
 import { AppSetting } from '../Settings';
@@ -37,7 +37,7 @@ export class PostMessageSentHandler {
         const sessionId: string = getSessionId(this.message);
 
         const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, this.persis, sessionId, messageText);
-        const response: IParsedDialogflowResponse = await dialogflowSDK.sendMessage();
+        const response: IDialogflowResponse = await dialogflowSDK.sendMessage();
 
         // forward the recieved message to Visitor
         await this.sendMessageToVisitor(response.message);

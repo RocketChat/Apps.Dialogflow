@@ -1,6 +1,6 @@
 import { IHttp, IHttpRequest, IHttpResponse, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
-import { IParsedDialogflowResponse } from '../../definition/IParsedDialogflowResponse';
+import { IDialogflowResponse } from '../../definition/IDialogflowResponse';
 import { getAppSetting } from '../../helper';
 import { AppSetting } from '../../Settings';
 import { AppPersistence } from '../persistence';
@@ -14,7 +14,7 @@ export class DialogflowSDK {
                 private sessionId: string,
                 private messageText: string) {}
 
-    public async sendMessage(): Promise<IParsedDialogflowResponse> {
+    public async sendMessage(): Promise<IDialogflowResponse> {
         const dialogflowServerURL = await this.getDialogflowURL(this.sessionId);
 
         const httpRequestContent: IHttpRequest = this.buildDialogflowHTTPRequest(this.messageText);
@@ -26,12 +26,12 @@ export class DialogflowSDK {
         return parsedMessage;
     }
 
-    private parseDialogflowRequest(response: IHttpResponse): IParsedDialogflowResponse {
+    private parseDialogflowRequest(response: IHttpResponse): IDialogflowResponse {
         if (!response.content) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
         const responseJSON = JSON.parse(response.content);
 
         if (responseJSON.queryResult) {
-            const parsedMessage: IParsedDialogflowResponse = {
+            const parsedMessage: IDialogflowResponse = {
                 message: responseJSON.queryResult.fulfillmentText,
                 isFallback: responseJSON.queryResult.intent.isFallback ? responseJSON.queryResult.intent.isFallback : false,
             };
