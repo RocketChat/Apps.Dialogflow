@@ -1,15 +1,15 @@
-import { ISetting, SettingType} from '@rocket.chat/apps-engine/definition/settings';
+import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/settings';
 
-export enum AppSettingId {
+export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
     DialogflowProjectId = 'dialogflow_project_id',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
-    FallbackThreshold = 'fallback_threshold',
+    FallbackThreshold = 'fallback_responses_limit',
     FallbackTargetDepartment = 'fallback_target_department',
 }
 
-export const AppSettings: Array<ISetting> = [
+export const settings: Array<ISetting> = [
     {
         id: AppSettingId.DialogflowBotUsername,
         public: true,
