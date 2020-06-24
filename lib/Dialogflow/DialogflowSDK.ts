@@ -1,8 +1,8 @@
 import { IHttp, IHttpRequest, IHttpResponse, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { AppSettingId } from '../../AppSettings';
 import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
 import { IParsedDialogflowResponse } from '../../definition/IParsedDialogflowResponse';
 import { getAppSetting } from '../../helper';
+import { AppSetting } from '../../Settings';
 import { AppPersistence } from '../persistence';
 import { DialogflowAuth } from './DialogflowAuth';
 
@@ -47,7 +47,7 @@ export class DialogflowSDK {
     }
 
     private async getDialogflowURL(sessionId: string) {
-        const projectId = await getAppSetting(this.read, AppSettingId.DialogflowProjectId);
+        const projectId = await getAppSetting(this.read, AppSetting.DialogflowProjectId);
 
         const accessToken = await this.getAccessToken();
         if (!accessToken) { throw Error('Error getting Access Token. Access token is undefined'); }
@@ -59,7 +59,7 @@ export class DialogflowSDK {
     private async getAccessToken() {
         const persistance: AppPersistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
 
-        const clientEmail = await getAppSetting(this.read, AppSettingId.DialogflowClientEmail);
+        const clientEmail = await getAppSetting(this.read, AppSetting.DialogflowClientEmail);
         if (!clientEmail) { throw new Error('Error! Client email not provided in setting'); }
 
         // check is there is a valid access token
@@ -71,7 +71,7 @@ export class DialogflowSDK {
             }
         }
 
-        const privateKey = await getAppSetting(this.read, AppSettingId.DialogFlowPrivateKey);
+        const privateKey = await getAppSetting(this.read, AppSetting.DialogFlowPrivateKey);
         if (!privateKey) { throw new Error('Error! Private Key not provided in setting'); }
         const dialogflowAuthHelper: DialogflowAuth = new DialogflowAuth(clientEmail, privateKey);
         try {

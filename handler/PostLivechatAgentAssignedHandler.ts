@@ -1,9 +1,9 @@
 import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 
 import { IHttp, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { AppSettingId } from '../AppSettings';
 import { getAppSetting } from '../helper';
 import { AppPersistence } from '../lib/persistence';
+import { AppSetting } from '../Settings';
 
 export class PostLivechatAgentAssignedHandler {
     constructor(private context: ILivechatEventContext,
@@ -12,7 +12,7 @@ export class PostLivechatAgentAssignedHandler {
                 private persis: IPersistence) {}
 
     public async run() {
-        const SettingBotUsername: string = await getAppSetting(this.read, AppSettingId.DialogflowBotUsername);
+        const SettingBotUsername: string = await getAppSetting(this.read, AppSetting.DialogflowBotUsername);
         if (SettingBotUsername !== this.context.agent.username) { return; }
         await this.saveVisitorSession();
     }

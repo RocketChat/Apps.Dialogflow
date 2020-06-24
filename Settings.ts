@@ -11,7 +11,7 @@ export enum AppSetting {
 
 export const settings: Array<ISetting> = [
     {
-        id: AppSettingId.DialogflowBotUsername,
+        id: AppSetting.DialogflowBotUsername,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -19,7 +19,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSettingId.DialogflowProjectId,
+        id: AppSetting.DialogflowProjectId,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -27,7 +27,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSettingId.DialogflowClientEmail,
+        id: AppSetting.DialogflowClientEmail,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -35,7 +35,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSettingId.DialogFlowPrivateKey,
+        id: AppSetting.DialogFlowPrivateKey,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -43,7 +43,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSettingId.FallbackThreshold,
+        id: AppSetting.FallbackThreshold,
         public: true,
         type: SettingType.NUMBER,
         packageValue: 3,
@@ -53,7 +53,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSettingId.FallbackTargetDepartment,
+        id: AppSetting.FallbackTargetDepartment,
         public: true,
         type: SettingType.STRING,
         packageValue: '',

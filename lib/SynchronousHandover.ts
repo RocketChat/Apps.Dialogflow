@@ -1,6 +1,6 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { AppSettingId } from '../AppSettings';
 import { getAppSetting } from '../helper';
+import { AppSetting } from '../Settings';
 import { AppPersistence } from './persistence';
 import { RocketChatSDK } from './RocketChatSDK';
 
@@ -12,7 +12,7 @@ export class SynchronousHandover {
 
     public async processFallbackIntent(sessionId: string) {
 
-        const fallbackThreshold = (await getAppSetting(this.read, AppSettingId.FallbackThreshold)) as number;
+        const fallbackThreshold = (await getAppSetting(this.read, AppSetting.FallbackThreshold)) as number;
 
         const oldFallbackCount = await this.persistence.getFallbackCount(sessionId);
         const newFallbackCount: number = oldFallbackCount ? oldFallbackCount + 1 : 1;
@@ -24,7 +24,7 @@ export class SynchronousHandover {
             const visitorToken: string = (await this.persistence.getConnectedVisitorToken(sessionId)) as string;
             if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
 
-            const targetDepartmentName: string | undefined = await getAppSetting(this.read, AppSettingId.FallbackTargetDepartment);
+            const targetDepartmentName: string | undefined = await getAppSetting(this.read, AppSetting.FallbackTargetDepartment);
 
             const roomId: string = sessionId;       // Session Id from Dialogflow will be the same as Room id
 

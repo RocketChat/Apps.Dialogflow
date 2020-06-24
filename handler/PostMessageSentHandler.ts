@@ -3,12 +3,11 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { AppSettingId } from '../AppSettings';
 import { IParsedDialogflowResponse } from '../definition/IParsedDialogflowResponse';
 import { getAppSetting, getBotUser, getLivechatRoom, getSessionId } from '../helper';
 import { DialogflowSDK } from '../lib/Dialogflow/DialogflowSDK';
-import { AppPersistence } from '../lib/persistence';
 import { SynchronousHandover } from '../lib/SynchronousHandover';
+import { AppSetting } from '../Settings';
 
 export class PostMessageSentHandler {
     constructor(private app: IApp,
@@ -19,7 +18,7 @@ export class PostMessageSentHandler {
                 private modify: IModify) {}
 
     public async run() {
-        const SettingBotUsername: string = await getAppSetting(this.read, AppSettingId.DialogflowBotUsername);
+        const SettingBotUsername: string = await getAppSetting(this.read, AppSetting.DialogflowBotUsername);
         if (this.message.sender.username === SettingBotUsername) {
             // this msg was sent by the Bot itself, so no need to respond back
             return;
@@ -36,7 +35,6 @@ export class PostMessageSentHandler {
         const messageText: string = this.message.text;
 
         const sessionId: string = getSessionId(this.message);
-        console.log('------- Session Id in Main ---------', sessionId);
 
         const dialogflowSDK: DialogflowSDK  = new DialogflowSDK(this.http, this.read, this.persis, sessionId, messageText);
         const response: IParsedDialogflowResponse = await dialogflowSDK.sendMessage();
