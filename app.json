@@ -10,6 +10,6 @@
     },
     "name": "Apps.Dialogflow",
     "nameSlug": "appsdialogflow",
-    "classFile": "AppsDialogflowApp.ts",
+    "classFile": "DialogflowApp.ts",
     "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform"
 }

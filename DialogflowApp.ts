@@ -22,7 +22,7 @@ import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAss
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 import { settings } from './Settings';
 
-export class AppsDialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
+export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
