@@ -1,6 +1,6 @@
 export interface IDialogflowMessage {
-    messages: Array<string>;
-    quickReplies: Array<IDialogflowQuickReply>;
+    message: string;
+    quickReplies?: Array<IDialogflowQuickReply>;
     isFallback: boolean;
 }
 
@@ -12,4 +12,9 @@ export interface IDialogflowQuickReply {
 
 export declare enum QuickReplyContentType {
     TEXT = 'text',
+}
+
+export interface IDialogflowAccessToken {
+    token: string;
+    expiration: Date;
 }

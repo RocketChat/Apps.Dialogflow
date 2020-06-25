@@ -1,6 +1,6 @@
 import { IHttp, IHttpRequest } from '@rocket.chat/apps-engine/definition/accessors';
 import { createSign } from 'crypto';
-import { IDialogflowAccessToken } from '../../definition/IDialogflowAccessToken';
+import { IDialogflowAccessToken } from '../../enum/Dialogflow';
 import { base64urlEncode } from '../helper';
 
 export class DialogflowAuth {
@@ -53,10 +53,6 @@ export class DialogflowAuth {
         } catch (error) {
             throw Error(error);
         }
-    }
-
-    public getAccessTokenExpiration(): Date {
-        return this.jwtExpiration;
     }
 
     private getJWT() {

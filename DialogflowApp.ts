@@ -11,13 +11,12 @@ import {
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
-import { ILivechatEventContext, IPostLivechatAgentAssigned } from '@rocket.chat/apps-engine/definition/livechat';
-import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
+import { ILivechatEventContext, ILivechatMessage, IPostLivechatAgentAssigned } from '@rocket.chat/apps-engine/definition/livechat';
+import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { settings } from './config/Settings';
-import { CloseChat } from './endpoints/CloseChat';
-import { PerformHandover } from './endpoints/PerformHandover';
+import { Endpoint } from './endpoints/Endpoint';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssignedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
@@ -33,19 +32,18 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
             visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
             endpoints: [
-                new CloseChat(this),
-                new PerformHandover(this),
+                new Endpoint(this),
             ],
         });
         this.getLogger().log('Apps.Dialogflow App Initialized');
     }
 
-    public async executePostMessageSent(message: IMessage,
+    public async executePostMessageSent(message: ILivechatMessage,
                                         read: IRead,
                                         http: IHttp,
                                         persis: IPersistence,
                                         modify: IModify): Promise<void> {
-        const handler = new PostMessageSentHandler(this, message, read, http, persis, modify);
+        const handler = new PostMessageSentHandler(message, read, http, persis, modify);
         try {
             await handler.run();
         } catch (error) {

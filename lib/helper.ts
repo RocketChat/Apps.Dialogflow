@@ -40,10 +40,6 @@ export const base64EncodeData = (data: string, len: number, b64x: string, b64pad
     return dst;
 };
 
-export const getAppSetting = async (read: IRead, id: string): Promise<any> => {
-    return (await read.getEnvironmentReader().getSettings().getById(id)).value;
-};
-
 export const getBotUser = (message: IMessage): IUser => {
     const lroom: ILivechatRoom = getLivechatRoom(message);
     if (!lroom.servedBy) { throw Error('Error!! Room.servedBy field is undefined'); }

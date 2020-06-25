@@ -1,43 +1,38 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { AppSetting } from '../config/Settings';
-import { getAppSetting } from './helper';
-import { AppPersistence } from './persistence';
-import { RocketChatSDK } from './RocketChatSDK';
+import { Persistence } from './persistence';
+import { RocketChat } from './RocketChat';
+import { getAppSettingValue } from './Settings';
 
-export class SynchronousHandover {
-    private persistence: AppPersistence;
-    constructor(private read: IRead, private persis: IPersistence, private modify: IModify) {
-        this.persistence = new AppPersistence(this.persis, this.read.getPersistenceReader());
-    }
+class SynchronousHandoverClass {
+    public async processFallbackIntent(read: IRead, persis: IPersistence, modify: IModify, sessionId: string) {
+        const fallbackThreshold = (await getAppSettingValue(read, AppSetting.FallbackThreshold)) as number;
 
-    public async processFallbackIntent(sessionId: string) {
-
-        const fallbackThreshold = (await getAppSetting(this.read, AppSetting.FallbackThreshold)) as number;
-
-        const oldFallbackCount = await this.persistence.getFallbackCount(sessionId);
+        const oldFallbackCount = await Persistence.getFallbackCount(read.getPersistenceReader(), sessionId);
         const newFallbackCount: number = oldFallbackCount ? oldFallbackCount + 1 : 1;
 
-        this.persistence.updateFallbackCounter(sessionId, newFallbackCount);
+        Persistence.updateFallbackCounter(persis, sessionId, newFallbackCount);
 
         if (newFallbackCount === fallbackThreshold) {
             // perform handover
-            const visitorToken: string = (await this.persistence.getConnectedVisitorToken(sessionId)) as string;
+            const visitorToken: string = (await Persistence.getConnectedVisitorToken(read.getPersistenceReader(), sessionId)) as string;
             if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
 
-            const targetDepartmentName: string | undefined = await getAppSetting(this.read, AppSetting.FallbackTargetDepartment);
+            const targetDepartmentName: string | undefined = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
 
             const roomId: string = sessionId;       // Session Id from Dialogflow will be the same as Room id
 
-            const serverSDK: RocketChatSDK = new RocketChatSDK(this.modify, this.read);
-            await serverSDK.performHandover(roomId, visitorToken, targetDepartmentName);
+            await RocketChat.performHandover(modify, read, roomId, visitorToken, targetDepartmentName);
         }
     }
 
-    public async resetFallbackIntentCounter(sessionId: string) {
-        const fallbackCount = await this.persistence.getFallbackCount(sessionId);
+    public async resetFallbackIntentCounter(read: IRead, persis: IPersistence, sessionId: string) {
+        const fallbackCount = await Persistence.getFallbackCount(read.getPersistenceReader(), sessionId);
         if (fallbackCount) {
             // if fallback count is present, then set it to 0
-            this.persistence.updateFallbackCounter(sessionId, 0);
+            Persistence.updateFallbackCounter(persis, sessionId, 0);
         }
     }
 }
+
+export const SynchronousHandover = new SynchronousHandoverClass();

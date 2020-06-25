@@ -2,35 +2,36 @@ import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
-// A helper class to interact with RocketChat's REST API
-export class RocketChatSDK {
-
-    constructor(private modify: IModify, private read: IRead) { }
-
+// A helper class to perform RocketChat operations
+class RocketChatSDK {
     /**
      *
+     * @param modify {IModify}
+     * @param read {IRead}
      * @param rid {string}
      *
      */
-    public async closeChat(rid: string) {
-        const room: IRoom = (await this.read.getRoomReader().getById(rid)) as IRoom;
+    public async closeChat(modify: IModify, read: IRead, rid: string) {
+        const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
         if (!room) { throw new Error('Error: Room Id not valid'); }
 
-        const result = await this.modify.getUpdater().getLivechatUpdater().closeRoom(room, '');
+        const result = await modify.getUpdater().getLivechatUpdater().closeRoom(room, '');
         if (!result) { throw new Error('Error: Internal Server Error. Could not close the chat'); }
     }
 
     /**
      *
+     * @param modify {IModify}
+     * @param read {IRead}
      * @param rid (required)
      * @param visitorToken (required)
      * @param targetDepartmentName (optional)
      */
-    public async performHandover(rid: string, visitorToken: string, targetDepartmentName?: string) {
-        const room: ILivechatRoom = (await this.read.getRoomReader().getById(rid)) as ILivechatRoom;
+    public async performHandover(modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) {
+        const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
         if (!room) { throw new Error('Error: Room Id not valid'); }
 
-        const visitor: IVisitor = (await this.read.getLivechatReader().getLivechatVisitorByToken(visitorToken)) as IVisitor;
+        const visitor: IVisitor = (await read.getLivechatReader().getLivechatVisitorByToken(visitorToken)) as IVisitor;
         if (!visitor) { throw new Error('Error: Visitor Id not valid'); }
 
         const livechatTransferData: ILivechatTransferData = {
@@ -39,15 +40,17 @@ export class RocketChatSDK {
 
         // Fill livechatTransferData.targetDepartment param if required
         if (targetDepartmentName) {
-            const targetDepartment: IDepartment = (await this.read.getLivechatReader().getLivechatDepartmentByIdOrName(targetDepartmentName)) as IDepartment;
+            const targetDepartment: IDepartment = (await read.getLivechatReader().getLivechatDepartmentByIdOrName(targetDepartmentName)) as IDepartment;
             if (!targetDepartment) { throw new Error('Error: Department Name is not valid'); }
             livechatTransferData.targetDepartment = targetDepartment.id;
         }
 
-        const result = await this.modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
+        const result = await modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
             .catch((error) => {
                 throw new Error('Error occured while processing handover. Details' + error);
             });
         if (!result) { throw new Error('Error: Internal Server Error. Could not perform handover'); }
     }
 }
+
+export const RocketChat = new RocketChatSDK();
