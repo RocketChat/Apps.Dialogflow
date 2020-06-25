@@ -43,7 +43,7 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
                                         http: IHttp,
                                         persis: IPersistence,
                                         modify: IModify): Promise<void> {
-        const handler = new PostMessageSentHandler(message, read, http, persis, modify);
+        const handler = new PostMessageSentHandler(this, message, read, http, persis, modify);
         try {
             await handler.run();
         } catch (error) {

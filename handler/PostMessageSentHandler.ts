@@ -1,4 +1,5 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessageAction, IMessageAttachment, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
@@ -6,11 +7,13 @@ import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReply } from '../enum/Dialogflow';
 import { Dialogflow } from '../lib/Dialogflow/Dialogflow';
 import { createMessage } from '../lib/Message';
+import { RocketChat } from '../lib/RocketChat';
 import { getAppSettingValue } from '../lib/Settings';
 import { SynchronousHandover } from '../lib/SynchronousHandover';
 
 export class PostMessageSentHandler {
-    constructor(private readonly message: ILivechatMessage,
+    constructor(private readonly app: IApp,
+                private readonly message: ILivechatMessage,
                 private readonly read: IRead,
                 private readonly http: IHttp,
                 private readonly persis: IPersistence,
@@ -20,7 +23,7 @@ export class PostMessageSentHandler {
         const { text, editedAt, room, token, sender } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen, visitor } = livechatRoom;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
@@ -47,7 +50,20 @@ export class PostMessageSentHandler {
         // session Id will be the same as Room_Id
         const sessionId: string = rid;
 
-        const response: IDialogflowMessage = await Dialogflow.sendMessage(this.http, this.read, this.persis, sessionId, text);
+        let response: IDialogflowMessage;
+        try {
+            response = (await Dialogflow.sendMessage(this.http, this.read, this.persis, sessionId, text));
+        } catch (error) {
+            this.app.getLogger().error(`Error occured while using Dialogflow Rest API. Details:- ${error.message}`);
+
+            const handoverMessage: string = await getAppSettingValue(this.read, AppSetting.HandoverMessage);
+
+            await createMessage(rid, this.read, this.modify, { text: handoverMessage ? handoverMessage : '' });
+
+            // transfer to a live agent
+            await RocketChat.performHandover(this.modify, this.read, rid, visitor.token);
+            return;
+        }
 
         const responseMessage: { text: string, attachment?: Array<IMessageAttachment> } = {
             text: response.message,

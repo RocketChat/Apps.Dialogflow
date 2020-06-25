@@ -7,6 +7,8 @@ export enum AppSetting {
     DialogFlowPrivateKey = 'dialogflow_private_key',
     FallbackThreshold = 'fallback_responses_limit',
     FallbackTargetDepartment = 'fallback_target_department',
+    HandoverMessage = 'handover_message',
+    NoAgentOnlineMessage = 'no_agent_online_message',
 }
 
 export const settings: Array<ISetting> = [
@@ -59,6 +61,24 @@ export const settings: Array<ISetting> = [
         packageValue: '',
         i18nLabel: 'target_department_for_handover',
         i18nDescription: 'target_department_for_handover_description',
+        required: false,
+    },
+    {
+        id: AppSetting.HandoverMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'handover_message',
+        i18nDescription: 'handover_message_description',
+        required: false,
+    },
+    {
+        id: AppSetting.NoAgentOnlineMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'message_for_agent_offline',
+        i18nDescription: 'message_for_agent_offline_description',
         required: false,
     },
 ];

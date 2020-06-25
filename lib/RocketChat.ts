@@ -1,6 +1,9 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
+import { AppSetting } from '../config/Settings';
+import { createMessage } from './Message';
+import { getAppSettingValue } from './Settings';
 
 // A helper class to perform RocketChat operations
 class RocketChatSDK {
@@ -49,7 +52,14 @@ class RocketChatSDK {
             .catch((error) => {
                 throw new Error('Error occured while processing handover. Details' + error);
             });
-        if (!result) { throw new Error('Error: Internal Server Error. Could not perform handover'); }
+        console.log('-------result', result);
+        if (!result) {
+            console.log('no agent offline');
+            // agent offline
+            const offlineMessage: string = await getAppSettingValue(read, AppSetting.NoAgentOnlineMessage);
+
+            await createMessage(rid, read, modify, { text: offlineMessage });
+        }
     }
 }
 
