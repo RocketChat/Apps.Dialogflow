@@ -49,22 +49,28 @@ You can find all these credentials in a JSON file, which u can get from [here](h
     4. Dialogflow Private Key (required)
         - This corresponds to `private_key` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above.
         - Kindly note that this value will be very long. So please take extra care while copy/paste.
-    5. Fallback threshold for handover (required)
+    5. Dialogflow Fallback Responses Limit (required)
         - The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`.
         - Eg. Suppose the bot is not able to answer visitor's consecutive 3 answers, and this setting threshold is `3`. In such case, the app will trigger an handover to an online agent on its own.
     6. Target Department for Handover (optional)
-        - Enter the department name where a visitor will be transfered upon handover.
+        - Enter the department name where you want the visitor to be transfered upon handover.
+    7. Dialogflow Handover Message (optional)
+        - The Bot will send this message to Visitor upon handover
+    8. Dialogflow Service Unavailable Message (optional)
+        - The Bot will send this message to Visitor if service is unavailable like suppose if no agents are online.
+    9. Dialogflow Close Chat Message (optional)
+        - This message will be sent automatically when a chat is closed
 
 4. (Optional Step) Lastly you can test your Dialogflow Connection by viewing App Logs. To view the logs, goto App Page (`Setting > Apps > Apps.Dialogflow`). There click on menu item (3 vertical dots icon) and then select `View Logs`. There select the **most recent** `onSettingUpdated` title. If you see `------------------ Google Credentials validation Success ----------------` message, then it means your setup is fine. If you don't see this message, then recheck your Dialogflow credentials.
 
 ### Apps.Dialogflow's API
 
-The app provides api's to trigger specific actions. The URL for the API can be found on the Apps Page. Currently the app provides 2 API's to trigger following 2 actions
+The app provides an API to trigger specific actions. The URL for the API can be found on the Apps Page. Currently the app provides an API to trigger following 2 actions
 
 1. **Close Chat**<br/>
     To close a chat
-    - REST API Documentation for this endpoint can be found [here](https://github.com/RocketChat/Apps.Dialogflow/docs/api-endpoints/close-chat.md)
-2. **Perform-Handover**<br/>
+    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/close-chat.md)
+2. **Handover**<br/>
     To perform a handover
-    - REST API Documentation for this endpoint can be found [here](https://github.com/RocketChat/Apps.Dialogflow/docs/api-endpoints/perform-handover.md)
+    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
 

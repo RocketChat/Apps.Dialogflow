@@ -1,11 +1,11 @@
 **Perform Handover**
 ----
-  Endpoint to Perform an Handover
+  Action to Perform an Handover
 
 * **URL**
 
     REST API URL can be found on Apps Page <br />
-    Sample Url for eg: <br /> `http://localhost:3000//api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-handover`
+    Sample Url for eg: <br /> `http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action`
 
 * **Method:**
 
@@ -17,14 +17,16 @@
 
 * **Data Params**
 
-   **Required:**
+  **Required:**
  
-   `sessionId=[string]`
-   > Note. Session Id is the same session of Dialogflow
+   1. `action` = `handover`  <br/>
+ 
+   2. `sessionId=[string]`
+      > Note. Session Id is the same session of Dialogflow
 
    **Optional:**
 
-   `targetDepartmentName=[string]`
+   `targetDepartment=[string]`
 
 
 * **Success Response:**
@@ -37,33 +39,35 @@
   * **Code:** 400 BAD REQUEST <br />
     **Content:** <br/>
     `{
-        result: "Error: Session Id not present in request"
+        error: "Error: Session Id not present in request"
     }`
 
   OR
 
   * **Code:** 500 Internal Server Error <br />
     **Content:** <br />
-    `{ result : "Error occured while processing perform-handover. Details:- [Error Details]" }`
+    `{ error : "Error occured while processing perform-handover. Details:- [Error Details]" }`
 
 * **Sample Call:**
 
     **Curl**
     ```bash
-    curl "http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-handover" \
-    -X POST \
-    -d "{\n  \"sessionId\": \"2Sfq8wXw4fYPMf6r4\",\n  \"targetDepartmentName\": \"SalesDepartment\"\n}" \
-    -H "Content-Type: application/json" 
+    curl "http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action" \
+      -X POST \
+      -d "{\n  \"action\": \"handover\",\n  \"sessionId\": \"hmZ9EGL3LFvHSeG2q\",\n  \"targetDepartment\": \"SalesDepartment\"\n}" \
+      -H "Content-Type: application/json" \
+      -H "content-length: 65" 
     ```
     **HTTP**
 
   ```HTTP
-    POST /api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-handover HTTP/1.1
+    POST /api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action HTTP/1.1
     Host: localhost:3000
     Content-Type: application/json
 
     {
-        "sessionId": "2Sfq8wXw4fYPMf6r4",
-        "targetDepartmentName": "SalesDepartment"
+      "action": "handover",
+      "sessionId": "hmZ9EGL3LFvHSeG2q",
+      "targetDepartment": "SalesDepartment"
     }
   ```
