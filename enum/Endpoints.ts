@@ -14,5 +14,5 @@ export interface IPerformHandoverPayload {
 
 export enum EndpointActionNames {
     CLOSE_CHAT = 'close-chat',
-    PERFORM_HANDOVER = 'perform-handover',
+    HANDOVER = 'handover',
 }

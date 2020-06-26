@@ -5,10 +5,10 @@ export enum AppSetting {
     DialogflowProjectId = 'dialogflow_project_id',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
-    FallbackThreshold = 'fallback_responses_limit',
+    DialogflowFallbackResponsesLimit = 'dialogflow_fallback_responses_limit',
     FallbackTargetDepartment = 'fallback_target_department',
-    HandoverMessage = 'handover_message',
-    NoAgentOnlineMessage = 'no_agent_online_message',
+    DialogflowHandoverMessage = 'dialogflow_handover_message',
+    DialogflowServiceUnavaliableMessage = 'dialogflow_service_unavailable_message',
 }
 
 export const settings: Array<ISetting> = [
@@ -50,8 +50,8 @@ export const settings: Array<ISetting> = [
         type: SettingType.NUMBER,
         packageValue: 3,
         value: 3,
-        i18nLabel: 'fallback_threshold_limit_for_handover',
-        i18nDescription: 'fallback_threshold_limit_for_handover_description',
+        i18nLabel: 'dialogflow_fallback_responses_limit',
+        i18nDescription: 'dialogflow_fallback_responses_limit_description',
         required: true,
     },
     {
@@ -68,8 +68,8 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'handover_message',
-        i18nDescription: 'handover_message_description',
+        i18nLabel: 'dialogflow_handover_message',
+        i18nDescription: 'dialogflow_handover_message_description',
         required: false,
     },
     {
@@ -77,8 +77,8 @@ export const settings: Array<ISetting> = [
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'message_for_agent_offline',
-        i18nDescription: 'message_for_agent_offline_description',
+        i18nLabel: 'dialogflow_handover_message',
+        i18nDescription: 'dialogflow_handover_message_description',
         required: false,
     },
 ];
