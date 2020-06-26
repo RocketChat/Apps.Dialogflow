@@ -18,7 +18,9 @@ class RocketChatSDK {
         const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
         if (!room) { throw new Error('Error: Room Id not valid'); }
 
-        const result = await modify.getUpdater().getLivechatUpdater().closeRoom(room, '');
+        const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
+
+        const result = await modify.getUpdater().getLivechatUpdater().closeRoom(room, closeChatMessage ? closeChatMessage : '');
         if (!result) { throw new Error('Error: Internal Server Error. Could not close the chat'); }
     }
 
@@ -52,13 +54,10 @@ class RocketChatSDK {
             .catch((error) => {
                 throw new Error('Error occured while processing handover. Details' + error);
             });
-        console.log('-------result', result);
         if (!result) {
-            console.log('no agent offline');
-            // agent offline
-            const offlineMessage: string = await getAppSettingValue(read, AppSetting.NoAgentOnlineMessage);
+            const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavaliableMessage);
 
-            await createMessage(rid, read, modify, { text: offlineMessage });
+            await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : '' });
         }
     }
 }

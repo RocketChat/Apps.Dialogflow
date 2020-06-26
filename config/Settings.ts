@@ -9,6 +9,7 @@ export enum AppSetting {
     FallbackTargetDepartment = 'fallback_target_department',
     DialogflowHandoverMessage = 'dialogflow_handover_message',
     DialogflowServiceUnavaliableMessage = 'dialogflow_service_unavailable_message',
+    DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
 }
 
 export const settings: Array<ISetting> = [
@@ -45,7 +46,7 @@ export const settings: Array<ISetting> = [
         required: true,
     },
     {
-        id: AppSetting.FallbackThreshold,
+        id: AppSetting.DialogflowFallbackResponsesLimit,
         public: true,
         type: SettingType.NUMBER,
         packageValue: 3,
@@ -64,7 +65,7 @@ export const settings: Array<ISetting> = [
         required: false,
     },
     {
-        id: AppSetting.HandoverMessage,
+        id: AppSetting.DialogflowHandoverMessage,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
@@ -73,12 +74,21 @@ export const settings: Array<ISetting> = [
         required: false,
     },
     {
-        id: AppSetting.NoAgentOnlineMessage,
+        id: AppSetting.DialogflowServiceUnavaliableMessage,
         public: true,
         type: SettingType.STRING,
         packageValue: '',
-        i18nLabel: 'dialogflow_handover_message',
-        i18nDescription: 'dialogflow_handover_message_description',
+        i18nLabel: 'dialogflow_service_unavailable_message',
+        i18nDescription: 'dialogflow_service_unavailable_message_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowCloseChatMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'dialogflow_close_chat_message',
+        i18nDescription: 'dialogflow_close_chat_message_description',
         required: false,
     },
 ];

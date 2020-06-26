@@ -2,7 +2,6 @@ import {
     IAppAccessors,
     IConfigurationExtend,
     IConfigurationModify,
-    IEnvironmentRead,
     IHttp,
     ILogger,
     IModify,
@@ -16,7 +15,7 @@ import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { settings } from './config/Settings';
-import { Endpoint } from './endpoints/Endpoint';
+import { ActionsEndpoint } from './endpoints/ActionsEndpoint';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostLivechatAgentAssignedHandler } from './handler/PostLivechatAgentAssignedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
@@ -24,18 +23,6 @@ import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
-    }
-
-    public async initialize(configurationExtend: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
-        settings.forEach((setting) => configurationExtend.settings.provideSetting(setting));
-        configurationExtend.api.provideApi({
-            visibility: ApiVisibility.PUBLIC,
-            security: ApiSecurity.UNSECURE,
-            endpoints: [
-                new Endpoint(this),
-            ],
-        });
-        this.getLogger().log('Apps.Dialogflow App Initialized');
     }
 
     public async executePostMessageSent(message: ILivechatMessage,
@@ -59,5 +46,16 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
     public async executePostLivechatAgentAssigned(context: ILivechatEventContext, read: IRead, http: IHttp, persistence: IPersistence): Promise<void> {
         const postLivechatAgentAssignedHandler = new PostLivechatAgentAssignedHandler(context, read, http, persistence);
         await postLivechatAgentAssignedHandler.run();
+    }
+
+    protected async extendConfiguration(configuration: IConfigurationExtend): Promise<void> {
+        configuration.api.provideApi({
+            visibility: ApiVisibility.PUBLIC,
+            security: ApiSecurity.UNSECURE,
+            endpoints: [
+                new ActionsEndpoint(this),
+            ],
+        });
+        await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));
     }
 }

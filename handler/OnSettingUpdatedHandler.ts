@@ -1,7 +1,7 @@
 import { IHttp, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { AppSetting } from '../config/Settings';
-import { DialogflowAuth } from '../lib/Dialogflow/DialogflowAuth';
+import { Dialogflow } from '../lib/Dialogflow';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class OnSettingUpdatedHandler {
@@ -17,7 +17,7 @@ export class OnSettingUpdatedHandler {
         }
 
         try {
-            new DialogflowAuth(clientEmail, privateKey).getAccessToken(this.http);
+            await Dialogflow.generateNewAccessToken(this.http, clientEmail, privateKey);
             this.app.getLogger().info('------------------ Google Credentials validation Success ----------------');
         } catch (error) {
             this.app.getLogger().error(error.message);
