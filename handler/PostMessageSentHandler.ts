@@ -1,13 +1,12 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IMessageAction, IMessageAttachment, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
+import { IMessageAction, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReply } from '../enum/Dialogflow';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createMessage } from '../lib/Message';
-import { RocketChat } from '../lib/RocketChat';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntent, resetFallbackIntent } from '../lib/SynchronousHandover';
 
