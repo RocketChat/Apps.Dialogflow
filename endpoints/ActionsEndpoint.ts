@@ -1,13 +1,13 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers } from '../enum/Http';
 import { createHttpResponse } from '../lib/Http';
-import { Persistence } from '../lib/Persistence';
 import { RocketChat } from '../lib/RocketChat';
 
 export class ActionsEndpoint extends ApiEndpoint {
-    public path = 'perform-action';
+    public path = 'incoming';
 
     public async post(request: IApiRequest,
                       endpoint: IApiEndpointInfo,
@@ -38,7 +38,9 @@ export class ActionsEndpoint extends ApiEndpoint {
                 break;
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;
-                const visitorToken = await Persistence.getConnectedVisitorToken(read.getPersistenceReader(), sessionId) as string;
+                const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+                if (!room) { throw new Error('Error! Session Id not valid'); }
+                const { visitor: { token: visitorToken } } = room;
                 await RocketChat.performHandover(modify, read, sessionId, visitorToken, targetDepartment);
                 break;
             default:

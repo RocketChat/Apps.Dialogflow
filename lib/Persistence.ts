@@ -3,23 +3,6 @@ import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket
 import { IDialogflowAccessToken } from '../enum/Dialogflow';
 
 export class PersistenceClass {
-    public async connectVisitorTokenToSessionId(persistence: IPersistence, sessionId: string, visitorToken: string): Promise<void> {
-        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
-        const visitorTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'visitor-token');
-
-        await persistence.updateByAssociations([sessionAssociation, visitorTokenAssociation], {
-            visitorToken,
-        }, true);
-    }
-
-    public async getConnectedVisitorToken(persistenceRead: IPersistenceRead, sessionId: string): Promise<string | undefined> {
-        const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
-        const visitorTokenAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'visitor-token');
-
-        const [result] = await persistenceRead.readByAssociations([sessionAssociation, visitorTokenAssociation]);
-        return result && (result as any).visitorToken ? (result as any).visitorToken : undefined;
-    }
-
     public async updateFallbackCounter(persistence: IPersistence, sessionId: string, fallbackCounter: number): Promise<void> {
         const sessionAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, sessionId);
         const fallbackAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'fallback-counter');

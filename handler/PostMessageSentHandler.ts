@@ -57,8 +57,6 @@ export class PostMessageSentHandler {
 
             await createMessage(rid, this.read, this.modify, { text: handoverMessage ? handoverMessage : '' });
 
-            // transfer to a live agent
-            await RocketChat.performHandover(this.modify, this.read, rid, visitor.token);
             return;
         }
 
@@ -75,8 +73,7 @@ export class PostMessageSentHandler {
         // synchronous handover check
         if (isFallback) {
             return incFallbackIntent(this.read, this.persis, this.modify, rid);
-        } else {
-            await resetFallbackIntent(this.read, this.persis, rid);
         }
+        return resetFallbackIntent(this.read, this.persis, rid);
     }
 }

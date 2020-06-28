@@ -42,23 +42,23 @@ You can find all these credentials in a JSON file, which u can get from [here](h
     Some of the fields in `SETTING` include
     1. Bot Username (required)
         - This should contain the same bot username which we created above in Step 1
-    2. Dialogflow Project Id (required)
+    2. Project Id (required)
         - This corresponds to `project_id` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above
-    3. Dialogflow Client Email (required)
+    3. Client Email (required)
         - This corresponds to `client_email` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above
-    4. Dialogflow Private Key (required)
+    4. Private Key (required)
         - This corresponds to `private_key` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above.
         - Kindly note that this value will be very long. So please take extra care while copy/paste.
-    5. Dialogflow Fallback Responses Limit (required)
+    5. Fallback Responses Limit (required)
         - The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`.
         - Eg. Suppose the bot is not able to answer visitor's consecutive 3 answers, and this setting threshold is `3`. In such case, the app will trigger an handover to an online agent on its own.
     6. Target Department for Handover (optional)
         - Enter the department name where you want the visitor to be transfered upon handover.
-    7. Dialogflow Handover Message (optional)
+    7. Handover Message (optional)
         - The Bot will send this message to Visitor upon handover
-    8. Dialogflow Service Unavailable Message (optional)
+    8. Service Unavailable Message (optional)
         - The Bot will send this message to Visitor if service is unavailable like suppose if no agents are online.
-    9. Dialogflow Close Chat Message (optional)
+    9. Close Chat Message (optional)
         - This message will be sent automatically when a chat is closed
 
 4. (Optional Step) Lastly you can test your Dialogflow Connection by viewing App Logs. To view the logs, goto App Page (`Setting > Apps > Apps.Dialogflow`). There click on menu item (3 vertical dots icon) and then select `View Logs`. There select the **most recent** `onSettingUpdated` title. If you see `------------------ Google Credentials validation Success ----------------` message, then it means your setup is fine. If you don't see this message, then recheck your Dialogflow credentials.

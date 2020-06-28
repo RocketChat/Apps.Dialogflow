@@ -1,4 +1,5 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
 import { Persistence } from './Persistence';
 import { RocketChat } from './RocketChat';
@@ -14,7 +15,8 @@ export const incFallbackIntent = async (read: IRead, persis: IPersistence, modif
 
     if (newFallbackCount === fallbackThreshold) {
         // perform handover
-        const visitorToken: string = (await Persistence.getConnectedVisitorToken(read.getPersistenceReader(), sessionId)) as string;
+        const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+        const { visitor: { token: visitorToken } } = room;
         if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
 
         const targetDepartmentName: string | undefined = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);

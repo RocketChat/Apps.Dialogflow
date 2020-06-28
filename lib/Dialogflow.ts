@@ -75,21 +75,20 @@ class DialogflowClass {
 
         const { queryResult } = responseJSON;
         if (queryResult) {
-
+            const { fulfillmentText, fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {
-                message: responseJSON.queryResult.fulfillmentText,
-                isFallback: responseJSON.queryResult.intent.isFallback ? responseJSON.queryResult.intent.isFallback : false,
+                message: fulfillmentText,
+                isFallback: isFallback ? isFallback : false,
             };
 
             const quickReplies: Array<IDialogflowQuickReply> = [];
-            responseJSON.queryResult.fulfillmentMessages.forEach((e) => {
-                if (e.payload && e.payload.quick_replies) {
-                    e.payload.quick_replies.forEach((quickReply: IDialogflowQuickReply) => {
+            fulfillmentMessages.forEach((message) => {
+                if (message.payload && message.payload.quick_replies) {
+                    message.payload.quick_replies.forEach((quickReply: IDialogflowQuickReply) => {
                         quickReplies.push(quickReply);
                     });
                 }
             });
-
             if (quickReplies.length > 0) {
                 parsedMessage.quickReplies = quickReplies;
             }
