@@ -1,12 +1,11 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IMessageAction, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage } from '../enum/Dialogflow';
 import { Dialogflow } from '../lib/Dialogflow';
-import { createMessage } from '../lib/Message';
+import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntent, resetFallbackIntent } from '../lib/SynchronousHandover';
 
@@ -59,23 +58,10 @@ export class PostMessageSentHandler {
             return;
         }
 
-        const { messages = [], quickReplies: { title: quickRepliesMessage = null, quickReplies = [] } = {}, isFallback } = response;
-
-        for (const message of messages) {
-            await createMessage(rid, this.read, this.modify, { text: message });
-        }
-
-        if (quickRepliesMessage && quickReplies.length > 0) {
-            const attachment = quickReplies.map((payload: string) => ({
-                type: MessageActionType.BUTTON,
-                text: payload,
-                msg: payload,
-                msg_in_chat_window: true,
-            } as IMessageAction));
-            await createMessage(rid, this.read, this.modify, { text: quickRepliesMessage, attachment });
-        }
+        await createDialogflowMessage(rid, this.read, this.modify, response);
 
         // synchronous handover check
+        const { isFallback } = response;
         if (isFallback) {
             return incFallbackIntent(this.read, this.persis, this.modify, rid);
         }

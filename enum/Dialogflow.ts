@@ -2,6 +2,7 @@ export interface IDialogflowMessage {
     messages?: Array<string>;
     quickReplies?: IDialogflowQuickReplies;
     isFallback: boolean;
+    sessionId?: string;
 }
 
 export interface IDialogflowQuickReplies {

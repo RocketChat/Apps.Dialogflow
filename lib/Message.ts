@@ -1,7 +1,26 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-
+import { IMessageAction, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
 import { AppSetting } from '../config/Settings';
+import { IDialogflowMessage } from '../enum/Dialogflow';
 import { getAppSettingValue } from './Settings';
+
+export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
+    const { messages = [], quickReplies: { title: quickRepliesMessage = null, quickReplies = [] } = {} } = dialogflowMessage;
+
+    for (const message of messages) {
+        await createMessage(rid, read, modify, { text: message });
+    }
+
+    if (quickRepliesMessage && quickReplies.length > 0) {
+        const attachment = quickReplies.map((payload: string) => ({
+            type: MessageActionType.BUTTON,
+            text: payload,
+            msg: payload,
+            msg_in_chat_window: true,
+        } as IMessageAction));
+        await createMessage(rid, read, modify, { text: quickRepliesMessage, attachment });
+    }
+};
 
 export const createMessage = async (rid: string, read: IRead,  modify: IModify, message: any ): Promise<any> => {
     if (!message) {

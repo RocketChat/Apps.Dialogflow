@@ -1,4 +1,5 @@
 import { IHttp, IHttpRequest, IHttpResponse, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IApiRequest } from '@rocket.chat/apps-engine/definition/api';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
@@ -66,11 +67,11 @@ class DialogflowClass {
         }
     }
 
-    private parseRequest(response: IHttpResponse): IDialogflowMessage {
+    public parseRequest(response: IHttpResponse | IApiRequest): IDialogflowMessage {
         if (!response.content) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
         const responseJSON = JSON.parse(response.content);
 
-        const { queryResult } = responseJSON;
+        const { session, queryResult } = responseJSON;
         if (queryResult) {
             const { fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {
@@ -95,6 +96,16 @@ class DialogflowClass {
             if (messages.length > 0) {
                 parsedMessage.messages = messages;
             }
+
+            if (session) {
+                // "session" format -> projects/project-id/agent/sessions/session-id
+                const splittedText: Array<string> = session.split('/');
+                const sessionId: string = splittedText[splittedText.length - 1];
+                if (sessionId) {
+                    parsedMessage.sessionId = sessionId;
+                }
+            }
+
             return parsedMessage;
         } else {
             // some error occured. Dialogflow's response has a error field containing more info abt error
