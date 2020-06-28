@@ -1,9 +1,9 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { EndpointActionNames, IEndpointContent } from '../enum/Endpoints';
+import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers } from '../enum/Http';
 import { createHttpResponse } from '../lib/Http';
-import { Persistence } from '../lib/persistence';
+import { Persistence } from '../lib/Persistence';
 import { RocketChat } from '../lib/RocketChat';
 
 export class ActionsEndpoint extends ApiEndpoint {
@@ -26,7 +26,7 @@ export class ActionsEndpoint extends ApiEndpoint {
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: IEndpointContent) {
+    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: IActionsEndpointContent) {
 
         const { action, sessionId } = endpointContent;
         if (!sessionId) {

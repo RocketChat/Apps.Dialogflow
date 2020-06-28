@@ -5,7 +5,7 @@ import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessag
 import { Headers } from '../enum/Http';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
-import { Persistence } from './persistence';
+import { Persistence } from './Persistence';
 import { getAppSettingValue } from './Settings';
 
 class DialogflowClass {

@@ -1,4 +1,4 @@
-export interface IEndpointContent {
+export interface IActionsEndpointContent {
     action: EndpointActionNames;
     sessionId: string;
     actionData?: {

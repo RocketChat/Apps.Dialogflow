@@ -2,7 +2,7 @@ import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/d
 
 import { IHttp, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { AppSetting } from '../config/Settings';
-import { Persistence } from '../lib/persistence';
+import { Persistence } from '../lib/Persistence';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class PostLivechatAgentAssignedHandler {
