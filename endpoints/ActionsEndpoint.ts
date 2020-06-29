@@ -4,7 +4,7 @@ import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers } from '../enum/Http';
 import { createHttpResponse } from '../lib/Http';
-import { RocketChat } from '../lib/RocketChat';
+import { closeChat, performHandover } from '../lib/Room';
 
 export class ActionsEndpoint extends ApiEndpoint {
     public path = 'incoming';
@@ -34,14 +34,14 @@ export class ActionsEndpoint extends ApiEndpoint {
         }
         switch (action) {
             case EndpointActionNames.CLOSE_CHAT:
-                await RocketChat.closeChat(modify, read, sessionId);
+                await closeChat(modify, read, sessionId);
                 break;
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;
                 const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
                 if (!room) { throw new Error('Error! Session Id not valid'); }
                 const { visitor: { token: visitorToken } } = room;
-                await RocketChat.performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
                 break;
             default:
                 throw new Error('Error!! Invalid Action type');

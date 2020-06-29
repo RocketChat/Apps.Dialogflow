@@ -1,8 +1,7 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
-import { RocketChat } from './RocketChat';
-import { updateRoomCustomFields } from './Room';
+import { performHandover, updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
 export const incFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
@@ -24,7 +23,7 @@ export const incFallbackIntent = async (read: IRead, persis: IPersistence, modif
         const targetDepartmentName: string | undefined = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
 
         // Session Id from Dialogflow will be the same as Room id
-        await RocketChat.performHandover(modify, read, sessionId, visitorToken, targetDepartmentName);
+        await performHandover(modify, read, sessionId, visitorToken, targetDepartmentName);
     }
 };
 
