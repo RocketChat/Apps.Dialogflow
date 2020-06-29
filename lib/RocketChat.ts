@@ -33,6 +33,10 @@ class RocketChatSDK {
      * @param targetDepartmentName (optional)
      */
     public async performHandover(modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) {
+
+        const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
+        await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : '' });
+
         const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
         if (!room) { throw new Error('Error: Room Id not valid'); }
 

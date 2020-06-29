@@ -1,11 +1,12 @@
-import { IHttp, IHttpRequest, IHttpResponse, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IHttpRequest, IHttpResponse, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
 import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReply, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
-import { Persistence } from './Persistence';
+import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
 class DialogflowClass {
@@ -13,9 +14,10 @@ class DialogflowClass {
     public async sendMessage(http: IHttp,
                              read: IRead,
                              persis: IPersistence,
+                             modify: IModify,
                              sessionId: string,
                              messageText: string): Promise<IDialogflowMessage> {
-        const serverURL = await this.getServerURL(read, persis, http, sessionId);
+        const serverURL = await this.getServerURL(read, persis, modify, http, sessionId);
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
@@ -104,38 +106,43 @@ class DialogflowClass {
         }
     }
 
-    private async getServerURL(read: IRead, persis: IPersistence, http: IHttp, sessionId: string) {
+    private async getServerURL(read: IRead, persis: IPersistence, modify: IModify, http: IHttp, sessionId: string) {
         const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
 
-        const accessToken = await this.getAccessToken(read, persis, http, sessionId);
+        const accessToken = await this.getAccessToken(read, persis, modify, http, sessionId);
         if (!accessToken) { throw Error('Error getting Access Token. Access token is undefined'); }
 
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
-    private async getAccessToken(read: IRead, persis: IPersistence, http: IHttp, sessionId: string) {
+    private async getAccessToken(read: IRead, persis: IPersistence, modify: IModify, http: IHttp, sessionId: string) {
 
         const clientEmail = await getAppSettingValue(read, AppSetting.DialogflowClientEmail);
         if (!clientEmail) { throw new Error('Error! Client email not provided in setting'); }
         const privateKey = await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey);
         if (!privateKey) { throw new Error('Error! Private Key not provided in setting'); }
 
+        const room: IRoom = await read.getRoomReader().getById(sessionId) as IRoom;
+        if (!room) { throw new Error('Error! Room Id not valid'); }
+
         // check is there is a valid access token already present
-        const oldAccessToken: IDialogflowAccessToken = (await Persistence.getConnectedAccessToken(
-                                                                            read.getPersistenceReader(),
-                                                                            sessionId)) as IDialogflowAccessToken;
-        if (oldAccessToken) {
-            // check expiration
-            if (!this.hasExpired(oldAccessToken.expiration)) {
-                return oldAccessToken.token;
+        const { customFields } = room;
+        if (customFields) {
+            const { accessToken: oldAccessToken } = customFields as any;
+            if (oldAccessToken) {
+                // check expiration
+                if (!this.hasExpired(oldAccessToken.expiration)) {
+                    return oldAccessToken.token;
+                }
             }
         }
 
         try {
-            // get the access token
+            // get a new access token
             const accessToken: IDialogflowAccessToken =  await this.generateNewAccessToken(http, clientEmail, privateKey);
-            // save this token to persistant storage for caching
-            await Persistence.connectAccessTokenToSessionId(persis, sessionId, accessToken);
+
+            // save this access Token for future use
+            await updateRoomCustomFields(sessionId, { accessToken }, read, modify);
 
             return accessToken.token;
         } catch (error) {

@@ -48,13 +48,13 @@ export class PostMessageSentHandler {
 
         let response: IDialogflowMessage;
         try {
-            response = (await Dialogflow.sendMessage(this.http, this.read, this.persis, rid, text));
+            response = (await Dialogflow.sendMessage(this.http, this.read, this.persis, this.modify, rid, text));
         } catch (error) {
             this.app.getLogger().error(`Error occured while using Dialogflow Rest API. Details:- ${error.message}`);
 
-            const handoverMessage: string = await getAppSettingValue(this.read, AppSetting.DialogflowHandoverMessage);
+            const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavaliableMessage);
 
-            await createMessage(rid, this.read, this.modify, { text: handoverMessage ? handoverMessage : '' });
+            await createMessage(rid, this.read, this.modify, { text: serviceUnavailable ? serviceUnavailable : '' });
 
             return;
         }
@@ -73,6 +73,6 @@ export class PostMessageSentHandler {
         if (isFallback) {
             return incFallbackIntent(this.read, this.persis, this.modify, rid);
         }
-        return resetFallbackIntent(this.read, this.persis, rid);
+        return resetFallbackIntent(this.read, this.persis, this.modify, rid);
     }
 }

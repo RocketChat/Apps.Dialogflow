@@ -1,21 +1,23 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
-import { Persistence } from './Persistence';
 import { RocketChat } from './RocketChat';
+import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
 export const incFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
     const fallbackThreshold = (await getAppSettingValue(read, AppSetting.DialogflowFallbackResponsesLimit)) as number;
 
-    const oldFallbackCount = await Persistence.getFallbackCount(read.getPersistenceReader(), sessionId);
+    const room: ILivechatRoom = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+    if (!room) { throw new Error('Error! Room Id not valid'); }
+
+    const { fallbackCount: oldFallbackCount } = room.customFields as any;
     const newFallbackCount: number = oldFallbackCount ? oldFallbackCount + 1 : 1;
 
-    Persistence.updateFallbackCounter(persis, sessionId, newFallbackCount);
+    await updateRoomCustomFields(sessionId, { fallbackCount: newFallbackCount }, read, modify);
 
     if (newFallbackCount === fallbackThreshold) {
         // perform handover
-        const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
         const { visitor: { token: visitorToken } } = room;
         if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
 
@@ -26,7 +28,6 @@ export const incFallbackIntent = async (read: IRead, persis: IPersistence, modif
     }
 };
 
-export const resetFallbackIntent = async (read: IRead, persis: IPersistence, sessionId: string) => {
-    const fallbackCount = await Persistence.getFallbackCount(read.getPersistenceReader(), sessionId);
-    return fallbackCount && Persistence.updateFallbackCounter(persis, sessionId, 0);
+export const resetFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
+    await updateRoomCustomFields(sessionId, { fallbackCount: 0 }, read, modify);
 };
