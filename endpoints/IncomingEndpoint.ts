@@ -21,7 +21,7 @@ export class IncomingEndpoint extends ApiEndpoint {
             await this.processRequest(read, modify, persis, request.content);
             return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: 'Success' });
         } catch (error) {
-            this.app.getLogger().error('Error occured while processing the request. Details:- ', error);
+            this.app.getLogger().error('Error occurred while processing the request. Details:- ', error);
             return createHttpResponse(HttpStatusCode.INTERNAL_SERVER_ERROR, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { error: error.message });
         }
     }

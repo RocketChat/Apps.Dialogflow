@@ -49,7 +49,7 @@ export class PostMessageSentHandler {
         try {
             response = (await Dialogflow.sendMessage(this.http, this.read, this.modify, rid, text));
         } catch (error) {
-            this.app.getLogger().error(`Error occured while using Dialogflow Rest API. Details:- ${error.message}`);
+            this.app.getLogger().error(`Error occurred while using Dialogflow Rest API. Details:- ${error.message}`);
 
             const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavaliableMessage);
 

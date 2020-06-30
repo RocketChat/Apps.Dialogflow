@@ -106,7 +106,7 @@ class DialogflowClass {
             return parsedMessage;
         } else {
             // some error occured. Dialogflow's response has a error field containing more info abt error
-            throw Error(`An Error occured while connecting to Dialogflows REST API\
+            throw Error(`An Error occurred while connecting to Dialogflow's REST API\
             Error Details:-
                 message:- ${response.error.message}\
                 status:- ${response.error.message}\

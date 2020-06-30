@@ -46,7 +46,7 @@
 
   * **Code:** 500 Internal Server Error <br />
     **Content:** <br />
-    `{ error : "Error occured while processing close-chat. Details:- [Error Details]" }`
+    `{ error : "Error occurred while processing close-chat. Details:- [Error Details]" }`
 
 * **Sample Call:**
 

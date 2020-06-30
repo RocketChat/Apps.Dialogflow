@@ -50,7 +50,7 @@
 
   * **Code:** 500 Internal Server Error <br />
     **Content:** <br />
-    `{ error : "Error occured while processing perform-handover. Details:- [Error Details]" }`
+    `{ error : "Error occurred while processing perform-handover. Details:- [Error Details]" }`
 
 * **Sample Call:**
 
