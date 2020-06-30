@@ -1,5 +1,4 @@
-import { IHttp, IHttpRequest, IHttpResponse, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IApiRequest } from '@rocket.chat/apps-engine/definition/api';
+import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
