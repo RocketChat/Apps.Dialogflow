@@ -1,13 +1,12 @@
 export interface IDialogflowMessage {
-    message: string;
-    quickReplies?: Array<IDialogflowQuickReply>;
+    messages?: Array<string>;
+    quickReplies?: IDialogflowQuickReplies;
     isFallback: boolean;
 }
 
-export interface IDialogflowQuickReply {
+export interface IDialogflowQuickReplies {
     title: string;
-    payload: string;
-    contentType: QuickReplyContentType;
+    quickReplies: Array<string>;
 }
 
 export interface IDialogflowAccessToken {

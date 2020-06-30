@@ -6,7 +6,7 @@ import { Headers } from '../enum/Http';
 import { createHttpResponse } from '../lib/Http';
 import { closeChat, performHandover } from '../lib/Room';
 
-export class ActionsEndpoint extends ApiEndpoint {
+export class IncomingEndpoint extends ApiEndpoint {
     public path = 'incoming';
 
     public async post(request: IApiRequest,

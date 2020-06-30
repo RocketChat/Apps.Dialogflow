@@ -7,6 +7,8 @@ import { getAppSettingValue } from './Settings';
 export const incFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
     const fallbackThreshold = (await getAppSettingValue(read, AppSetting.DialogflowFallbackResponsesLimit)) as number;
 
+    if (!fallbackThreshold || (fallbackThreshold && fallbackThreshold === 0)) { return; }
+
     const room: ILivechatRoom = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
     if (!room) { throw new Error('Error! Room Id not valid'); }
 

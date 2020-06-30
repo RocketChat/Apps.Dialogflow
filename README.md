@@ -49,9 +49,10 @@ You can find all these credentials in a JSON file, which u can get from [here](h
     4. Private Key (required)
         - This corresponds to `private_key` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above.
         - Kindly note that this value will be very long. So please take extra care while copy/paste.
-    5. Fallback Responses Limit (required)
+    5. Fallback Responses Limit (optional)
         - The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`.
         - Eg. Suppose the bot is not able to answer visitor's consecutive 3 answers, and this setting threshold is `3`. In such case, the app will trigger an handover to an online agent on its own.
+        - To Deactivate this feature, simply set the value to `0`.
     6. Target Department for Handover (optional)
         - Enter the department name where you want the visitor to be transfered upon handover.
     7. Handover Message (optional)

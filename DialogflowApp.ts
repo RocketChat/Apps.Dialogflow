@@ -15,7 +15,7 @@ import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { settings } from './config/Settings';
-import { ActionsEndpoint } from './endpoints/ActionsEndpoint';
+import { IncomingEndpoint } from './endpoints/IncomingEndpoint';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
@@ -43,7 +43,7 @@ export class DialogflowApp extends App implements IPostMessageSent {
             visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
             endpoints: [
-                new ActionsEndpoint(this),
+                new IncomingEndpoint(this),
             ],
         });
         await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));

@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IHttpResponse, IModify, IPersistence, IRead } from
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReply, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
@@ -41,33 +41,28 @@ class DialogflowClass {
             content: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
         };
 
-        try {
-            const response = await http.post(authUrl, httpRequestContent);
+        const response = await http.post(authUrl, httpRequestContent);
 
-            if (!response.content) { throw new Error('Error!! Invalid Response From Dialogflow'); }
-            const responseJSON = JSON.parse(response.content);
+        if (!response.content) { throw new Error('Error!! Invalid Response From Dialogflow'); }
+        const responseJSON = JSON.parse(response.content);
 
-            const { access_token } = responseJSON;
-            if (access_token) {
-                const accessToken: IDialogflowAccessToken = {
-                    token: access_token,
-                    expiration: this.jwtExpiration,
-                };
-                return accessToken;
-            } else {
-                const { error, error_description } = responseJSON;
-                if (error) {
-                    throw Error(`\
-                    ---------------------Error with Google Credentials-------------------\
-                    Details:- \
-                        Error Message:- ${error} \
-                        Error Description:- ${error_description}`);
-                }
-                throw Error('Error retrieving access token');
+        const { access_token } = responseJSON;
+        if (access_token) {
+            const accessToken: IDialogflowAccessToken = {
+                token: access_token,
+                expiration: this.jwtExpiration,
+            };
+            return accessToken;
+        } else {
+            const { error, error_description } = responseJSON;
+            if (error) {
+                throw Error(`\
+                ---------------------Error with Google Credentials-------------------\
+                Details:- \
+                    Error Message:- ${error} \
+                    Error Description:- ${error_description}`);
             }
-
-        } catch (error) {
-            throw Error(error);
+            throw Error('Error retrieving access token');
         }
     }
 
@@ -77,24 +72,29 @@ class DialogflowClass {
 
         const { queryResult } = responseJSON;
         if (queryResult) {
-            const { fulfillmentText, fulfillmentMessages, intent: { isFallback } } = queryResult;
+            const { fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {
-                message: fulfillmentText,
                 isFallback: isFallback ? isFallback : false,
             };
 
-            const quickReplies: Array<IDialogflowQuickReply> = [];
+            const messages: Array<string> = [];
+
             fulfillmentMessages.forEach((message) => {
-                if (message.payload && message.payload.quick_replies) {
-                    message.payload.quick_replies.forEach((quickReply: IDialogflowQuickReply) => {
-                        quickReplies.push(quickReply);
-                    });
+                const { text, payload: { quickReplies = null } = {} } = message;
+                if (text) {
+                    const { text: textMessageArray } = text;
+                    messages.push(textMessageArray[0]);
+                }
+                if (quickReplies) {
+                    const { title, quickReplies: quickRepliesArray } = quickReplies;
+                    if (title && quickRepliesArray) {
+                        parsedMessage.quickReplies = quickReplies;
+                    }
                 }
             });
-            if (quickReplies.length > 0) {
-                parsedMessage.quickReplies = quickReplies;
+            if (messages.length > 0) {
+                parsedMessage.messages = messages;
             }
-
             return parsedMessage;
         } else {
             // some error occured. Dialogflow's response has a error field containing more info abt error

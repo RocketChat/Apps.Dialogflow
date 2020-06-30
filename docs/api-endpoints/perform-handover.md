@@ -5,7 +5,7 @@
 * **URL**
 
     REST API URL can be found on Apps Page <br />
-    Sample Url for eg: <br /> `http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action`
+    Sample Url for eg: <br /> `http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/incoming`
 
 * **Method:**
 
@@ -26,7 +26,11 @@
 
    **Optional:**
 
-   `targetDepartment=[string]`
+    ```
+    actionData: {
+      `targetDepartment=[string]`
+    }
+    ```
 
 
 * **Success Response:**
@@ -52,22 +56,24 @@
 
     **Curl**
     ```bash
-    curl "http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action" \
-      -X POST \
-      -d "{\n  \"action\": \"handover\",\n  \"sessionId\": \"hmZ9EGL3LFvHSeG2q\",\n  \"targetDepartment\": \"SalesDepartment\"\n}" \
-      -H "Content-Type: application/json" \
-      -H "content-length: 65" 
+      curl "http://localhost:3000/api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/incoming" \
+        -X POST \
+        -d "{\n  \"action\": \"close-chat\",\n  \"sessionId\": \"GeTEX3iLYpByZWSze\",\n  \"actionData\": {\n    \"targetDepartment\": \"SalesDepartment\"\n  }\n}" \
+        -H "Content-Type: application/json" \
+        -H "content-length: 65"  
     ```
     **HTTP**
 
   ```HTTP
-    POST /api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/perform-action HTTP/1.1
+    POST /api/apps/public/783d8e4d-b06a-409a-aaf3-b37650dc0a26/incoming HTTP/1.1
     Host: localhost:3000
     Content-Type: application/json
 
     {
       "action": "handover",
       "sessionId": "hmZ9EGL3LFvHSeG2q",
-      "targetDepartment": "SalesDepartment"
+      "actionData": {
+        "targetDepartment": "SalesDepartment"
+      }
     }
   ```
