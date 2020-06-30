@@ -28,7 +28,7 @@ class DialogflowClass {
         // send request to dialogflow
         const response = await http.post(serverURL, httpRequestContent);
 
-        return this.parseRequest(response);
+        return this.parseRequest(response.data);
     }
 
     public async generateNewAccessToken(http: IHttp, clientEmail: string, privateKey: string): Promise<IDialogflowAccessToken> {
@@ -67,11 +67,10 @@ class DialogflowClass {
         }
     }
 
-    public parseRequest(response: IHttpResponse | IApiRequest): IDialogflowMessage {
-        if (!response.content) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
-        const responseJSON = JSON.parse(response.content);
+    public parseRequest(response: any): IDialogflowMessage {
+        if (!response) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
 
-        const { session, queryResult } = responseJSON;
+        const { session, queryResult } = response;
         if (queryResult) {
             const { fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {
@@ -111,8 +110,8 @@ class DialogflowClass {
             // some error occured. Dialogflow's response has a error field containing more info abt error
             throw Error(`An Error occured while connecting to Dialogflows REST API\
             Error Details:-
-                message:- ${responseJSON.error.message}\
-                status:- ${responseJSON.error.message}\
+                message:- ${response.error.message}\
+                status:- ${response.error.message}\
             Try checking the google credentials in App Setting and your internet connection`);
         }
     }

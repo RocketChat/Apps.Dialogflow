@@ -30,7 +30,7 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
     }
 
     private async processRequest(read: IRead, modify: IModify, persis: IPersistence, request: IApiRequest) {
-        const message: IDialogflowMessage = Dialogflow.parseRequest(request);
+        const message: IDialogflowMessage = Dialogflow.parseRequest(request.content);
         if (!message) { throw new Error('Error! Request content not valid'); }
         if (!message.sessionId) { throw new Error('Error! Session Id not present in request'); }
 
