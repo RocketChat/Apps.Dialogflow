@@ -75,3 +75,9 @@ The app provides an API to trigger specific actions. The URL for the API can be 
     To perform a handover
     - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
 
+
+### Adding Quick Replies support to your Dialogflow Bot
+
+- To add quick Replies you can make use of `Custom-Payload` for Responses on Dialogfow Console. ( `Under any Intent > Responses > Add Responses > Custom Payload` )
+- A box labelled `Custom Payload` will appear. There enter the `Quick Replies` you want following the format [here](./docs/QuickReplies.md)
+
