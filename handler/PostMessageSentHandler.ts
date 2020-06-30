@@ -47,7 +47,7 @@ export class PostMessageSentHandler {
 
         let response: IDialogflowMessage;
         try {
-            response = (await Dialogflow.sendMessage(this.http, this.read, this.persis, this.modify, rid, text));
+            response = (await Dialogflow.sendMessage(this.http, this.read, this.modify, rid, text));
         } catch (error) {
             this.app.getLogger().error(`Error occured while using Dialogflow Rest API. Details:- ${error.message}`);
 
@@ -63,8 +63,8 @@ export class PostMessageSentHandler {
         // synchronous handover check
         const { isFallback } = response;
         if (isFallback) {
-            return incFallbackIntent(this.read, this.persis, this.modify, rid);
+            return incFallbackIntent(this.read, this.modify, rid);
         }
-        return resetFallbackIntent(this.read, this.persis, this.modify, rid);
+        return resetFallbackIntent(this.read, this.modify, rid);
     }
 }

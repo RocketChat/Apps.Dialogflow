@@ -1,5 +1,5 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IMessageAction, MessageActionType } from '@rocket.chat/apps-engine/definition/messages';
+import { IMessageAction, IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage } from '../enum/Dialogflow';
 import { getAppSettingValue } from './Settings';
@@ -12,12 +12,14 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     }
 
     if (quickRepliesMessage && quickReplies.length > 0) {
-        const attachment = quickReplies.map((payload: string) => ({
+        const actions: Array<IMessageAction> = quickReplies.map((payload: string) => ({
             type: MessageActionType.BUTTON,
             text: payload,
             msg: payload,
             msg_in_chat_window: true,
+            msg_processing_type: MessageProcessingType.SendMessage,
         } as IMessageAction));
+        const attachment: IMessageAttachment = { actions };
         await createMessage(rid, read, modify, { text: quickRepliesMessage, attachment });
     }
 };

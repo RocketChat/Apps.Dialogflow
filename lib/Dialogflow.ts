@@ -13,11 +13,10 @@ class DialogflowClass {
     private jwtExpiration: Date;
     public async sendMessage(http: IHttp,
                              read: IRead,
-                             persis: IPersistence,
                              modify: IModify,
                              sessionId: string,
                              messageText: string): Promise<IDialogflowMessage> {
-        const serverURL = await this.getServerURL(read, persis, modify, http, sessionId);
+        const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
@@ -115,16 +114,16 @@ class DialogflowClass {
         }
     }
 
-    private async getServerURL(read: IRead, persis: IPersistence, modify: IModify, http: IHttp, sessionId: string) {
+    private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
         const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
 
-        const accessToken = await this.getAccessToken(read, persis, modify, http, sessionId);
+        const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error('Error getting Access Token. Access token is undefined'); }
 
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
-    private async getAccessToken(read: IRead, persis: IPersistence, modify: IModify, http: IHttp, sessionId: string) {
+    private async getAccessToken(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
 
         const clientEmail = await getAppSettingValue(read, AppSetting.DialogflowClientEmail);
         if (!clientEmail) { throw new Error('Error! Client email not provided in setting'); }

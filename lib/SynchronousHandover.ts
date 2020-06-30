@@ -4,7 +4,7 @@ import { AppSetting } from '../config/Settings';
 import { performHandover, updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
-export const incFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
+export const incFallbackIntent = async (read: IRead, modify: IModify, sessionId: string) => {
     const fallbackThreshold = (await getAppSettingValue(read, AppSetting.DialogflowFallbackResponsesLimit)) as number;
 
     if (!fallbackThreshold || (fallbackThreshold && fallbackThreshold === 0)) { return; }
@@ -29,6 +29,6 @@ export const incFallbackIntent = async (read: IRead, persis: IPersistence, modif
     }
 };
 
-export const resetFallbackIntent = async (read: IRead, persis: IPersistence, modify: IModify, sessionId: string) => {
+export const resetFallbackIntent = async (read: IRead, modify: IModify, sessionId: string) => {
     await updateRoomCustomFields(sessionId, { fallbackCount: 0 }, read, modify);
 };
