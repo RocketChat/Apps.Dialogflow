@@ -1,6 +1,5 @@
 export interface IDialogflowMessage {
-    messages?: Array<string>;
-    quickReplies?: IDialogflowQuickReplies;
+    messages?: Array<string | IDialogflowQuickReplies>;
     isFallback: boolean;
     sessionId?: string;
 }

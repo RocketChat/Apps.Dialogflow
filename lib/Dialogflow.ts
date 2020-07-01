@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
@@ -75,7 +75,7 @@ class DialogflowClass {
                 isFallback: isFallback ? isFallback : false,
             };
 
-            const messages: Array<string> = [];
+            const messages: Array<string | IDialogflowQuickReplies> = [];
 
             fulfillmentMessages.forEach((message) => {
                 const { text, payload: { quickReplies = null } = {} } = message;
@@ -86,7 +86,7 @@ class DialogflowClass {
                 if (quickReplies) {
                     const { title, quickReplies: quickRepliesArray } = quickReplies;
                     if (title && quickRepliesArray) {
-                        parsedMessage.quickReplies = quickReplies;
+                        messages.push(quickReplies);
                     }
                 }
             });
