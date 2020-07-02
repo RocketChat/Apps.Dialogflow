@@ -84,8 +84,8 @@ class DialogflowClass {
                     messages.push(textMessageArray[0]);
                 }
                 if (quickReplies) {
-                    const { title, quickReplies: quickRepliesArray } = quickReplies;
-                    if (title && quickRepliesArray) {
+                    const { text: optionsText, options } = quickReplies;
+                    if (optionsText && options) {
                         messages.push(quickReplies);
                     }
                 }

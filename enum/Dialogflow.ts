@@ -5,8 +5,8 @@ export interface IDialogflowMessage {
 }
 
 export interface IDialogflowQuickReplies {
-    title: string;
-    quickReplies: Array<string>;
+    text: string;
+    options: Array<string>;
 }
 
 export interface IDialogflowAccessToken {

@@ -8,11 +8,11 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
-        const { title, quickReplies } = message as IDialogflowQuickReplies;
+        const { text, options } = message as IDialogflowQuickReplies;
 
-        if (title && quickReplies) {
+        if (text && options) {
             // message is instanceof IDialogflowQuickReplies
-            const actions: Array<IMessageAction> = quickReplies.map((payload: string) => ({
+            const actions: Array<IMessageAction> = options.map((payload: string) => ({
                 type: MessageActionType.BUTTON,
                 text: payload,
                 msg: payload,
@@ -20,7 +20,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                 msg_processing_type: MessageProcessingType.SendMessage,
             } as IMessageAction));
             const attachment: IMessageAttachment = { actions };
-            await createMessage(rid, read, modify, { text: title, attachment });
+            await createMessage(rid, read, modify, { text, attachment });
         } else {
             // message is instanceof string
             await createMessage(rid, read, modify, { text: message });
