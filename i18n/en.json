@@ -1,0 +1,16 @@
+{
+    "bot_username": "Bot Username",
+    "dialogflow_project_id": "Project Id",
+    "dialogflow_client_email": "Client Email",
+    "dialogflow_private_key": "Private Key",
+    "dialogflow_fallback_responses_limit": "Fallback Responses Limit",
+    "dialogflow_fallback_responses_limit_description": "The app will automatically trigger handover if consecutive fallback intents are triggered N no of times. This setting defines this value N",
+    "target_department_for_handover": "Target Department for Handover",
+    "target_department_for_handover_description": "Upon bot-to-liveagent handover, the visitor will be transferred to this Department",
+    "dialogflow_handover_message": "Handover Message",
+    "dialogflow_handover_message_description": "The Bot will send this message to Visitor upon handover",
+    "dialogflow_service_unavailable_message": "Service Unavailable Message",
+    "dialogflow_service_unavailable_message_description": "The Bot will send this message to Visitor if service is unavailable",
+    "dialogflow_close_chat_message": "Close Chat Message",
+    "dialogflow_close_chat_message_description": "This message will be sent automatically when a chat is closed"
+}

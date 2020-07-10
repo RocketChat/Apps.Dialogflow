@@ -1,0 +1,15 @@
+{
+    "id": "783d8e4d-b06a-409a-aaf3-b37650dc0a26",
+    "version": "1.0.0",
+    "requiredApiVersion": "^1.15.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Rocket.Chat",
+        "homepage": "https://rocket.chat/",
+        "support": "support@rocket.chat"
+    },
+    "name": "Apps.Dialogflow",
+    "nameSlug": "appsdialogflow",
+    "classFile": "DialogflowApp.ts",
+    "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform"
+}
