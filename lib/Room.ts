@@ -37,14 +37,15 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
 
     const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
 
-    const result = await modify.getUpdater().getLivechatUpdater().closeRoom(room, closeChatMessage ? closeChatMessage : '');
+    const result = await modify.getUpdater().getLivechatUpdater()
+                                .closeRoom(room, closeChatMessage ? closeChatMessage : DefaultMessage.DEFAULT_DialogflowCloseChatMessage);
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
 export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
-    await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : '' });
+    await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
 
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }

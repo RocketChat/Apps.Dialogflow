@@ -3,7 +3,7 @@ Integration between Rocket.Chat and the Dialogflow Chatbot platform
 
 ### Installation steps:
 
- 1. Clone this repo and Change Directoy: </br>
+ 1. Clone this repo and Change Directory: </br>
  `git clone https://github.com/RocketChat/Apps.Dialogflow.git && cd Apps.Dialogflow/`
  
  2. Install the required packages from `package.json`: </br>
@@ -20,7 +20,7 @@ Integration between Rocket.Chat and the Dialogflow Chatbot platform
 
 ### How to get Google Credential File or Private key file
 
-In order to connect to Dialogflow, this app requires a following credendials from Dialogflow.
+In order to connect to Dialogflow, this app requires a following credentials from Dialogflow.
 
     1. Project Id
     2. Client email
@@ -37,7 +37,7 @@ You can find all these credentials in a JSON file, which u can get from [here](h
 
 2. Then configure the app to automatically assign a livechat-visitor to this bot. To do so, goto `Setting > Livechat > Routing` or `Setting > Omnichannel > Routing`. There enable `Assign new conversations to bot agent` Setting.
 
-3. The app needs some configurations to work, so to setup the app Go to `Setting > Apps > RASA-Plugin`. There, fill all the necessary fields in `SETTINGS` and click SAVE. Note all fields are required. 
+3. The app needs some configurations to work, so to setup the app Go to `Setting > Apps > Apps.Dialogflow`. There, fill all the necessary fields in `SETTINGS` and click SAVE. Note all fields are required. 
     
     Some of the fields in `SETTING` include
     1. Bot Username (required)
@@ -54,7 +54,7 @@ You can find all these credentials in a JSON file, which u can get from [here](h
         - Eg. Suppose the bot is not able to answer visitor's consecutive 3 answers, and this setting threshold is `3`. In such case, the app will trigger an handover to an online agent on its own.
         - To Deactivate this feature, simply set the value to `0`.
     6. Target Department for Handover (optional)
-        - Enter the department name where you want the visitor to be transfered upon handover.
+        - Enter the department name where you want the visitor to be transferred upon handover.
     7. Handover Message (optional)
         - The Bot will send this message to Visitor upon handover
     8. Service Unavailable Message (optional)
@@ -66,17 +66,24 @@ You can find all these credentials in a JSON file, which u can get from [here](h
 
 ### Apps.Dialogflow's API
 
-The app provides an API to trigger specific actions. The URL for the API can be found on the Apps Page. Currently the app provides an API to trigger following 2 actions
+The app provides API to trigger specific actions. The URL for the API can be found on the Apps Page(`Setting > Apps > Apps.Dialogflow`). Currently the app provides 2 APIs.
 
-1. **Close Chat**<br/>
-    To close a chat
-    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/close-chat.md)
-2. **Handover**<br/>
-    To perform a handover
-    - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
+1. Incoming API/Endpoint
+
+    This endpoint can be used to trigger specific actions. The list of supported actions include
+    1. **Close Chat**<br/>
+        To close a chat
+        - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/close-chat.md)
+    2. **Handover**<br/>
+        To perform a handover
+        - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
+2. Fulfillment API/Endpoint
+    
+    The fulfillment endpoint will enable the app to handle asynchronous messages. More information on it [here](./docs/api-endpoints/fulfillment-endpoint.md)
+
 
 
 ### Adding Quick Replies support to your Dialogflow Bot
 
-- To add quick Replies you can make use of `Custom-Payload` for Responses on Dialogfow Console. ( `Under any Intent > Responses > Add Responses > Custom Payload` )
+- To add quick Replies you can make use of `Custom-Payload` for Responses on Dialogflow Console. ( `Under any Intent > Responses > Add Responses > Custom Payload` )
 - A box labelled `Custom Payload` will appear. There enter the `Quick Replies` you want following the format [here](./docs/QuickReplies.md)
