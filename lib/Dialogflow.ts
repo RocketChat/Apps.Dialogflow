@@ -4,6 +4,7 @@ import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
 import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
+import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
 import { updateRoomCustomFields } from './Room';
@@ -23,10 +24,12 @@ class DialogflowClass {
             { queryInput: { text: { languageCode: LanguageCode.EN, text: messageText } } },
         );
 
-        // send request to dialogflow
-        const response = await http.post(serverURL, httpRequestContent);
-
-        return this.parseRequest(response.data);
+        try {
+            const response = await http.post(serverURL, httpRequestContent);
+            return this.parseRequest(response.data);
+        } catch (error) {
+            throw new Error(Logs.HTTP_REQUEST_ERROR);
+        }
     }
 
     public async generateNewAccessToken(http: IHttp, clientEmail: string, privateKey: string): Promise<IDialogflowAccessToken> {
@@ -40,33 +43,37 @@ class DialogflowClass {
             content: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
         };
 
-        const response = await http.post(authUrl, httpRequestContent);
+        try {
+            const response = await http.post(authUrl, httpRequestContent);
 
-        if (!response.content) { throw new Error('Error!! Invalid Response From Dialogflow'); }
-        const responseJSON = JSON.parse(response.content);
+            if (!response.content) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW); }
+            const responseJSON = JSON.parse(response.content);
 
-        const { access_token } = responseJSON;
-        if (access_token) {
-            const accessToken: IDialogflowAccessToken = {
-                token: access_token,
-                expiration: this.jwtExpiration,
-            };
-            return accessToken;
-        } else {
-            const { error, error_description } = responseJSON;
-            if (error) {
-                throw Error(`\
-                ---------------------Error with Google Credentials-------------------\
-                Details:- \
-                    Error Message:- ${error} \
-                    Error Description:- ${error_description}`);
+            const { access_token } = responseJSON;
+            if (access_token) {
+                const accessToken: IDialogflowAccessToken = {
+                    token: access_token,
+                    expiration: this.jwtExpiration,
+                };
+                return accessToken;
+            } else {
+                const { error, error_description } = responseJSON;
+                if (error) {
+                    throw Error(`\
+                    ---------------------Error with Google Credentials-------------------\
+                    Details:- \
+                        Error Message:- ${error} \
+                        Error Description:- ${error_description}`);
+                }
+                throw Error(Logs.ACCESS_TOKEN_ERROR);
             }
-            throw Error('Error retrieving access token');
+        } catch (error) {
+            throw new Error(Logs.HTTP_REQUEST_ERROR);
         }
     }
 
     public parseRequest(response: any): IDialogflowMessage {
-        if (!response) { throw new Error('Error Parsing Dialogflow\'s Response. Content is undefined'); }
+        if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
         if (queryResult) {
@@ -105,7 +112,7 @@ class DialogflowClass {
 
             return parsedMessage;
         } else {
-            // some error occured. Dialogflow's response has a error field containing more info abt error
+            // some error occurred. Dialogflow's response has a error field containing more info abt error
             throw Error(`An Error occurred while connecting to Dialogflow's REST API\
             Error Details:-
                 message:- ${response.error.message}\
@@ -118,7 +125,7 @@ class DialogflowClass {
         const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
-        if (!accessToken) { throw Error('Error getting Access Token. Access token is undefined'); }
+        if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
@@ -126,12 +133,11 @@ class DialogflowClass {
     private async getAccessToken(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
 
         const clientEmail = await getAppSettingValue(read, AppSetting.DialogflowClientEmail);
-        if (!clientEmail) { throw new Error('Error! Client email not provided in setting'); }
         const privateKey = await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey);
-        if (!privateKey) { throw new Error('Error! Private Key not provided in setting'); }
+        if (!privateKey || !clientEmail) { throw new Error(Logs.EMPTY_CLIENT_EMAIL_OR_PRIVATE_KEY_SETTING); }
 
         const room: IRoom = await read.getRoomReader().getById(sessionId) as IRoom;
-        if (!room) { throw new Error('Error! Room Id not valid'); }
+        if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
         // check is there is a valid access token already present
         const { customFields } = room;
@@ -154,7 +160,7 @@ class DialogflowClass {
 
             return accessToken.token;
         } catch (error) {
-            throw Error('Error getting Access Token' + error);
+            throw Error(Logs.ACCESS_TOKEN_ERROR + error);
         }
     }
 
@@ -203,8 +209,8 @@ class DialogflowClass {
         return base64urlEncode(JSON.stringify(jwtClaimSet));
     }
 
-    private getSignature(b64uHeader: string, b64uClaimSetclaimset: string, privateKey) {
-        const signatureInput = `${b64uHeader}.${b64uClaimSetclaimset}`;
+    private getSignature(b64uHeader: string, b64uClaimSetClaimSet: string, privateKey) {
+        const signatureInput = `${b64uHeader}.${b64uClaimSetClaimSet}`;
         const sign = createSign(DialogflowJWT.SHA_256);
         sign.update(signatureInput);
         // replace \\n by \n in private key

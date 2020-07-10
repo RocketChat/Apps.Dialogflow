@@ -8,8 +8,12 @@ export enum AppSetting {
     DialogflowFallbackResponsesLimit = 'dialogflow_fallback_responses_limit',
     FallbackTargetDepartment = 'fallback_target_department',
     DialogflowHandoverMessage = 'dialogflow_handover_message',
-    DialogflowServiceUnavaliableMessage = 'dialogflow_service_unavailable_message',
+    DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
+}
+
+export enum DefaultMessage {
+    DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
 }
 
 export const settings: Array<ISetting> = [
@@ -74,7 +78,7 @@ export const settings: Array<ISetting> = [
         required: false,
     },
     {
-        id: AppSetting.DialogflowServiceUnavaliableMessage,
+        id: AppSetting.DialogflowServiceUnavailableMessage,
         public: true,
         type: SettingType.STRING,
         packageValue: '',

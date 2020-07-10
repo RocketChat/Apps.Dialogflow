@@ -2,8 +2,9 @@ import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/de
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
-import { AppSetting } from '../config/Settings';
+import { AppSetting, DefaultMessage } from '../config/Settings';
 import { IDialogflowMessage } from '../enum/Dialogflow';
+import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
@@ -21,7 +22,7 @@ export class PostMessageSentHandler {
         const { text, editedAt, room, token, sender } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen, visitor } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen } = livechatRoom;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
@@ -49,11 +50,14 @@ export class PostMessageSentHandler {
         try {
             response = (await Dialogflow.sendMessage(this.http, this.read, this.modify, rid, text));
         } catch (error) {
-            this.app.getLogger().error(`Error occurred while using Dialogflow Rest API. Details:- ${error.message}`);
+            this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
-            const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavaliableMessage);
+            const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavailableMessage);
 
-            await createMessage(rid, this.read, this.modify, { text: serviceUnavailable ? serviceUnavailable : '' });
+            await createMessage(rid,
+                                this.read,
+                                this.modify,
+                                { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
 
             return;
         }

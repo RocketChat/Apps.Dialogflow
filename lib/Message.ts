@@ -2,6 +2,7 @@ import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessageAction, IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
+import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
@@ -23,7 +24,9 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
             await createMessage(rid, read, modify, { text, attachment });
         } else {
             // message is instanceof string
-            await createMessage(rid, read, modify, { text: message });
+            if ((message as string).trim().length > 0) {
+                await createMessage(rid, read, modify, { text: message });
+            }
         }
     }
 };
@@ -35,19 +38,19 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
 
     const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
     if (!botUserName) {
-        this.app.getLogger().error('The Bot Username setting is not defined.');
+        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
         return;
     }
 
     const sender = await read.getUserReader().getByUsername(botUserName);
     if (!sender) {
-        this.app.getLogger().error('The Bot User does not exist.');
+        this.app.getLogger().error(Logs.INVALID_BOT_USERNAME_SETTING);
         return;
     }
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(`Invalid room id ${rid}`);
+        this.app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
         return;
     }
 

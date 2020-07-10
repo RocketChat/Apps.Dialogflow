@@ -1,7 +1,8 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
-import { AppSetting } from '../config/Settings';
+import { AppSetting, DefaultMessage } from '../config/Settings';
+import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from '../lib/Settings';
 import { createMessage } from './Message';
 
@@ -10,13 +11,13 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
         return;
     }
     const room = await read.getRoomReader().getById(rid);
-    if (!room) { throw new Error(`Invalid room id ${rid}`); }
+    if (!room) { throw new Error(`${Logs.INVALID_ROOM_ID} ${rid}`); }
 
     const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
-    if (!botUserName) { throw new Error('The Bot Username setting is not defined.'); }
+    if (!botUserName) { throw new Error(Logs.EMPTY_BOT_USERNAME_SETTING); }
 
     const user = await read.getUserReader().getByUsername(botUserName);
-    if (!user) { throw new Error('The Bot User does not exist.'); }
+    if (!user) { throw new Error(Logs.INVALID_BOT_USERNAME_SETTING); }
 
     let { customFields = {} } = room;
     customFields = Object.assign(customFields, data);
@@ -32,12 +33,12 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
 
 export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
-    if (!room) { throw new Error('Error: Room Id not valid'); }
+    if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
     const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
 
     const result = await modify.getUpdater().getLivechatUpdater().closeRoom(room, closeChatMessage ? closeChatMessage : '');
-    if (!result) { throw new Error('Error: Internal Server Error. Could not close the chat'); }
+    if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
 export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
@@ -46,10 +47,10 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : '' });
 
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
-    if (!room) { throw new Error('Error: Room Id not valid'); }
+    if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
     const visitor: IVisitor = (await read.getLivechatReader().getLivechatVisitorByToken(visitorToken)) as IVisitor;
-    if (!visitor) { throw new Error('Error: Visitor Id not valid'); }
+    if (!visitor) { throw new Error(Logs.INVALID_VISITOR_TOKEN); }
 
     const livechatTransferData: ILivechatTransferData = {
         currentRoom: room,
@@ -58,17 +59,17 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     // Fill livechatTransferData.targetDepartment param if required
     if (targetDepartmentName) {
         const targetDepartment: IDepartment = (await read.getLivechatReader().getLivechatDepartmentByIdOrName(targetDepartmentName)) as IDepartment;
-        if (!targetDepartment) { throw new Error('Error: Department Name is not valid'); }
+        if (!targetDepartment) { throw new Error(Logs.INVALID_DEPARTMENT_NAME); }
         livechatTransferData.targetDepartment = targetDepartment.id;
     }
 
     const result = await modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
         .catch((error) => {
-            throw new Error('Error occured while processing handover. Details' + error);
+            throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavaliableMessage);
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : '' });
+        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
     }
 };

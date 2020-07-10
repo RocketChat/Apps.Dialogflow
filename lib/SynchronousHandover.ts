@@ -1,6 +1,7 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
+import { Logs } from '../enum/Logs';
 import { performHandover, updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
@@ -10,7 +11,7 @@ export const incFallbackIntent = async (read: IRead, modify: IModify, sessionId:
     if (!fallbackThreshold || (fallbackThreshold && fallbackThreshold === 0)) { return; }
 
     const room: ILivechatRoom = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
-    if (!room) { throw new Error('Error! Room Id not valid'); }
+    if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
     const { fallbackCount: oldFallbackCount } = room.customFields as any;
     const newFallbackCount: number = oldFallbackCount ? oldFallbackCount + 1 : 1;
@@ -20,7 +21,7 @@ export const incFallbackIntent = async (read: IRead, modify: IModify, sessionId:
     if (newFallbackCount === fallbackThreshold) {
         // perform handover
         const { visitor: { token: visitorToken } } = room;
-        if (!visitorToken) { throw new Error('Error: No visitor Token found for sessionId. Session Id must be invalid'); }
+        if (!visitorToken) { throw new Error(Logs.INVALID_VISITOR_TOKEN); }
 
         const targetDepartmentName: string | undefined = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
 
