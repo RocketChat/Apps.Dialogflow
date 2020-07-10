@@ -4,7 +4,7 @@
     "dialogflow_client_email": "Client Email",
     "dialogflow_private_key": "Private Key",
     "dialogflow_fallback_responses_limit": "Fallback Responses Limit",
-    "dialogflow_fallback_responses_limit_description": "The app will automatically trigger handover, if consecutive fallback intents are triggerred N no of times. This setting defines this value N",
+    "dialogflow_fallback_responses_limit_description": "The app will automatically trigger handover if consecutive fallback intents are triggered N no of times. This setting defines this value N",
     "target_department_for_handover": "Target Department for Handover",
     "target_department_for_handover_description": "Upon bot-to-liveagent handover, the visitor will be transferred to this Department",
     "dialogflow_handover_message": "Handover Message",

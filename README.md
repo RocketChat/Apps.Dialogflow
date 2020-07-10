@@ -50,7 +50,7 @@ You can find all these credentials in a JSON file, which u can get from [here](h
         - This corresponds to `private_key` property of the Google Credentials File obtained from `Rocket.Chat Apps Setup` section above.
         - Kindly note that this value will be very long. So please take extra care while copy/paste.
     5. Fallback Responses Limit (optional)
-        - The app will automatically trigger handover, if consecutive `fallback` intents are triggerred `N` no of times. This setting defines this value `N`.
+        - The app will automatically trigger handover if consecutive `fallback` intents are triggered `N` no of times. This setting defines this value `N`.
         - Eg. Suppose the bot is not able to answer visitor's consecutive 3 answers, and this setting threshold is `3`. In such case, the app will trigger an handover to an online agent on its own.
         - To Deactivate this feature, simply set the value to `0`.
     6. Target Department for Handover (optional)
@@ -80,4 +80,3 @@ The app provides an API to trigger specific actions. The URL for the API can be 
 
 - To add quick Replies you can make use of `Custom-Payload` for Responses on Dialogfow Console. ( `Under any Intent > Responses > Add Responses > Custom Payload` )
 - A box labelled `Custom Payload` will appear. There enter the `Quick Replies` you want following the format [here](./docs/QuickReplies.md)
-

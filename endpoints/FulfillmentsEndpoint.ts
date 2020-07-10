@@ -8,7 +8,7 @@ import { createHttpResponse } from '../lib/Http';
 import { createDialogflowMessage } from '../lib/Message';
 
 export class FulfillmentsEndpoint extends ApiEndpoint {
-    public path = 'fulfillments-endpoint';
+    public path = 'fulfillment';
 
     public async post(request: IApiRequest,
                       endpoint: IApiEndpointInfo,
