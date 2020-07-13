@@ -8,8 +8,8 @@
         "homepage": "https://rocket.chat/",
         "support": "support@rocket.chat"
     },
-    "name": "Apps.Dialogflow",
-    "nameSlug": "appsdialogflow",
+    "name": "Dialogflow",
+    "nameSlug": "dialogflow",
     "classFile": "DialogflowApp.ts",
     "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform"
 }

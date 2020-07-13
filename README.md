@@ -5,7 +5,7 @@ Integration between Rocket.Chat and the Dialogflow Chatbot platform
 
  1. Clone this repo and Change Directory: </br>
  `git clone https://github.com/RocketChat/Apps.Dialogflow.git && cd Apps.Dialogflow/`
- 
+
  2. Install the required packages from `package.json`: </br>
 	 `npm install`
 
@@ -15,7 +15,7 @@ Integration between Rocket.Chat and the Dialogflow Chatbot platform
     - `http://localhost:3000` is your local server URL (if you are running in another port, change the 3000 to the appropriate port)
     - `user_username` is the username of your admin user.
     - `user_password` is the password of your admin user.
-    
+
     For more info refer [this](https://rocket.chat/docs/developer-guides/developing-apps/getting-started/) guide
 
 ### How to get Google Credential File or Private key file
@@ -37,8 +37,8 @@ You can find all these credentials in a JSON file, which u can get from [here](h
 
 2. Then configure the app to automatically assign a livechat-visitor to this bot. To do so, goto `Setting > Livechat > Routing` or `Setting > Omnichannel > Routing`. There enable `Assign new conversations to bot agent` Setting.
 
-3. The app needs some configurations to work, so to setup the app Go to `Setting > Apps > Apps.Dialogflow`. There, fill all the necessary fields in `SETTINGS` and click SAVE. Note all fields are required. 
-    
+3. The app needs some configurations to work, so to setup the app Go to `Setting > Apps > Dialogflow`. There, fill all the necessary fields in `SETTINGS` and click SAVE. Note all fields are required.
+
     Some of the fields in `SETTING` include
     1. Bot Username (required)
         - This should contain the same bot username which we created above in Step 1
@@ -62,11 +62,11 @@ You can find all these credentials in a JSON file, which u can get from [here](h
     9. Close Chat Message (optional)
         - This message will be sent automatically when a chat is closed
 
-4. (Optional Step) Lastly you can test your Dialogflow Connection by viewing App Logs. To view the logs, goto App Page (`Setting > Apps > Apps.Dialogflow`). There click on menu item (3 vertical dots icon) and then select `View Logs`. There select the **most recent** `onSettingUpdated` title. If you see `------------------ Google Credentials validation Success ----------------` message, then it means your setup is fine. If you don't see this message, then recheck your Dialogflow credentials.
+4. (Optional Step) Lastly you can test your Dialogflow Connection by viewing App Logs. To view the logs, goto App Page (`Setting > Apps > Dialogflow`). There click on menu item (3 vertical dots icon) and then select `View Logs`. There select the **most recent** `onSettingUpdated` title. If you see `------------------ Google Credentials validation Success ----------------` message, then it means your setup is fine. If you don't see this message, then recheck your Dialogflow credentials.
 
-### Apps.Dialogflow's API
+### Dialogflow's API
 
-The app provides API to trigger specific actions. The URL for the API can be found on the Apps Page(`Setting > Apps > Apps.Dialogflow`). Currently the app provides 2 APIs.
+The app provides API to trigger specific actions. The URL for the API can be found on the Apps Page(`Setting > Apps > Dialogflow`). Currently the app provides 2 APIs.
 
 1. Incoming API/Endpoint
 
@@ -78,7 +78,7 @@ The app provides API to trigger specific actions. The URL for the API can be fou
         To perform a handover
         - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
 2. Fulfillment API/Endpoint
-    
+
     The fulfillment endpoint will enable the app to handle asynchronous messages. More information on it [here](./docs/api-endpoints/fulfillment-endpoint.md)
 
 
