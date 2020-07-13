@@ -4,7 +4,7 @@ Integration between Rocket.Chat and the Dialogflow Chatbot platform
 ### Installation steps:
 
  1. Clone this repo and Change Directory: </br>
- `git clone https://github.com/RocketChat/Apps.Dialogflow.git && cd App.Dialogflow/`
+ `git clone https://github.com/RocketChat/Apps.Dialogflow.git && cd Apps.Dialogflow/`
 
  2. Install the required packages from `package.json`: </br>
 	 `npm install`
