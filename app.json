@@ -9,7 +9,7 @@
         "support": "support@rocket.chat"
     },
     "name": "Dialogflow",
-    "nameSlug": "appsdialogflow",
+    "nameSlug": "dialogflow",
     "classFile": "DialogflowApp.ts",
     "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform"
 }
