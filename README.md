@@ -77,6 +77,9 @@ The app provides API to trigger specific actions. The URL for the API can be fou
     2. **Handover**<br/>
         To perform a handover
         - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/perform-handover.md)
+    3. **Send-Message**<br/>
+        To send a message as a bot to Visitor
+        - REST API Documentation for this endpoint can be found [here](./docs/api-endpoints/send-message.md)
 2. Fulfillment API/Endpoint
 
     The fulfillment endpoint will enable the app to handle asynchronous messages. More information on it [here](./docs/api-endpoints/fulfillment-endpoint.md)

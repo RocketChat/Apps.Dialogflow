@@ -6,6 +6,7 @@ export enum Logs {
     INVALID_BOT_USERNAME_SETTING = 'The Bot User does not exist.',
     INVALID_VISITOR_TOKEN = 'Error: Visitor Token not valid',
     INVALID_DEPARTMENT_NAME = 'Error: Department Name is not valid',
+    INVALID_MESSAGES = 'Error! Messages data not present or in wrong format. Kindly refer the api documentation.',
     ENDPOINT_REQUEST_PROCESSING_ERROR = 'Error occurred while processing the request. Details:- ',
     INVALID_ENDPOINT_ACTION = 'Error!! Invalid Action type',
     EMPTY_CLIENT_EMAIL_OR_PRIVATE_KEY_SETTING = 'Client Email or Private Key Field cannot be empty',
