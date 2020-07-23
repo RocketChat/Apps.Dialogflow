@@ -14,6 +14,12 @@ export interface IDialogflowAccessToken {
     expiration: Date;
 }
 
+export interface IDialogflowEvent {
+    name: string;
+    parameters?: any;
+    languageCode: string;
+}
+
 export enum QuickReplyContentType {
     TEXT = 'text',
 }

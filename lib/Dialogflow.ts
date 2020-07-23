@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -22,6 +22,26 @@ class DialogflowClass {
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
             { queryInput: { text: { languageCode: LanguageCode.EN, text: messageText } } },
+        );
+
+        try {
+            const response = await http.post(serverURL, httpRequestContent);
+            return this.parseRequest(response.data);
+        } catch (error) {
+            throw new Error(Logs.HTTP_REQUEST_ERROR);
+        }
+    }
+
+    public async sendEvent(http: IHttp,
+                           read: IRead,
+                           modify: IModify,
+                           sessionId: string,
+                           event: IDialogflowEvent): Promise<IDialogflowMessage> {
+        const serverURL = await this.getServerURL(read, modify, http, sessionId);
+
+        const httpRequestContent: IHttpRequest = createHttpRequest(
+            { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
+            { queryInput: { event } },
         );
 
         try {
