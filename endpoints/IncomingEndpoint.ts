@@ -5,6 +5,7 @@ import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints'
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { createHttpResponse } from '../lib/Http';
+import { createDialogflowMessage } from '../lib/Message';
 import { closeChat, performHandover } from '../lib/Room';
 
 export class IncomingEndpoint extends ApiEndpoint {
@@ -41,6 +42,11 @@ export class IncomingEndpoint extends ApiEndpoint {
                 if (!room) { throw new Error(); }
                 const { visitor: { token: visitorToken } } = room;
                 await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                break;
+            case EndpointActionNames.SEND_MESSAGE:
+                const { actionData: { messages = null } = {} } = endpointContent;
+                if (!messages) { throw new Error(Logs.INVALID_MESSAGES); }
+                await createDialogflowMessage(sessionId, read, modify, { messages, isFallback: false });
                 break;
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);
