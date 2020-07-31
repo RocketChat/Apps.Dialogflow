@@ -44,3 +44,8 @@ export enum Base64 {
 export enum LanguageCode {
     EN = 'en',
 }
+
+export enum DialogflowRequestType {
+    MESSAGE = 'message',
+    EVENT = 'event',
+}

@@ -1,7 +1,7 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IDialogflowMessage } from '../enum/Dialogflow';
+import { IDialogflowMessage, DialogflowRequestType } from '../enum/Dialogflow';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
@@ -50,7 +50,7 @@ export class IncomingEndpoint extends ApiEndpoint {
                 if (!event) { throw new Error(Logs.INVALID_EVENT_DATA); }
 
                 try {
-                    const response: IDialogflowMessage = await Dialogflow.sendEvent(http, read, modify, sessionId, event);
+                    const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, sessionId, event, DialogflowRequestType.EVENT);
                     await createDialogflowMessage(sessionId, read, modify, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
