@@ -49,15 +49,18 @@ export class IncomingEndpoint extends ApiEndpoint {
                 const { actionData: { event = null } = {} } = endpointContent;
                 if (!event) { throw new Error(Logs.INVALID_EVENT_DATA); }
 
-                let response: IDialogflowMessage;
                 try {
-                    response = await Dialogflow.sendEvent(http, read, modify, sessionId, event);
+                    const response: IDialogflowMessage = await Dialogflow.sendEvent(http, read, modify, sessionId, event);
+                    await createDialogflowMessage(sessionId, read, modify, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                     throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                 }
-
-                await createDialogflowMessage(sessionId, read, modify, response);
+                break;
+            case EndpointActionNames.SEND_MESSAGE:
+                const { actionData: { messages = null } = {} } = endpointContent;
+                if (!messages) { throw new Error(Logs.INVALID_MESSAGES); }
+                await createDialogflowMessage(sessionId, read, modify, { messages, isFallback: false });
                 break;
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);
