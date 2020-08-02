@@ -45,7 +45,12 @@ export enum LanguageCode {
     EN = 'en',
 }
 
+export enum AudioLanguageCode {
+    EN_US = 'en-US',
+}
+
 export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
+    AUDIO = 'audio',
 }
