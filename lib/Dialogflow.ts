@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { AudioLanguageCode, DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { AudioLanguageCode, DialogflowJWT, DialogflowOutputAudioEncoding, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -31,6 +31,7 @@ class DialogflowClass {
             {
                 queryInput,
                 ...requestType === DialogflowRequestType.AUDIO && { inputAudio: request },
+                ...requestType === DialogflowRequestType.AUDIO && { outputAudioConfig: { audioEncoding: DialogflowOutputAudioEncoding.LINEAR_16 } },
             },
         );
 
@@ -85,7 +86,14 @@ class DialogflowClass {
     public parseRequest(response: any): IDialogflowMessage {
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
-        const { session, queryResult } = response;
+        const { session, queryResult, outputAudio } = response;
+        if (outputAudio) {
+            const { intent: { isFallback } } = queryResult;
+            return {
+                audio: outputAudio,
+                isFallback: isFallback ? isFallback : false,
+            };
+        }
         if (queryResult) {
             const { fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {

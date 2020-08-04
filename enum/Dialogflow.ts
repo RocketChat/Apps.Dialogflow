@@ -2,6 +2,7 @@ export interface IDialogflowMessage {
     messages?: Array<string | IDialogflowQuickReplies>;
     isFallback: boolean;
     sessionId?: string;
+    audio?: string;
 }
 
 export interface IDialogflowQuickReplies {
@@ -53,4 +54,8 @@ export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
     AUDIO = 'audio',
+}
+
+export enum DialogflowOutputAudioEncoding {
+    LINEAR_16 = 'OUTPUT_AUDIO_ENCODING_LINEAR_16',
 }

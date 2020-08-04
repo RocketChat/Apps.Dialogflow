@@ -6,7 +6,13 @@ import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
-    const { messages = [] } = dialogflowMessage;
+    const { messages = [], audio } = dialogflowMessage;
+
+    if (audio) {
+        const uri = `data:audio/x-wav;base64,${ audio }`;
+        const attachment = { audioUrl: uri };
+        await createMessage(rid, read, modify, { attachment });
+    }
 
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
@@ -54,7 +60,7 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         return;
     }
 
-    const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
+    const msg = modify.getCreator().startLivechatMessage().setRoom(room).setSender(sender);
     const { text, attachment } = message;
 
     if (text) {
