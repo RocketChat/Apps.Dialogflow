@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { AudioLanguageCode, DialogflowJWT, DialogflowOutputAudioEncoding, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { AudioLanguageCode, DialogflowInputAudioEncoding, DialogflowJWT, DialogflowOutputAudioEncoding, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -24,14 +24,21 @@ class DialogflowClass {
             ...requestType === DialogflowRequestType.EVENT && { event: request },
             ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
             ...requestType === DialogflowRequestType.AUDIO && { audioConfig: { languageCode: AudioLanguageCode.EN_US } },
+            ...requestType === DialogflowRequestType.AUDIO_OGG &&
+                { audioConfig: { audioEncoding: DialogflowInputAudioEncoding.ENCODING_OGG, sampleRateHertz: 16000, languageCode: AudioLanguageCode.EN_US } },
         };
+
+        const onlyTextMessage = await getAppSettingValue(read, AppSetting.DialogflowShowOnlyTextMessages);
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
             {
                 queryInput,
-                ...requestType === DialogflowRequestType.AUDIO && { inputAudio: request },
-                ...requestType === DialogflowRequestType.AUDIO && { outputAudioConfig: { audioEncoding: DialogflowOutputAudioEncoding.LINEAR_16 } },
+                ...(requestType === DialogflowRequestType.AUDIO || requestType === DialogflowRequestType.AUDIO_OGG) &&
+                        {
+                            inputAudio: request,
+                            ...!onlyTextMessage && { outputAudioConfig: { audioEncoding: DialogflowOutputAudioEncoding.LINEAR_16 } },
+                        },
             },
         );
 
@@ -39,7 +46,7 @@ class DialogflowClass {
             const response = await http.post(serverURL, httpRequestContent);
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details:- ${ error }`);
         }
     }
 

@@ -55,7 +55,9 @@ export class PostMessageSentHandler {
         let response: IDialogflowMessage;
         try {
             const content = text || (await this.read.getUploadReader().getBufferById((file as IMessageFile)._id)).toString('base64');
-            const contentType = text ? DialogflowRequestType.MESSAGE : DialogflowRequestType.AUDIO;
+            const contentType = text ?
+                                DialogflowRequestType.MESSAGE :
+                                (file && file.type === 'audio/ogg') ? DialogflowRequestType.AUDIO_OGG : DialogflowRequestType.AUDIO;
 
             response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, content, contentType));
         } catch (error) {

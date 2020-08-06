@@ -54,8 +54,13 @@ export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
     AUDIO = 'audio',
+    AUDIO_OGG = 'audio-ogg',
 }
 
 export enum DialogflowOutputAudioEncoding {
     LINEAR_16 = 'OUTPUT_AUDIO_ENCODING_LINEAR_16',
+}
+
+export enum DialogflowInputAudioEncoding {
+    ENCODING_OGG = 'AUDIO_ENCODING_OGG_OPUS',
 }
