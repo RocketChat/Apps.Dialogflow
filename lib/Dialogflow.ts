@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { AudioLanguageCode, DialogflowInputAudioEncoding, DialogflowJWT, DialogflowOutputAudioEncoding, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -23,18 +23,30 @@ class DialogflowClass {
         const queryInput = {
             ...requestType === DialogflowRequestType.EVENT && { event: request },
             ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
+            ...requestType === DialogflowRequestType.AUDIO && { audioConfig: { languageCode: AudioLanguageCode.EN_US } },
+            ...requestType === DialogflowRequestType.AUDIO_OGG &&
+                { audioConfig: { audioEncoding: DialogflowInputAudioEncoding.ENCODING_OGG, sampleRateHertz: 16000, languageCode: AudioLanguageCode.EN_US } },
         };
+
+        const onlyTextMessage = await getAppSettingValue(read, AppSetting.DialogflowShowOnlyTextMessages);
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
-            { queryInput },
+            {
+                queryInput,
+                ...(requestType === DialogflowRequestType.AUDIO || requestType === DialogflowRequestType.AUDIO_OGG) &&
+                        {
+                            inputAudio: request,
+                            ...!onlyTextMessage && { outputAudioConfig: { audioEncoding: DialogflowOutputAudioEncoding.LINEAR_16 } },
+                        },
+            },
         );
 
         try {
             const response = await http.post(serverURL, httpRequestContent);
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details:- ${ error }`);
         }
     }
 
@@ -81,7 +93,14 @@ class DialogflowClass {
     public parseRequest(response: any): IDialogflowMessage {
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
-        const { session, queryResult } = response;
+        const { session, queryResult, outputAudio } = response;
+        if (outputAudio) {
+            const { intent: { isFallback } } = queryResult;
+            return {
+                audio: outputAudio,
+                isFallback: isFallback ? isFallback : false,
+            };
+        }
         if (queryResult) {
             const { fulfillmentMessages, intent: { isFallback } } = queryResult;
             const parsedMessage: IDialogflowMessage = {
