@@ -3,7 +3,7 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
-import { IDialogflowMessage } from '../enum/Dialogflow';
+import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
@@ -48,7 +48,7 @@ export class PostMessageSentHandler {
 
         let response: IDialogflowMessage;
         try {
-            response = (await Dialogflow.sendMessage(this.http, this.read, this.modify, rid, text));
+            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 

@@ -1,9 +1,11 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IDialogflowMessage, DialogflowRequestType } from '../enum/Dialogflow';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
+import { Dialogflow } from '../lib/Dialogflow';
 import { createHttpResponse } from '../lib/Http';
 import { createDialogflowMessage } from '../lib/Message';
 import { closeChat, performHandover } from '../lib/Room';
@@ -20,7 +22,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, persis, request.content);
+            await this.processRequest(read, modify, http, request.content);
             return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
         } catch (error) {
             this.app.getLogger().error(Logs.ENDPOINT_REQUEST_PROCESSING_ERROR, error);
@@ -28,7 +30,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, persis: IPersistence, endpointContent: IActionsEndpointContent) {
+    private async processRequest(read: IRead, modify: IModify, http: IHttp, endpointContent: IActionsEndpointContent) {
 
         const { action, sessionId } = endpointContent;
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
@@ -42,6 +44,18 @@ export class IncomingEndpoint extends ApiEndpoint {
                 if (!room) { throw new Error(); }
                 const { visitor: { token: visitorToken } } = room;
                 await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                break;
+            case EndpointActionNames.TRIGGER_EVENT:
+                const { actionData: { event = null } = {} } = endpointContent;
+                if (!event) { throw new Error(Logs.INVALID_EVENT_DATA); }
+
+                try {
+                    const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, sessionId, event, DialogflowRequestType.EVENT);
+                    await createDialogflowMessage(sessionId, read, modify, response);
+                } catch (error) {
+                    this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
+                    throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
+                }
                 break;
             case EndpointActionNames.SEND_MESSAGE:
                 const { actionData: { messages = null } = {} } = endpointContent;

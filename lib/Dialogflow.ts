@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowUrl, IDialogflowAccessToken, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -12,23 +12,29 @@ import { getAppSettingValue } from './Settings';
 
 class DialogflowClass {
     private jwtExpiration: Date;
-    public async sendMessage(http: IHttp,
+    public async sendRequest(http: IHttp,
                              read: IRead,
                              modify: IModify,
                              sessionId: string,
-                             messageText: string): Promise<IDialogflowMessage> {
+                             request: IDialogflowEvent | string,
+                             requestType: DialogflowRequestType): Promise<IDialogflowMessage> {
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
+
+        const queryInput = {
+            ...requestType === DialogflowRequestType.EVENT && { event: request },
+            ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
+        };
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
-            { queryInput: { text: { languageCode: LanguageCode.EN, text: messageText } } },
+            { queryInput },
         );
 
         try {
             const response = await http.post(serverURL, httpRequestContent);
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(Logs.HTTP_REQUEST_ERROR);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
         }
     }
 
