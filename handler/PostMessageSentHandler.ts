@@ -1,6 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IMessageFile } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
@@ -19,7 +20,8 @@ export class PostMessageSentHandler {
                 private readonly modify: IModify) {}
 
     public async run() {
-        const { text, editedAt, room, token, sender } = this.message;
+        const { text, editedAt, room, token, sender, file } = this.message;
+
         const livechatRoom = room as ILivechatRoom;
 
         const { id: rid, type, servedBy, isOpen } = livechatRoom;
@@ -30,7 +32,7 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (!isOpen || !token || editedAt || !text) {
+        if (!isOpen || !token || editedAt) {
             return;
         }
 
@@ -42,13 +44,22 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (!text || (text && text.trim().length === 0)) {
+        if (!text && !file) {
+            return;
+        }
+
+        if ((text && text.trim().length === 0) || (file && !file.type.startsWith('audio'))) {
             return;
         }
 
         let response: IDialogflowMessage;
         try {
-            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
+            const content = text || (await this.read.getUploadReader().getBufferById((file as IMessageFile)._id)).toString('base64');
+            const contentType = text ?
+                                DialogflowRequestType.MESSAGE :
+                                (file && file.type === 'audio/ogg') ? DialogflowRequestType.AUDIO_OGG : DialogflowRequestType.AUDIO;
+
+            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, content, contentType));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 

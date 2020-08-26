@@ -6,7 +6,13 @@ import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
-    const { messages = [] } = dialogflowMessage;
+    const { messages = [], audio } = dialogflowMessage;
+
+    if (audio) {
+        const uri = `data:audio/x-wav;base64,${ audio }`;
+        const attachment = { audioUrl: uri };
+        await createMessage(rid, read, modify, { attachment });
+    }
 
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
@@ -59,7 +65,7 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
 
     const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
 
-    const { text, actionsBlock } = message;
+    const { text, actionsBlock, attachment } = message;
 
     if (text) {
         msg.setText(text);
@@ -68,6 +74,10 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
     if (actionsBlock) {
         const { elements } = actionsBlock as IActionsBlock;
         msg.addBlocks(modify.getCreator().getBlockBuilder().addActionsBlock({ elements }));
+    }
+
+    if (attachment) {
+        msg.addAttachment(attachment);
     }
 
     return new Promise(async (resolve) => {
