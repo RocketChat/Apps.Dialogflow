@@ -3,7 +3,7 @@ import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
-import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
+import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickRepliesOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
@@ -21,13 +21,14 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
         if (text && options) {
             // message is instanceof IDialogflowQuickReplies
-            const elements: Array<IButtonElement> = options.map((payload: string) => ({
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickRepliesOptions) => ({
                 type: BlockElementType.BUTTON,
                 text: {
                     type: TextObjectType.PLAINTEXT,
-                    text: payload,
+                    text: payload.text,
                 },
-                actionId: payload,
+                actionId: payload.actionId ? payload.actionId : payload.text,
+                ...payload.buttonStyle && { style: payload.buttonStyle },
             } as IButtonElement));
 
             const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
