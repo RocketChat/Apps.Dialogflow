@@ -1,4 +1,4 @@
-### Quick Replies 
+# Quick Replies
 
 ## Required Structure
 ```
