@@ -7,6 +7,7 @@ export interface IDialogflowMessage {
 export interface IDialogflowQuickReplies {
     text: string;
     options: Array<string>;
+    blockId?: string;
 }
 
 export interface IDialogflowAccessToken {

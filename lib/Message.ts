@@ -1,5 +1,5 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IMessageAction, IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
+import { BlockElementType, ButtonStyle, ConditionalBlockFiltersEngine, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
@@ -9,19 +9,33 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
-        const { text, options } = message as IDialogflowQuickReplies;
+        const { text, options, blockId } = message as IDialogflowQuickReplies;
 
         if (text && options) {
             // message is instanceof IDialogflowQuickReplies
-            const actions: Array<IMessageAction> = options.map((payload: string) => ({
-                type: MessageActionType.BUTTON,
-                text: payload,
-                msg: payload,
-                msg_in_chat_window: true,
-                msg_processing_type: MessageProcessingType.SendMessage,
-            } as IMessageAction));
-            const attachment: IMessageAttachment = { actions };
-            await createMessage(rid, read, modify, { text, attachment });
+            const actions: Array<IButtonElement> = options.map((payload: any) => ({
+                type: BlockElementType.BUTTON,
+                text: {
+                    type: TextObjectType.PLAINTEXT,
+                    text: payload.text,
+                },
+                actionId: payload.actionId ? payload.actionId : undefined,
+                value: payload.value ? payload.value : undefined,
+                style: payload.buttonStyle === 'danger' ? ButtonStyle.DANGER : undefined || payload.buttonStyle === 'primary' ? ButtonStyle.PRIMARY : undefined,
+            } as IButtonElement));
+
+            const blocks = modify.getCreator().getBlockBuilder();
+            const innerBlocks = modify.getCreator().getBlockBuilder();
+
+            blocks.addConditionalBlock(
+                innerBlocks.addActionsBlock({
+                    blockId: blockId ? blockId : undefined,
+                    elements: actions,
+                }),
+                { engine: [ConditionalBlockFiltersEngine.LIVECHAT] },
+            );
+
+            await createMessage(rid, read, modify, { text, blocks });
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
@@ -55,14 +69,14 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
     }
 
     const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
-    const { text, attachment } = message;
+    const { text, blocks } = message;
 
     if (text) {
         msg.setText(text);
     }
 
-    if (attachment) {
-        msg.addAttachment(attachment);
+    if (blocks) {
+        msg.addBlocks(blocks);
     }
 
     return new Promise(async (resolve) => {
