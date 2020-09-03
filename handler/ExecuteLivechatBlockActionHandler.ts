@@ -20,7 +20,7 @@ export class ExecuteLivechatBlockActionHandler {
         try {
             const interactionData = this.context.getInteractionData();
 
-            const { visitor: { token }, room, container: { id, type }, actionId } = interactionData;
+            const { visitor: { token }, room, container: { id, type }, value } = interactionData;
 
             if (type !== UIKitIncomingInteractionContainerType.MESSAGE || !room) { return this.context.getInteractionResponder().successResponse(); }
 
@@ -34,7 +34,7 @@ export class ExecuteLivechatBlockActionHandler {
             if (!visitor) { return this.context.getInteractionResponder().successResponse(); }
             const appUser = await this.read.getUserReader().getAppUser(this.app.getID()) as IUser;
 
-            await createLivechatMessage(rid, this.read, this.modify, { text: actionId }, visitor);
+            await createLivechatMessage(rid, this.read, this.modify, { text: value }, visitor);
 
             await deleteAllActionBlocks(this.modify, appUser, id);
 

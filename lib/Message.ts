@@ -21,6 +21,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                     type: TextObjectType.PLAINTEXT,
                     text: payload.text,
                 },
+                value: payload.text,
                 actionId: payload.actionId ? payload.actionId : payload.text,
                 ...payload.buttonStyle && { style: payload.buttonStyle },
             } as IButtonElement));
