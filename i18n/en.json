@@ -12,5 +12,7 @@
     "dialogflow_service_unavailable_message": "Service Unavailable Message",
     "dialogflow_service_unavailable_message_description": "The Bot will send this message to Visitor if service is unavailable",
     "dialogflow_close_chat_message": "Close Chat Message",
-    "dialogflow_close_chat_message_description": "This message will be sent automatically when a chat is closed"
+    "dialogflow_close_chat_message_description": "This message will be sent automatically when a chat is closed",
+    "dialogflow_hide_quick_replies": "Hide Quick Replies",
+    "dialogflow_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them"
 }

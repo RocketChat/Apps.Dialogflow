@@ -1,8 +1,11 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { IMessageAction, IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
+import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
+import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
-import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
+import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
+import { uuid } from './Helper';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
@@ -10,18 +13,22 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
-
         if (text && options) {
-            // message is instanceof IDialogflowQuickReplies
-            const actions: Array<IMessageAction> = options.map((payload: string) => ({
-                type: MessageActionType.BUTTON,
-                text: payload,
-                msg: payload,
-                msg_in_chat_window: true,
-                msg_processing_type: MessageProcessingType.SendMessage,
-            } as IMessageAction));
-            const attachment: IMessageAttachment = { actions };
-            await createMessage(rid, read, modify, { text, attachment });
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
+                type: BlockElementType.BUTTON,
+                text: {
+                    type: TextObjectType.PLAINTEXT,
+                    text: payload.text,
+                },
+                value: payload.text,
+                actionId: payload.actionId || uuid(),
+                ...payload.buttonStyle && { style: payload.buttonStyle },
+            } as IButtonElement));
+
+            const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+
+            await createMessage(rid, read, modify, { text });
+            await createMessage(rid, read, modify, { actionsBlock });
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
@@ -55,6 +62,48 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
     }
 
     const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
+
+    const { text, actionsBlock, attachment } = message;
+
+    if (text) {
+        msg.setText(text);
+    }
+
+    if (attachment) {
+        msg.addAttachment(attachment);
+    }
+
+    if (actionsBlock) {
+        const { elements } = actionsBlock as IActionsBlock;
+        msg.addBlocks(modify.getCreator().getBlockBuilder().addActionsBlock({ elements }));
+    }
+
+    return new Promise(async (resolve) => {
+        modify.getCreator().finish(msg)
+        .then((result) => resolve(result))
+        .catch((error) => console.error(error));
+    });
+};
+
+export const createLivechatMessage = async (rid: string, read: IRead,  modify: IModify, message: any, visitor: IVisitor ): Promise<any> => {
+    if (!message) {
+        return;
+    }
+
+    const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    if (!botUserName) {
+        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
+        return;
+    }
+
+    const room = await read.getRoomReader().getById(rid);
+    if (!room) {
+        this.app.getLogger().error(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
+        return;
+    }
+
+    const msg = modify.getCreator().startLivechatMessage().setRoom(room).setVisitor(visitor);
+
     const { text, attachment } = message;
 
     if (text) {
@@ -70,4 +119,10 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         .then((result) => resolve(result))
         .catch((error) => console.error(error));
     });
+};
+
+export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msgId: string): Promise<void> => {
+    const msgBuilder = await modify.getUpdater().message(msgId, appUser);
+    msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
+    return modify.getUpdater().finish(msgBuilder);
 };
