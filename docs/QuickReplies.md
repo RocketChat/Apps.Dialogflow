@@ -29,7 +29,7 @@
 
 ## Pre-Programmed Buttons
 
-This are buttons that performs specific actions in the app. You can add them by simply pasting the following block in your Quick Replies payload. **Note**: You can change the `text` and `buttonStyle` parameters as per your requirements, but only use the provided `actionId` for the button you want to add.
+These buttons perform a specific action in the app. You can add them by simply pasting the following block in your Quick Replies payload. **Note**: You can change the `text` and `buttonStyle` parameters as per your requirements, but only use the provided `actionId` for the button you want to add.
 
 ### Handover Button
 
