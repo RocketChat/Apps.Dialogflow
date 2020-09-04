@@ -10,6 +10,7 @@ export enum AppSetting {
     DialogflowHandoverMessage = 'dialogflow_handover_message',
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
+    DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
 }
 
 export enum DefaultMessage {
@@ -96,5 +97,15 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'dialogflow_close_chat_message',
         i18nDescription: 'dialogflow_close_chat_message_description',
         required: false,
+    },
+    {
+        id: AppSetting.DialogflowHideQuickReplies,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: true,
+        value: true,
+        i18nLabel: 'dialogflow_hide_quick_replies',
+        i18nDescription: 'dialogflow_hide_quick_replies_description',
+        required: true,
     },
 ];

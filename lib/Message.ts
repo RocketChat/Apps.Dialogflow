@@ -3,7 +3,7 @@ import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
-import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickRepliesOptions } from '../enum/Dialogflow';
+import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
@@ -15,20 +15,21 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
         if (text && options) {
             // message is instanceof IDialogflowQuickReplies
-            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickRepliesOptions) => ({
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
                 type: BlockElementType.BUTTON,
                 text: {
                     type: TextObjectType.PLAINTEXT,
                     text: payload.text,
                 },
                 value: payload.text,
-                actionId: payload.actionId ? payload.actionId : payload.text,
+                actionId: payload.actionId ? payload.actionId : String(Date.now()),
                 ...payload.buttonStyle && { style: payload.buttonStyle },
             } as IButtonElement));
 
             const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
 
-            await createMessage(rid, read, modify, { text, actionsBlock });
+            await createMessage(rid, read, modify, { text });
+            await createMessage(rid, read, modify, { actionsBlock });
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
@@ -98,7 +99,7 @@ export const createLivechatMessage = async (rid: string, read: IRead,  modify: I
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+        this.app.getLogger().error(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
         return;
     }
 
@@ -121,9 +122,8 @@ export const createLivechatMessage = async (rid: string, read: IRead,  modify: I
     });
 };
 
-export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msgId: string) => {
+export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msgId: string): Promise<void> => {
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
-    msgBuilder.setEditor(appUser);
-    msgBuilder.setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
-    await modify.getUpdater().finish(msgBuilder);
+    msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
+    return modify.getUpdater().finish(msgBuilder);
 };
