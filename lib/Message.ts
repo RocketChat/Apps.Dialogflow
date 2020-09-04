@@ -5,6 +5,7 @@ import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
+import { uuid } from './Helper';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
@@ -12,7 +13,6 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
-
         if (text && options) {
             const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
                 type: BlockElementType.BUTTON,
@@ -21,7 +21,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                     text: payload.text,
                 },
                 value: payload.text,
-                actionId: payload.actionId ? payload.actionId : String(Date.now()),
+                actionId: payload.actionId || uuid(),
                 ...payload.buttonStyle && { style: payload.buttonStyle },
             } as IButtonElement));
 
