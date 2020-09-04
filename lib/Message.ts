@@ -14,7 +14,6 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
         const { text, options } = message as IDialogflowQuickReplies;
 
         if (text && options) {
-            // message is instanceof IDialogflowQuickReplies
             const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
                 type: BlockElementType.BUTTON,
                 text: {
