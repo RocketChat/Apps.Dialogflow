@@ -20,23 +20,27 @@ export class ExecuteLivechatBlockActionHandler {
         try {
             const interactionData = this.context.getInteractionData();
 
-            const { visitor: { token }, room, container: { id, type }, value } = interactionData;
+            const { visitor, room, container: { id, type }, value } = interactionData;
 
-            if (type !== UIKitIncomingInteractionContainerType.MESSAGE || !room) { return this.context.getInteractionResponder().successResponse(); }
-
-            const { servedBy: { username = null } = {}, id: rid } = room as ILivechatRoom;
-            if (!username) { return this.context.getInteractionResponder().successResponse(); }
+            if (type !== UIKitIncomingInteractionContainerType.MESSAGE) {
+                return this.context.getInteractionResponder().successResponse();
+            }
 
             const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
-            if (DialogflowBotUsername !== username) { return this.context.getInteractionResponder().successResponse(); }
+            const { servedBy: { username = null } = {}, id: rid } = room as ILivechatRoom;
 
-            const visitor = await this.read.getLivechatReader().getLivechatVisitorByToken(token);
-            if (!visitor) { return this.context.getInteractionResponder().successResponse(); }
+            if (!username || DialogflowBotUsername !== username) {
+                return this.context.getInteractionResponder().successResponse();
+            }
+
             const appUser = await this.read.getUserReader().getAppUser(this.app.getID()) as IUser;
 
             await createLivechatMessage(rid, this.read, this.modify, { text: value }, visitor);
 
-            await deleteAllActionBlocks(this.modify, appUser, id);
+            const { value: hideQuickRepliesSetting } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowHideQuickReplies);
+            if (hideQuickRepliesSetting) {
+                await deleteAllActionBlocks(this.modify, appUser, id);
+            }
 
             return this.context.getInteractionResponder().successResponse();
         } catch (error) {

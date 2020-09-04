@@ -8,10 +8,10 @@ export interface IDialogflowMessage {
 
 export interface IDialogflowQuickReplies {
     text: string;
-    options: Array<IDialogflowQuickRepliesOptions>;
+    options: Array<IDialogflowQuickReplyOptions>;
 }
 
-export interface IDialogflowQuickRepliesOptions {
+export interface IDialogflowQuickReplyOptions {
     text: string;
     actionId?: string;
     buttonStyle?: ButtonStyle;
