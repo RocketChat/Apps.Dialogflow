@@ -11,6 +11,7 @@ export enum AppSetting {
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
+    DialogflowWelcomeIntentOnStart = 'dialogflow_welcome_intent_on_start'
 }
 
 export enum DefaultMessage {
@@ -106,6 +107,15 @@ export const settings: Array<ISetting> = [
         value: true,
         i18nLabel: 'dialogflow_hide_quick_replies',
         i18nDescription: 'dialogflow_hide_quick_replies_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowWelcomeIntentOnStart,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        i18nLabel: 'dialogflow_welcome_intent_on_start',
+        i18nDescription: 'dialogflow_welcome_intent_on_start_description',
         required: true,
     },
 ];
