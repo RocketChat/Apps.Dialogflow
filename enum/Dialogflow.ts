@@ -57,3 +57,7 @@ export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
 }
+
+export enum Message {
+    CLOSED_BY_VISITOR = 'Closed by visitor',
+}
