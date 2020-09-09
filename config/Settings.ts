@@ -131,7 +131,6 @@ export const settings: Array<ISetting> = [
         required: false,
     },
     {
-
         id: AppSetting.DialogflowWelcomeIntentOnStart,
         public: true,
         type: SettingType.BOOLEAN,
