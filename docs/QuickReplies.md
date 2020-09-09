@@ -37,11 +37,12 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 - Parameters:
 
-|   Param Name  |  Dependency  | Param Type |    Acceptable Value   |
-|:-------------:|:------------:|:----------:|:---------------------:|
-|   `actionId`  | **Required** |   String   | `df_perform_handover` |
-|     `text`    | **Required** |   String   |        **Any**        |
-| `buttonStyle` | **Optional** |   String   | `primary` or `danger` |
+|      Param Name      |  Dependency  | Param Type |      Acceptable Value      |
+|:--------------------:|:------------:|:----------:|:--------------------------:|
+|      `actionId`      | **Required** |   String   |    `df_perform_handover`   |
+|        `text`        | **Required** |   String   |           **Any**          |
+| `salesforceButtonId` | **Optional** |   String   | **Any Liveagent ButtonId** |
+|     `buttonStyle`    | **Optional** |   String   |    `primary` or `danger`   |
 
 - Example Structure:
 
