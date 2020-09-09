@@ -35,6 +35,16 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 - On clicking this button, the visitor will be handed over to another departement. You can set the target department in the app setting called **Target Department for Handover**. Add the following block in your Quick Replies payload, with **actionId** set as `df_perform_handover`, to include this button in your response:
 
+- Parameters:
+
+|   Param Name  |  Dependency  | Param Type |    Acceptable Value   |
+|:-------------:|:------------:|:----------:|:---------------------:|
+|   `actionId`  | **Required** |   String   | `df_perform_handover` |
+|     `text`    | **Required** |   String   |        **Any**        |
+| `buttonStyle` | **Optional** |   String   | `primary` or `danger` |
+
+- Example Structure:
+
 ```
 {
    "text": "Perform Handover",
@@ -47,11 +57,45 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 - When visitor clicks this button, the chat session will be closed. Add the following block in your Quick Replies payload, with **actionId** set as `df_close_chat`, to include this button in your response:
 
+- Parameters:
+
+|   Param Name  |  Dependency  | Param Type |    Acceptable Value   |
+|:-------------:|:------------:|:----------:|:---------------------:|
+|   `actionId`  | **Required** |   String   |    `df_close_chat`    |
+|     `text`    | **Required** |   String   |        **Any**        |
+| `buttonStyle` | **Optional** |   String   | `primary` or `danger` |
+
+- Example Structure:
+
 ```
 {
    "text": "Close Chat",
    "buttonStyle": "danger",
    "actionId": "df_close_chat"
+}
+```
+
+### Salesforce Handover Button
+
+- If you are using Salesforce Liveagent integration app along side your Dialogflow chatbot, then you can use this button payload to perform handover and initiate chat session with given Salesforce **buttonId**. Add the following block in your Quick Replies payload, with **actionId** set as `sf_handover_with_buttonid` and **salesforceButtonId** set to the buttonId of your Liveagent instance, to include this button in your response:
+
+- Parameters:
+
+|      Param Name      |  Dependency  | Param Type |       Acceptable Value      |
+|:--------------------:|:------------:|:----------:|:---------------------------:|
+|      `actionId`      | **Required** |   String   | `sf_handover_with_buttonid` |
+| `salesforceButtonId` | **Required** |   String   |  **Any Liveagent ButtonId** |
+|        `text`        | **Required** |   String   |           **Any**           |
+|     `buttonStyle`    | **Optional** |   String   |    `primary` or `danger`    |
+
+- Example Structure:
+
+```
+{
+   "text": "Perform Handover",
+   "salesforceButtonId": "5732w000000U9T6",
+   "actionId": "sf_handover_with_buttonid",
+   "buttonStyle": "danger"
 }
 ```
 
