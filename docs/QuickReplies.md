@@ -75,30 +75,6 @@ These buttons perform a specific action in the app. You can add them by simply p
 }
 ```
 
-### Salesforce Handover Button
-
-- If you are using Salesforce Liveagent integration app along side your Dialogflow chatbot, then you can use this button payload to perform handover and initiate chat session with given Salesforce **buttonId**. Add the following block in your Quick Replies payload, with **actionId** set as `sf_handover_with_buttonid` and **salesforceButtonId** set to the buttonId of your Liveagent instance, to include this button in your response:
-
-- Parameters:
-
-|      Param Name      |  Dependency  | Param Type |       Acceptable Value      |
-|:--------------------:|:------------:|:----------:|:---------------------------:|
-|      `actionId`      | **Required** |   String   | `sf_handover_with_buttonid` |
-| `salesforceButtonId` | **Required** |   String   |  **Any Liveagent ButtonId** |
-|        `text`        | **Required** |   String   |           **Any**           |
-|     `buttonStyle`    | **Optional** |   String   |    `primary` or `danger`    |
-
-- Example Structure:
-
-```
-{
-   "text": "Perform Handover",
-   "salesforceButtonId": "5732w000000U9T6",
-   "actionId": "sf_handover_with_buttonid",
-   "buttonStyle": "danger"
-}
-```
-
 ## Example
 
 ![Pre-Programmed Example Payload](https://user-images.githubusercontent.com/41849970/92283593-d5e70a80-ef1d-11ea-8860-e91a4980515f.png)

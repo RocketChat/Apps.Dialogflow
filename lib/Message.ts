@@ -20,7 +20,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                     type: TextObjectType.PLAINTEXT,
                     text: payload.text,
                 },
-                value: payload.salesforceButtonId ? payload.salesforceButtonId : payload.text,
+                value: payload.text,
                 actionId: payload.actionId || uuid(),
                 ...payload.buttonStyle && { style: payload.buttonStyle },
             } as IButtonElement));

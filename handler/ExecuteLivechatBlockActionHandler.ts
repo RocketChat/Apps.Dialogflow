@@ -7,7 +7,7 @@ import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import { createLivechatMessage, deleteAllActionBlocks } from '../lib/Message';
-import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
+import { closeChat, performHandover } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class ExecuteLivechatBlockActionHandler {
@@ -44,12 +44,6 @@ export class ExecuteLivechatBlockActionHandler {
 
                 case ActionIds.CLOSE_CHAT:
                     await closeChat(this.modify, this.read, rid);
-                    break;
-
-                case ActionIds.SALESFORCE_BUTTON_ID_HANDOVER:
-                    const salesforceTargetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
-                    updateRoomCustomFields(rid, { reqButtonId: value }, this.read, this.modify);
-                    await performHandover(this.modify, this.read, rid, visitor.token, salesforceTargetDepartment);
                     break;
 
                 default:
