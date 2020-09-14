@@ -7,6 +7,7 @@ import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
+import { updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class OnAgentAssignedHandler {
@@ -21,7 +22,8 @@ export class OnAgentAssignedHandler {
         const { room } = this.context;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen, customFields = {} } = livechatRoom;
+        const { welcomeEventSent = false } = customFields;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
         const { value: sendWelcomeEvent } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowWelcomeIntentOnStart);
@@ -38,10 +40,16 @@ export class OnAgentAssignedHandler {
             return;
         }
 
+        if (welcomeEventSent) {
+            return;
+        }
+
         try {
             const event = { name: "Welcome", languageCode: "en" };
             const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, event, DialogflowRequestType.EVENT);
+
             await createDialogflowMessage(rid, this.read, this.modify, response);
+            await updateRoomCustomFields(rid, { welcomeEventSent: true }, this.read, this.modify);
           } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
