@@ -8,7 +8,7 @@ import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
-import { incFallbackIntent, resetFallbackIntent } from '../lib/SynchronousHandover';
+import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
 
 export class PostMessageSentHandler {
     constructor(private readonly app: IApp,
@@ -66,13 +66,16 @@ export class PostMessageSentHandler {
             return;
         }
 
-        await createDialogflowMessage(rid, this.read, this.modify, response);
+        const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
         // synchronous handover check
         const { isFallback } = response;
         if (isFallback) {
-            return incFallbackIntent(this.read, this.modify, rid);
+            return incFallbackIntentAndSendResponse(this.read, this.modify, rid, createResponseMessage);
         }
+
+        await createResponseMessage();
+
         return resetFallbackIntent(this.read, this.modify, rid);
     }
 
