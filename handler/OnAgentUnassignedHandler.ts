@@ -18,8 +18,6 @@ export class OnAgentUnassignedHandler {
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
         const { isChatBotFunctional: allowChatBotSession } = this.context.room.customFields as any;
 
-        console.log('customFields', this.context.room.customFields);
-
         if (!livechatRoom.servedBy) {
             return;
         }
