@@ -4,7 +4,7 @@ import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from '../lib/Settings';
-import { createMessage } from './Message';
+import { createMessage, sendCloseChatButton } from './Message';
 
 export const updateRoomCustomFields = async (rid: string, data: any, read: IRead,  modify: IModify): Promise<any> => {
     if (!rid) {
@@ -45,7 +45,7 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
 export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string, dialogflowMessage?: () => any) => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
-    
+
     // Use handoverMessage if set
     if (handoverMessage) {
         await createMessage(rid, read, modify, { text: handoverMessage });
@@ -79,6 +79,8 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     if (!result) {
         const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
+
+        await sendCloseChatButton (read, modify, rid);
     }
 };

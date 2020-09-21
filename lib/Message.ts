@@ -1,6 +1,6 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
@@ -143,4 +143,20 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
     msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const sendCloseChatButton = async (read: IRead, modify: IModify, rid: string) => {
+    const elements: Array<IButtonElement> = [{
+        type: BlockElementType.BUTTON,
+        actionId: ActionIds.CLOSE_CHAT,
+        text: {
+            text: 'Close Chat',
+            type: TextObjectType.PLAINTEXT,
+        },
+        value: 'Close Chat',
+        style: ButtonStyle.DANGER,
+    }];
+
+    const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+    await createMessage(rid, read, modify, { actionsBlock });
 };
