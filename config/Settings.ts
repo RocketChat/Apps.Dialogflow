@@ -19,6 +19,7 @@ export enum AppSetting {
 export enum DefaultMessage {
     DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
+    DEFAULT_DialogflowHandoverFailedMessage = 'Sorry I\'m unable to transfer you to an agent.',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
 }
 
