@@ -44,12 +44,13 @@ export class OnAgentAssignedHandler {
             return;
         }
 
+        await updateRoomCustomFields(rid, { welcomeEventSent: true }, this.read, this.modify);
+
         try {
             const event = { name: 'Welcome', languageCode: 'en', parameters: livechatData || {} };
             const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, event, DialogflowRequestType.EVENT);
 
             await createDialogflowMessage(rid, this.read, this.modify, response);
-            await updateRoomCustomFields(rid, { welcomeEventSent: true }, this.read, this.modify);
           } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 

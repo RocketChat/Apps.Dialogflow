@@ -7,6 +7,7 @@ import { DialogflowRequestType, IDialogflowMessage, LanguageCode, Message } from
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
+import { performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
 
@@ -57,11 +58,15 @@ export class PostMessageSentHandler {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
             const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavailableMessage);
-
             await createMessage(rid,
                                 this.read,
                                 this.modify,
                                 { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+
+            const { visitor: { token: visitorToken } } = room as ILivechatRoom;
+            updateRoomCustomFields(rid, { isChatBotFunctional: false }, this.read, this.modify);
+            const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
+            await performHandover(this.modify, this.read, rid, visitorToken, targetDepartment);
 
             return;
         }
