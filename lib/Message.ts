@@ -13,7 +13,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
-        const { text, options } = message as IDialogflowQuickReplies;
+        const { text, options, customFields = null } = message as IDialogflowQuickReplies;
         if (text || options) {
             if (text) {
                 await createMessage(rid, read, modify, { text });
@@ -49,12 +49,12 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                 });
 
                 const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
-                await createMessage(rid, read, modify, { actionsBlock });
+                await createMessage(rid, read, modify, { text, actionsBlock, customFields });
             }
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
-                await createMessage(rid, read, modify, { text: message });
+                await createMessage(rid, read, modify, { text: message, customFields });
             }
         }
     }
@@ -83,9 +83,14 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         return;
     }
 
-    const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
+    const { text, actionsBlock, attachment, customFields } = message;
+    let data = { room, sender };
 
-    const { text, actionsBlock, attachment } = message;
+    if (customFields) {
+        data = Object.assign(data, { customFields });
+    }
+
+    const msg = modify.getCreator().startMessage(data);
 
     if (text) {
         msg.setText(text);
