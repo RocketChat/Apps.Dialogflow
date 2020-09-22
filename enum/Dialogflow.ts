@@ -15,6 +15,7 @@ export interface IDialogflowQuickReplyOptions {
     text: string;
     actionId?: string;
     buttonStyle?: ButtonStyle;
+    salesforceButtonId?: string;
 }
 
 export interface IDialogflowAccessToken {
@@ -56,4 +57,8 @@ export enum LanguageCode {
 export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
+}
+
+export enum Message {
+    CLOSED_BY_VISITOR = 'Closed by visitor',
 }

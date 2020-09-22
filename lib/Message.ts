@@ -1,8 +1,9 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
+import { ActionIds } from '../enum/ActionIds';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { uuid } from './Helper';
@@ -14,16 +15,33 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
         if (text && options) {
-            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
-                type: BlockElementType.BUTTON,
-                text: {
-                    type: TextObjectType.PLAINTEXT,
-                    text: payload.text,
-                },
-                value: payload.text,
-                actionId: payload.actionId || uuid(),
-                ...payload.buttonStyle && { style: payload.buttonStyle },
-            } as IButtonElement));
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
+                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                    const buttonElement: IButtonElement = {
+                        type: BlockElementType.BUTTON,
+                        actionId: payload.actionId || uuid(),
+                        text: {
+                            text: payload.text,
+                            type: TextObjectType.PLAINTEXT,
+                        },
+                        value: payload.salesforceButtonId ? payload.salesforceButtonId : undefined,
+                        ...payload.buttonStyle && { style: payload.buttonStyle },
+                    };
+                    return buttonElement;
+                } else {
+                    const buttonElement: IButtonElement = {
+                        type: BlockElementType.BUTTON,
+                        actionId: payload.actionId || uuid(),
+                        text: {
+                            text: payload.text,
+                            type: TextObjectType.PLAINTEXT,
+                        },
+                        value: payload.text,
+                        ...payload.buttonStyle && { style: payload.buttonStyle },
+                    };
+                    return buttonElement;
+                }
+            });
 
             const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
 
@@ -125,4 +143,20 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
     msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const sendCloseChatButton = async (read: IRead, modify: IModify, rid: string) => {
+    const elements: Array<IButtonElement> = [{
+        type: BlockElementType.BUTTON,
+        actionId: ActionIds.CLOSE_CHAT,
+        text: {
+            text: 'Close Chat',
+            type: TextObjectType.PLAINTEXT,
+        },
+        value: 'Close Chat',
+        style: ButtonStyle.DANGER,
+    }];
+
+    const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+    await createMessage(rid, read, modify, { actionsBlock });
 };

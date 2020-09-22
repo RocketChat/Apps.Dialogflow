@@ -10,7 +10,7 @@ import {
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
-import { ILivechatMessage } from '@rocket.chat/apps-engine/definition/livechat';
+import { ILivechatEventContext, ILivechatMessage, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned } from '@rocket.chat/apps-engine/definition/livechat';
 import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
@@ -19,10 +19,12 @@ import { settings } from './config/Settings';
 import { FulfillmentsEndpoint } from './endpoints/FulfillmentsEndpoint';
 import { IncomingEndpoint } from './endpoints/IncomingEndpoint';
 import { ExecuteLivechatBlockActionHandler } from './handler/ExecuteLivechatBlockActionHandler';
+import { OnAgentAssignedHandler } from './handler/OnAgentAssignedHandler';
+import { OnAgentUnassignedHandler } from './handler/OnAgentUnassignedHandler';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
-export class DialogflowApp extends App implements IPostMessageSent, IUIKitLivechatInteractionHandler {
+export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned, IUIKitLivechatInteractionHandler {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -42,6 +44,24 @@ export class DialogflowApp extends App implements IPostMessageSent, IUIKitLivech
                                         persis: IPersistence,
                                         modify: IModify): Promise<void> {
         const handler = new PostMessageSentHandler(this, message, read, http, persis, modify);
+        await handler.run();
+    }
+
+    public async executePostLivechatAgentUnassigned(context: ILivechatEventContext,
+                                                    read: IRead,
+                                                    http: IHttp,
+                                                    persis: IPersistence,
+                                                    modify: IModify): Promise<void> {
+        const handler = new OnAgentUnassignedHandler(this, context, read, http, persis, modify);
+        await handler.run();
+    }
+
+    public async executePostLivechatAgentAssigned(context: ILivechatEventContext,
+                                                  read: IRead,
+                                                  http: IHttp,
+                                                  persis: IPersistence,
+                                                  modify: IModify): Promise<void> {
+        const handler = new OnAgentAssignedHandler(this, context, read, http, persis, modify);
         await handler.run();
     }
 
