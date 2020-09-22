@@ -16,7 +16,7 @@
 
 | **Param Name** | **Param Type** |                **Description**                | **Dependency** |                                                                         **Example**                                                                         |
 |:--------------:|:--------------:|:---------------------------------------------:|:--------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|     `text`     |     String     | The title of the collection of quick replies. |    Required    |                                 ``` "text": "Sorry I don't know the answer. Please select one of the following options:" ```                                |
+|     `text`     |     String     | The title of the collection of quick replies. |    Optional    |                                 ``` "text": "Sorry I don't know the answer. Please select one of the following options:" ```                                |
 |    `options`   |      Array     |    The collection of quick replies objects.   |    Required    | ``` "options": [       {         "text": "Start chat with agent",         "actionId": "sflaia-start-chat",         "buttonStyle" : "primary"       }  ] ``` |
 
 ## `options` Params
