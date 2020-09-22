@@ -7,7 +7,7 @@ export interface IDialogflowMessage {
 }
 
 export interface IDialogflowQuickReplies {
-    text: string;
+    text?: string;
     options: Array<IDialogflowQuickReplyOptions>;
 }
 
