@@ -14,38 +14,43 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
     for (const message of messages) {
         const { text, options, customFields = null } = message as IDialogflowQuickReplies;
-        if (text && options) {
-            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
-                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                    const buttonElement: IButtonElement = {
-                        type: BlockElementType.BUTTON,
-                        actionId: payload.actionId || uuid(),
-                        text: {
-                            text: payload.text,
-                            type: TextObjectType.PLAINTEXT,
-                        },
-                        value: payload.salesforceButtonId ? payload.salesforceButtonId : undefined,
-                        ...payload.buttonStyle && { style: payload.buttonStyle },
-                    };
-                    return buttonElement;
-                } else {
-                    const buttonElement: IButtonElement = {
-                        type: BlockElementType.BUTTON,
-                        actionId: payload.actionId || uuid(),
-                        text: {
-                            text: payload.text,
-                            type: TextObjectType.PLAINTEXT,
-                        },
-                        value: payload.text,
-                        ...payload.buttonStyle && { style: payload.buttonStyle },
-                    };
-                    return buttonElement;
-                }
-            });
+        if (text || options) {
+            if (text) {
+                await createMessage(rid, read, modify, { text });
+            }
 
-            const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+            if (options) {
+                const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
+                    if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                        const buttonElement: IButtonElement = {
+                            type: BlockElementType.BUTTON,
+                            actionId: payload.actionId || uuid(),
+                            text: {
+                                text: payload.text,
+                                type: TextObjectType.PLAINTEXT,
+                            },
+                            value: payload.salesforceButtonId ? payload.salesforceButtonId : undefined,
+                            ...payload.buttonStyle && { style: payload.buttonStyle },
+                        };
+                        return buttonElement;
+                    } else {
+                        const buttonElement: IButtonElement = {
+                            type: BlockElementType.BUTTON,
+                            actionId: payload.actionId || uuid(),
+                            text: {
+                                text: payload.text,
+                                type: TextObjectType.PLAINTEXT,
+                            },
+                            value: payload.text,
+                            ...payload.buttonStyle && { style: payload.buttonStyle },
+                        };
+                        return buttonElement;
+                    }
+                });
 
-            await createMessage(rid, read, modify, { text, actionsBlock, customFields });
+                const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+                await createMessage(rid, read, modify, { text, actionsBlock, customFields });
+            }
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
