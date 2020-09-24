@@ -27,6 +27,7 @@ export class OnAgentAssignedHandler {
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
         const { value: sendWelcomeEvent } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowWelcomeIntentOnStart);
+        const { value: sendWelcomeMessage } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowEnableWelcomeMessage);
 
         if (!type || type !== RoomType.LIVE_CHAT) {
             return;
@@ -42,6 +43,11 @@ export class OnAgentAssignedHandler {
 
         if (welcomeEventSent) {
             return;
+        }
+
+        if (sendWelcomeMessage) {
+            const welcomeMessage: string = await getAppSettingValue(this.read, AppSetting.DialogflowWelcomeMessage);
+            await createMessage(rid, this.read, this.modify, { text: welcomeMessage || DefaultMessage.DEFAULT_DialogflowWelcomeMessage });
         }
 
         await updateRoomCustomFields(rid, { welcomeEventSent: true }, this.read, this.modify);

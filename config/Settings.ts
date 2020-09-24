@@ -12,6 +12,8 @@ export enum AppSetting {
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
     DialogflowEnableChatClosedByVisitorEvent = 'dialogflow_enable_chat_closed_by_visitor_event',
+    DialogflowEnableWelcomeMessage = 'dialogflow_enable_welcome_message',
+    DialogflowWelcomeMessage = 'dialogflow_welcome_message',
     DialogflowChatClosedByVisitorEventName = 'dialogflow_chat_closed_by_visitor_event_name',
     DialogflowWelcomeIntentOnStart = 'dialogflow_welcome_intent_on_start',
 }
@@ -21,6 +23,7 @@ export enum DefaultMessage {
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
     DEFAULT_DialogflowHandoverFailedMessage = 'Sorry I\'m unable to transfer you to an agent.',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
+    DEFAULT_DialogflowWelcomeMessage = 'Thanks for connecting',
 }
 
 export const settings: Array<ISetting> = [
@@ -129,6 +132,24 @@ export const settings: Array<ISetting> = [
         packageValue: 'closed_by_visitor',
         i18nLabel: 'dialogflow_chat_closed_by_visitor_event_name',
         i18nDescription: 'dialogflow_chat_closed_by_visitor_event_name_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowEnableWelcomeMessage,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        i18nLabel: 'dialogflow_enable_welcome_message',
+        i18nDescription: 'dialogflow_enable_welcome_message_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowWelcomeMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: DefaultMessage.DEFAULT_DialogflowWelcomeMessage,
+        i18nLabel: 'dialogflow_welcome_message',
+        i18nDescription: 'dialogflow_welcome_message_description',
         required: false,
     },
     {

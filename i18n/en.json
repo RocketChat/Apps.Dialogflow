@@ -19,6 +19,10 @@
     "dialogflow_enable_chat_closed_by_visitor_event_description": "If enabled, then a dialogflow event will be triggered when visitor ends chat",
     "dialogflow_chat_closed_by_visitor_event_name": "Dialogflow Event Name When Visitor Ends Chat",
     "dialogflow_chat_closed_by_visitor_event_name_description": "The bot will trigger this dialogflow event when visitor ends chat",
+    "dialogflow_enable_welcome_message": "Enable Custom Welcome Message",
+    "dialogflow_enable_welcome_message_description": "If enabled, then a custom welcome message will be sent when bot is assigned to any visitor",
+    "dialogflow_welcome_message": "Dialogflow Message to send on start",
+    "dialogflow_welcome_message_description": "Custom welcome message to send to visitor",
     "dialogflow_welcome_intent_on_start": "Send Welcome Intent",
-    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome message will be sent when bot is assigned to any visitor"
+    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor"
 }
