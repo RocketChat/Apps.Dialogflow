@@ -14,49 +14,38 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
     for (const message of messages) {
         const { text, options, customFields = null } = message as IDialogflowQuickReplies;
-        if (text || options) {
-            if (text) {
-                await createMessage(rid, read, modify, { text });
-            }
+        const data: any = { customFields };
 
-            if (options) {
-                const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
-                    if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                        const buttonElement: IButtonElement = {
-                            type: BlockElementType.BUTTON,
-                            actionId: payload.actionId || uuid(),
-                            text: {
-                                text: payload.text,
-                                type: TextObjectType.PLAINTEXT,
-                            },
-                            value: payload.salesforceButtonId ? payload.salesforceButtonId : undefined,
-                            ...payload.buttonStyle && { style: payload.buttonStyle },
-                        };
-                        return buttonElement;
-                    } else {
-                        const buttonElement: IButtonElement = {
-                            type: BlockElementType.BUTTON,
-                            actionId: payload.actionId || uuid(),
-                            text: {
-                                text: payload.text,
-                                type: TextObjectType.PLAINTEXT,
-                            },
-                            value: payload.text,
-                            ...payload.buttonStyle && { style: payload.buttonStyle },
-                        };
-                        return buttonElement;
-                    }
-                });
-
-                const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
-                await createMessage(rid, read, modify, { text, actionsBlock, customFields });
-            }
-        } else {
-            // message is instanceof string
-            if ((message as string).trim().length > 0) {
-                await createMessage(rid, read, modify, { text: message, customFields });
-            }
+        if (text && text.trim().length > 0) {
+            data.text = text;
+        } else if (typeof message === 'string') {
+            data.text = message;
         }
+
+        if (options) {
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
+                const buttonElement: IButtonElement = {
+                    type: BlockElementType.BUTTON,
+                    actionId: payload.actionId || uuid(),
+                    text: {
+                        text: payload.text,
+                        type: TextObjectType.PLAINTEXT,
+                    },
+                    value: payload.text,
+                    ...payload.buttonStyle && { style: payload.buttonStyle },
+                };
+
+                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                    buttonElement.value = payload.salesforceButtonId ? payload.salesforceButtonId : undefined;
+                }
+                
+                return buttonElement;
+            });
+
+            data.actionsBlock = { type: BlockType.ACTIONS, elements };
+        }
+        
+        await createMessage(rid, read, modify, data);
     }
 };
 

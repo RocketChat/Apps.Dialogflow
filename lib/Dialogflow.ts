@@ -96,7 +96,7 @@ class DialogflowClass {
                 const { text, payload: { quickReplies = null, customFields = null } = {} } = message;
                 if (text) {
                     const { text: textMessageArray } = text;
-                    messages.push(textMessageArray[0]);
+                    messages.push({ text: textMessageArray[0] });
                 }
                 if (quickReplies) {
                     const { options } = quickReplies;

@@ -8,8 +8,8 @@ export interface IDialogflowMessage {
 
 export interface IDialogflowQuickReplies {
     text?: string;
-    options: Array<IDialogflowQuickReplyOptions>;
-    customFields?: IDialogflowCustomFields; 
+    options?: Array<IDialogflowQuickReplyOptions>;
+    customFields?: IDialogflowCustomFields;
 }
 
 export interface IDialogflowCustomFields {
