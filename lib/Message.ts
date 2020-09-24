@@ -18,6 +18,8 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
         if (text && text.trim().length > 0) {
             data.text = text;
+        } else if (typeof message === 'string') {
+            data.text = message;
         }
 
         if (options) {
