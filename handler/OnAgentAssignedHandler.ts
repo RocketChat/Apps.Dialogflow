@@ -22,7 +22,7 @@ export class OnAgentAssignedHandler {
         const { room } = this.context;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen, customFields = {} } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen, customFields = {}, visitor: { livechatData } } = livechatRoom;
         const { welcomeEventSent = false } = customFields;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
@@ -53,7 +53,7 @@ export class OnAgentAssignedHandler {
         await updateRoomCustomFields(rid, { welcomeEventSent: true }, this.read, this.modify);
 
         try {
-            const event = { name: 'Welcome', languageCode: 'en' };
+            const event = { name: 'Welcome', languageCode: 'en', parameters: livechatData || {} };
             const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, event, DialogflowRequestType.EVENT);
 
             await createDialogflowMessage(rid, this.read, this.modify, response);
