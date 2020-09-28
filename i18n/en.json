@@ -3,6 +3,8 @@
     "dialogflow_project_id": "Project Id",
     "dialogflow_client_email": "Client Email",
     "dialogflow_private_key": "Private Key",
+    "dialogflow_environment": "Environment",
+    "dialogflow_environment_description": "Name of the Dialogflow environment. Default environment is draft",
     "dialogflow_fallback_responses_limit": "Fallback Responses Limit",
     "dialogflow_fallback_responses_limit_description": "The app will automatically trigger handover if consecutive fallback intents are triggered N no of times. This setting defines this value N",
     "target_department_for_handover": "Target Department for Handover",

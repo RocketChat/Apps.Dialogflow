@@ -5,6 +5,7 @@ export enum AppSetting {
     DialogflowProjectId = 'dialogflow_project_id',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
+    DialogflowEnvironment = 'dialogflow_environment',
     DialogflowFallbackResponsesLimit = 'dialogflow_fallback_responses_limit',
     FallbackTargetDepartment = 'fallback_target_department',
     DialogflowHandoverMessage = 'dialogflow_handover_message',
@@ -58,6 +59,15 @@ export const settings: Array<ISetting> = [
         packageValue: '',
         i18nLabel: 'dialogflow_private_key',
         required: true,
+    },
+    {
+        id: AppSetting.DialogflowEnvironment,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: 'draft',
+        i18nLabel: 'dialogflow_environment',
+        i18nDescription: 'dialogflow_environment_description',
+        required: false,
     },
     {
         id: AppSetting.DialogflowFallbackResponsesLimit,
