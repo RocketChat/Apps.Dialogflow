@@ -110,13 +110,17 @@ class DialogflowClass {
                 }
             });
 
-            
-            if (messages.length > 0) {
-                if (Object.keys(msgCustomFields).length > 0) {
+            if (Object.keys(msgCustomFields).length > 0) {
+                if (messages.length > 0) {
                     let lastObj = messages[messages.length - 1];
                     lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
                     messages[messages.length - 1] = lastObj;
+                } else {
+                    messages.push({ customFields: msgCustomFields });
                 }
+            }
+
+            if (messages.length > 0) {
                 parsedMessage.messages = messages;
             }
 
