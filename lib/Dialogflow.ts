@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, IDialogflowCustomFields, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowCustomFields, IDialogflowEvent, IDialogflowMessage, IDialogflowPayload, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -88,12 +88,12 @@ class DialogflowClass {
                 isFallback: isFallback ? isFallback : false,
             };
 
-            const messages: Array<string | IDialogflowQuickReplies> = [];
+            const messages: Array<string | IDialogflowQuickReplies | IDialogflowPayload> = [];
             // customFields should be sent as the response of last message on client side
             let msgCustomFields: IDialogflowCustomFields = {};
 
             fulfillmentMessages.forEach((message) => {
-                const { text, payload: { quickReplies = null, customFields = null } = {} } = message;
+                const { text, payload: { quickReplies = null, customFields = null, action = null } = {} } = message;
                 if (text) {
                     const { text: textMessageArray } = text;
                     messages.push({ text: textMessageArray[0] });
@@ -107,6 +107,9 @@ class DialogflowClass {
                 if (customFields) {
                     msgCustomFields.disableInput = !!customFields.disableInput;
                     msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                }
+                if (action) {
+                    messages.push({action});
                 }
             });
 
