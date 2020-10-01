@@ -26,6 +26,5 @@
     "dialogflow_welcome_message": "Dialogflow Message to send on start",
     "dialogflow_welcome_message_description": "Custom welcome message to send to visitor",
     "dialogflow_welcome_intent_on_start": "Send Welcome Intent",
-    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor",
-    "dialogflow_default_salesforce_button_id" : "Default Salesforce ButtonId for handover"
+    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor"
 }

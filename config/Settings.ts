@@ -17,7 +17,6 @@ export enum AppSetting {
     DialogflowWelcomeMessage = 'dialogflow_welcome_message',
     DialogflowChatClosedByVisitorEventName = 'dialogflow_chat_closed_by_visitor_event_name',
     DialogflowWelcomeIntentOnStart = 'dialogflow_welcome_intent_on_start',
-    DialogflowDefaultSalesforceButtonId = 'dialogflow_default_salesforce_button_id',
 }
 
 export enum DefaultMessage {
@@ -96,14 +95,6 @@ export const settings: Array<ISetting> = [
         packageValue: '',
         i18nLabel: 'dialogflow_handover_message',
         i18nDescription: 'dialogflow_handover_message_description',
-        required: false,
-    },
-    {
-        id: AppSetting.DialogflowDefaultSalesforceButtonId,
-        public: true,
-        type: SettingType.STRING,
-        packageValue: '',
-        i18nLabel: 'dialogflow_default_salesforce_button_id',
         required: false,
     },
     {

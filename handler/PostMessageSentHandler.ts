@@ -113,10 +113,8 @@ export class PostMessageSentHandler {
                 const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
                 if (actionName) {
                     if (actionName === ActionIds.PERFORM_HANDOVER) {
-                        const defaultButtonId: string = await getAppSettingValue(this.read, AppSetting.DialogflowDefaultSalesforceButtonId);
-                        const buttonId = params.salesforceButtonId || defaultButtonId;
-                        if (buttonId) {
-                            updateRoomCustomFields(rid, { reqButtonId: buttonId }, this.read, this.modify);
+                        if (params && params.salesforceButtonId) {
+                            updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, this.read, this.modify);
                         }
                         await performHandover(this.modify, this.read, rid, visitorToken, targetDepartment);
                     } else if (actionName === ActionIds.CLOSE_CHAT) {
