@@ -3,6 +3,7 @@ import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
+import { ActionIds } from '../enum/ActionIds';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { uuid } from './Helper';
@@ -14,16 +15,33 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
         if (text && options) {
-            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => ({
-                type: BlockElementType.BUTTON,
-                text: {
-                    type: TextObjectType.PLAINTEXT,
-                    text: payload.text,
-                },
-                value: payload.text,
-                actionId: payload.actionId || uuid(),
-                ...payload.buttonStyle && { style: payload.buttonStyle },
-            } as IButtonElement));
+            const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
+                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                    const buttonElement: IButtonElement = {
+                        type: BlockElementType.BUTTON,
+                        actionId: payload.actionId || uuid(),
+                        text: {
+                            text: payload.text,
+                            type: TextObjectType.PLAINTEXT,
+                        },
+                        value: payload.departmentName ? payload.departmentName : undefined,
+                        ...payload.buttonStyle && { style: payload.buttonStyle },
+                    };
+                    return buttonElement;
+                } else {
+                    const buttonElement: IButtonElement = {
+                        type: BlockElementType.BUTTON,
+                        actionId: payload.actionId || uuid(),
+                        text: {
+                            text: payload.text,
+                            type: TextObjectType.PLAINTEXT,
+                        },
+                        value: payload.text,
+                        ...payload.buttonStyle && { style: payload.buttonStyle },
+                    };
+                    return buttonElement;
+                }
+            });
 
             const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
 

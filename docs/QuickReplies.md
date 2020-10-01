@@ -37,11 +37,12 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 - Parameters:
 
-|   Param Name  |  Dependency  | Param Type |    Acceptable Value   |
-|:-------------:|:------------:|:----------:|:---------------------:|
-|   `actionId`  | **Required** |   String   | `df_perform_handover` |
-|     `text`    | **Required** |   String   |        **Any**        |
-| `buttonStyle` | **Optional** |   String   | `primary` or `danger` |
+|    Param Name    |  Dependency  | Param Type |           Acceptable Value          |
+|:----------------:|:------------:|:----------:|:-----------------------------------:|
+|    `actionId`    | **Required** |   String   |        `df_perform_handover`        |
+|      `text`      | **Required** |   String   |               **Any**               |
+|   `buttonStyle`  | **Optional** |   String   |        `primary` or `danger`        |
+| `departmentName` | **Optional** |   String   | **Any Omnichannel department name** |
 
 - Example Structure:
 
@@ -49,7 +50,8 @@ These buttons perform a specific action in the app. You can add them by simply p
 {
    "text": "Perform Handover",
    "buttonStyle": "primary",
-   "actionId": "df_perform_handover"
+   "actionId": "df_perform_handover",
+   "departmentName": "sales"
 }
 ```
 
@@ -78,4 +80,3 @@ These buttons perform a specific action in the app. You can add them by simply p
 ## Example
 
 ![Pre-Programmed Example Payload](https://user-images.githubusercontent.com/41849970/92283593-d5e70a80-ef1d-11ea-8860-e91a4980515f.png)
-
