@@ -3,21 +3,22 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
-import { DialogflowRequestType, IDialogflowMessage, LanguageCode, Message } from '../enum/Dialogflow';
+import { ActionIds } from '../enum/ActionIds';
+import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload, LanguageCode, Message } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
-import { performHandover, updateRoomCustomFields } from '../lib/Room';
+import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
 
 export class PostMessageSentHandler {
     constructor(private readonly app: IApp,
-                private readonly message: ILivechatMessage,
-                private readonly read: IRead,
-                private readonly http: IHttp,
-                private readonly persis: IPersistence,
-                private readonly modify: IModify) {}
+        private readonly message: ILivechatMessage,
+        private readonly read: IRead,
+        private readonly http: IHttp,
+        private readonly persis: IPersistence,
+        private readonly modify: IModify) { }
 
     public async run() {
         const { text, editedAt, room, token, sender } = this.message;
@@ -52,6 +53,8 @@ export class PostMessageSentHandler {
         }
 
         let response: IDialogflowMessage;
+        const { visitor: { token: visitorToken } } = room as ILivechatRoom;
+
         try {
             response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
         } catch (error) {
@@ -59,17 +62,18 @@ export class PostMessageSentHandler {
 
             const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavailableMessage);
             await createMessage(rid,
-                                this.read,
-                                this.modify,
-                                { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+                this.read,
+                this.modify,
+                { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
 
-            const { visitor: { token: visitorToken } } = room as ILivechatRoom;
             updateRoomCustomFields(rid, { isChatBotFunctional: false }, this.read, this.modify);
             const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
             await performHandover(this.modify, this.read, rid, visitorToken, targetDepartment);
 
             return;
         }
+
+        this.handlePayloadActions(rid, visitorToken, response);
 
         const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
@@ -96,6 +100,29 @@ export class PostMessageSentHandler {
                 }, DialogflowRequestType.EVENT));
             } catch (error) {
                 this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
+            }
+        }
+    }
+
+    private async handlePayloadActions(rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) {
+        const { messages = [] } = dialogflowMessage;
+        for (const message of messages) {
+            const { action = null } = message as IDialogflowPayload;
+            if (action) {
+                const { name: actionName, params } = action as IDialogflowAction;
+                const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
+                if (actionName) {
+                    if (actionName === ActionIds.PERFORM_HANDOVER) {
+                        const defaultButtonId: string = await getAppSettingValue(this.read, AppSetting.DialogflowDefaultSalesforceButtonId);
+                        const buttonId = params.salesforceButtonId || defaultButtonId;
+                        if (buttonId) {
+                            updateRoomCustomFields(rid, { reqButtonId: buttonId }, this.read, this.modify);
+                        }
+                        await performHandover(this.modify, this.read, rid, visitorToken, targetDepartment);
+                    } else if (actionName === ActionIds.CLOSE_CHAT) {
+                        await closeChat(this.modify, this.read, rid);
+                    }
+                }
             }
         }
     }
