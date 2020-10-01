@@ -16,19 +16,6 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
         const { text, options } = message as IDialogflowQuickReplies;
         if (text && options) {
             const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
-                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                    const buttonElement: IButtonElement = {
-                        type: BlockElementType.BUTTON,
-                        actionId: payload.actionId || uuid(),
-                        text: {
-                            text: payload.text,
-                            type: TextObjectType.PLAINTEXT,
-                        },
-                        value: payload.departmentName ? payload.departmentName : undefined,
-                        ...payload.buttonStyle && { style: payload.buttonStyle },
-                    };
-                    return buttonElement;
-                } else {
                     const buttonElement: IButtonElement = {
                         type: BlockElementType.BUTTON,
                         actionId: payload.actionId || uuid(),
@@ -39,8 +26,12 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                         value: payload.text,
                         ...payload.buttonStyle && { style: payload.buttonStyle },
                     };
+
+                    if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                        buttonElement.value = payload.departmentName ? payload.departmentName : undefined;
+                    }
+
                     return buttonElement;
-                }
             });
 
             const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
