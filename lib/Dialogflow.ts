@@ -145,19 +145,26 @@ class DialogflowClass {
     }
 
     private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
-        const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
-        const environment = await getAppSettingValue(read, AppSetting.DialogflowEnvironment) || 'draft';
+        const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
+        const projectIds = (await getAppSettingValue(read, AppSetting.DialogflowProjectId)).split(',');
+        const projectId = projectIds.length >= botId ? projectIds[botId - 1]: projectIds[0];
+        const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
+        const environment = environments.length >= botId ? environments[botId - 1]: environments[0];
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
-        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
+        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment || 'draft'}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
     private async getAccessToken(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
 
-        const clientEmail = await getAppSettingValue(read, AppSetting.DialogflowClientEmail);
-        const privateKey = await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey);
+        const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
+        const clientEmails = (await getAppSettingValue(read, AppSetting.DialogflowClientEmail)).split(',');
+        const privateKeys = (await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey)).split(',');
+        const privateKey = privateKeys.length >= botId ? privateKeys[botId - 1]: privateKeys[0];
+        const clientEmail = clientEmails.length >= botId ? clientEmails[botId - 1]: clientEmails[0];
+
         if (!privateKey || !clientEmail) { throw new Error(Logs.EMPTY_CLIENT_EMAIL_OR_PRIVATE_KEY_SETTING); }
 
         const room: IRoom = await read.getRoomReader().getById(sessionId) as IRoom;

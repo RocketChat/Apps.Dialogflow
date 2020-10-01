@@ -1,5 +1,7 @@
 {
     "bot_username": "Bot Username",
+    "dialogflow_bot_id": "Bot Id",
+    "dialogflow_bot_id_description": "Select the bot to use from the list of bots. Use comma to seperate values in respective fields",
     "dialogflow_project_id": "Project Id",
     "dialogflow_client_email": "Client Email",
     "dialogflow_private_key": "Private Key",

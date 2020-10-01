@@ -2,6 +2,7 @@ import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/setti
 
 export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
+    DialogflowBotId = 'dialogflow_bot_id',
     DialogflowProjectId = 'dialogflow_project_id',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
@@ -34,6 +35,16 @@ export const settings: Array<ISetting> = [
         type: SettingType.STRING,
         packageValue: '',
         i18nLabel: 'bot_username',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowBotId,
+        public: true,
+        type: SettingType.NUMBER,
+        packageValue: 1,
+        value: 1,
+        i18nLabel: 'dialogflow_bot_id',
+        i18nDescription: 'dialogflow_bot_id_description',
         required: true,
     },
     {
