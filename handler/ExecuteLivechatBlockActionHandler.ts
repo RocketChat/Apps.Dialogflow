@@ -39,7 +39,6 @@ export class ExecuteLivechatBlockActionHandler {
             switch (actionId) {
                 case ActionIds.PERFORM_HANDOVER:
                     const targetDepartment: string = value || await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
-                    if (value !== undefined) { targetDepartment = value; }
                     if (!targetDepartment) {
                         await createMessage(rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
                         break;
