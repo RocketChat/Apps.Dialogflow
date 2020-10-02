@@ -33,7 +33,9 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 ### Handover Button
 
-- On clicking this button, the visitor will be handed over to another departement. You can set the target department in the app setting called **Target Department for Handover**. Add the following block in your Quick Replies payload, with **actionId** set as `df_perform_handover`, to include this button in your response:
+- On clicking this button, the visitor will be handed over to another departement. You can set the target department in the app setting called **Target Department for Handover** or add a `departmentName` param in your payload. On failing to provide a department name in either way, will send a request failure message back to the visitor, when visitor clicks the button. 
+
+- Add the following block in your Quick Replies payload, with **actionId** set as `df_perform_handover`, to include this button in your response:
 
 - Parameters:
 
