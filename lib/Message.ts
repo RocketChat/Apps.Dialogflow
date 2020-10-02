@@ -23,7 +23,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                             text: payload.text,
                             type: TextObjectType.PLAINTEXT,
                         },
-                        value: payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER ? payload.departmentName : payload.text,,
+                        value: payload.text,
                         ...payload.buttonStyle && { style: payload.buttonStyle },
                     };
 
