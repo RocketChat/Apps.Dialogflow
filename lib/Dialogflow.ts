@@ -1,4 +1,4 @@
-import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IHttpRequest, IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
@@ -28,7 +28,7 @@ class DialogflowClass {
                 { audioConfig: { audioEncoding: DialogflowInputAudioEncoding.ENCODING_OGG, sampleRateHertz: 16000, languageCode: AudioLanguageCode.EN_US } },
         };
 
-        const onlyTextMessage = await getAppSettingValue(read, AppSetting.DialogflowShowOnlyTextMessages);
+        const { value: onlyTextMessage } = await read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowShowOnlyTextMessages);
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
             { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },

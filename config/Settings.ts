@@ -17,6 +17,7 @@ export enum DefaultMessage {
     DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
+    DEFAULT_UnsupportedAudioFormatMessage = 'Sorry! Only *.wav, *.opus and *.oga extension files are supported as audio input',
 }
 
 export const settings: Array<ISetting> = [

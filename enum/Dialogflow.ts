@@ -40,6 +40,7 @@ export enum DialogflowJWT {
 export enum Base64 {
     BASE64_DICTIONARY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',
     BASE64_PAD = '=',
+    BASE64 = 'base64',
 }
 
 export enum LanguageCode {
@@ -63,4 +64,16 @@ export enum DialogflowOutputAudioEncoding {
 
 export enum DialogflowInputAudioEncoding {
     ENCODING_OGG = 'AUDIO_ENCODING_OGG_OPUS',
+}
+
+export enum MIME_TYPE {
+    AUDIO_OGG = 'audio/ogg',
+    AUDIO_PREFIX = 'audio',
+}
+
+// supported audio extensions
+export enum AUDIO_EXTENSION {
+    OGA = 'oga',
+    WAV = 'wav',
+    OPUS = 'opus',
 }

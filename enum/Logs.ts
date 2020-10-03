@@ -20,4 +20,6 @@ export enum Logs {
     HTTP_REQUEST_ERROR = 'Error occurred while sending a HTTP Request',
     CLOSE_CHAT_REQUEST_FAILED_ERROR = 'Error: Internal Server Error. Could not close the chat',
     HANDOVER_REQUEST_FAILED_ERROR = 'Error occurred while processing handover. Details',
+    ERROR_NULL_RESPONSE = 'Error! Null Response',
+    INVALID_AUDIO_FILE_NAME = 'Invalid audio file name',
 }

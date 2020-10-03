@@ -1,17 +1,35 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessageAction, IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
+import { IUploadDescriptor } from '@rocket.chat/apps-engine/definition/uploads/IUploadDescriptor';
+import { Buffer } from 'buffer';
 import { AppSetting } from '../config/Settings';
-import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
+import { DialogflowJWT, IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
     const { messages = [], audio } = dialogflowMessage;
 
+    const room = await read.getRoomReader().getById(rid);
+    if (!room) {
+        throw new Error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+    }
+    const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    if (!botUserName) {
+        throw new Error(Logs.EMPTY_BOT_USERNAME_SETTING);
+    }
+    const sender = await read.getUserReader().getByUsername(botUserName);
+    if (!sender) {
+        throw new Error(Logs.INVALID_BOT_USERNAME_SETTING);
+    }
     if (audio) {
-        const uri = `data:audio/x-wav;base64,${ audio }`;
-        const attachment = { audioUrl: uri };
-        await createMessage(rid, read, modify, { attachment });
+        const buffer = Buffer.from(audio, DialogflowJWT.BASE_64);
+        const uploadDescriptor: IUploadDescriptor = {
+            filename: 'audio.wav',
+            room,
+            user: sender,
+        };
+        await modify.getCreator().getUploadCreator().uploadBuffer(buffer, uploadDescriptor);
     }
 
     for (const message of messages) {

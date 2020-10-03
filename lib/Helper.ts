@@ -1,4 +1,9 @@
-import { Base64 } from '../enum/Dialogflow';
+import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IMessageFile } from '@rocket.chat/apps-engine/definition/messages';
+import { DefaultMessage } from '../config/Settings';
+import { AUDIO_EXTENSION, Base64, DialogflowRequestType, MIME_TYPE } from '../enum/Dialogflow';
+import { Logs } from '../enum/Logs';
+import { createMessage } from './Message';
 
 export const base64urlEncode = (str: any) => {
     const utf8str = unescape(encodeURIComponent(str));
@@ -33,4 +38,32 @@ export const base64EncodeData = (data: string, len: number, b64x: string, b64pad
     // tslint:enable:no-bitwise
 
     return dst;
+};
+
+export const defineAudioFile = async (read: IRead, modify: IModify, roomId: string, file: IMessageFile): Promise<{ content: string, contentType: DialogflowRequestType}> => {
+    const { name } = await read.getUploadReader().getById(file._id);
+
+    if (!isSupportedAudioFormat(name)) {
+        await createMessage(roomId, read, modify, { text: DefaultMessage.DEFAULT_UnsupportedAudioFormatMessage });
+    }
+
+    const content = (await read.getUploadReader().getBufferById(file._id)).toString(Base64.BASE64);
+    const contentType = file && file.type === MIME_TYPE.AUDIO_OGG ? DialogflowRequestType.AUDIO_OGG : DialogflowRequestType.AUDIO;
+
+    return { content, contentType };
+};
+
+export const isSupportedAudioFormat = (fileName: string): boolean => {
+    const extension = fileName.split('.')[1];
+    if (!extension) {
+        throw new Error(Logs.INVALID_AUDIO_FILE_NAME);
+    }
+
+    if (extension === AUDIO_EXTENSION.OGA ||
+        extension === AUDIO_EXTENSION.WAV ||
+        extension === AUDIO_EXTENSION.OPUS) {
+        return true;
+    }
+
+    return false;
 };
