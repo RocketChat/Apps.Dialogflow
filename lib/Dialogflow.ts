@@ -20,9 +20,11 @@ class DialogflowClass {
                              requestType: DialogflowRequestType): Promise<IDialogflowMessage> {
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
+        const languageCode = await getAppSettingValue(read, AppSetting.DialogflowLanguage);
+
         const queryInput = {
             ...requestType === DialogflowRequestType.EVENT && { event: request },
-            ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
+            ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode, text: request } },
         };
 
         const httpRequestContent: IHttpRequest = createHttpRequest(
