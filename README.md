@@ -64,6 +64,8 @@ You can find all these credentials in a JSON file, which u can get from [here](h
         - The Bot will send this message to Visitor if service is unavailable like suppose if no agents are online.
     10. Close Chat Message (optional)
         - This message will be sent automatically when a chat is closed
+    10. Hide Quick Replies (required)
+        - If enabled, then all quick-replies will hide when a visitor clicks on any one of them
 
 4. (Optional Step) Lastly you can test your Dialogflow Connection by viewing App Logs. To view the logs, goto App Page (`Setting > Apps > Dialogflow`). There click on menu item (3 vertical dots icon) and then select `View Logs`. There select the **most recent** `onSettingUpdated` title. If you see `------------------ Google Credentials validation Success ----------------` message, then it means your setup is fine. If you don't see this message, then recheck your Dialogflow credentials.
 

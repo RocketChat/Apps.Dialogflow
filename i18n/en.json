@@ -14,5 +14,7 @@
     "dialogflow_close_chat_message": "Close Chat Message",
     "dialogflow_close_chat_message_description": "This message will be sent automatically when a chat is closed",
     "show_only_text_messages": "Show only Text Messages",
-    "show_only_text_messages_description": "If this Setting is Enabled, then the bot will always reply back with a text message, even when a visitor sends a audio message."
+    "show_only_text_messages_description": "If this Setting is Enabled, then the bot will always reply back with a text message, even when a visitor sends a audio message.",
+    "dialogflow_hide_quick_replies": "Hide Quick Replies",
+    "dialogflow_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them"
 }
