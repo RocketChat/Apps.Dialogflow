@@ -4,9 +4,9 @@ import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IUIKitResponse, UIKitLivechatBlockInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 import { UIKitIncomingInteractionContainerType } from '@rocket.chat/apps-engine/definition/uikit/UIKitIncomingInteractionContainer';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { AppSetting } from '../config/Settings';
+import { AppSetting, DefaultMessage } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
-import { createLivechatMessage, deleteAllActionBlocks } from '../lib/Message';
+import { createLivechatMessage, createMessage, deleteAllActionBlocks } from '../lib/Message';
 import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 
@@ -38,10 +38,11 @@ export class ExecuteLivechatBlockActionHandler {
 
             switch (actionId) {
                 case ActionIds.PERFORM_HANDOVER:
-                    const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
+                    const targetDepartment: string = value || await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
 
-                    if (value !== undefined) {
-                        updateRoomCustomFields(rid, { reqButtonId: value }, this.read, this.modify);
+                    if (!targetDepartment) {
+                        await createMessage(rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
+                        break;
                     }
 
                     await performHandover(this.modify, this.read, rid, visitor.token, targetDepartment);

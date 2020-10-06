@@ -90,7 +90,7 @@ class DialogflowClass {
 
             const messages: Array<string | IDialogflowQuickReplies | IDialogflowPayload> = [];
             // customFields should be sent as the response of last message on client side
-            let msgCustomFields: IDialogflowCustomFields = {};
+            const msgCustomFields: IDialogflowCustomFields = {};
 
             fulfillmentMessages.forEach((message) => {
                 const { text, payload: { quickReplies = null, customFields = null, action = null } = {} } = message;
@@ -99,8 +99,8 @@ class DialogflowClass {
                     messages.push({ text: textMessageArray[0] });
                 }
                 if (quickReplies) {
-                    const { options } = quickReplies;
-                    if (options) {
+                    const { options, imagecards } = quickReplies;
+                    if (options || imagecards) {
                         messages.push(quickReplies);
                     }
                 }
@@ -150,9 +150,9 @@ class DialogflowClass {
     private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
         const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
         const projectIds = (await getAppSettingValue(read, AppSetting.DialogflowProjectId)).split(',');
-        const projectId = projectIds.length >= botId ? projectIds[botId - 1]: projectIds[0];
+        const projectId = projectIds.length >= botId ? projectIds[botId - 1] : projectIds[0];
         const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
-        const environment = environments.length >= botId ? environments[botId - 1]: environments[0];
+        const environment = environments.length >= botId ? environments[botId - 1] : environments[0];
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
@@ -165,8 +165,8 @@ class DialogflowClass {
         const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
         const clientEmails = (await getAppSettingValue(read, AppSetting.DialogflowClientEmail)).split(',');
         const privateKeys = (await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey)).split(',');
-        const privateKey = privateKeys.length >= botId ? privateKeys[botId - 1]: privateKeys[0];
-        const clientEmail = clientEmails.length >= botId ? clientEmails[botId - 1]: clientEmails[0];
+        const privateKey = privateKeys.length >= botId ? privateKeys[botId - 1] : privateKeys[0];
+        const clientEmail = clientEmails.length >= botId ? clientEmails[botId - 1] : clientEmails[0];
 
         if (!privateKey || !clientEmail) { throw new Error(Logs.EMPTY_CLIENT_EMAIL_OR_PRIVATE_KEY_SETTING); }
 
