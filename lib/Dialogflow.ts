@@ -25,9 +25,9 @@ class DialogflowClass {
         const queryInput = {
             ...requestType === DialogflowRequestType.EVENT && { event: request },
             ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode, text: request } },
-            ...requestType === DialogflowRequestType.AUDIO && { audioConfig: { languageCode: AudioLanguageCode.EN_US } },
+            ...requestType === DialogflowRequestType.AUDIO && { audioConfig: { languageCode } },
             ...requestType === DialogflowRequestType.AUDIO_OGG &&
-                { audioConfig: { audioEncoding: DialogflowInputAudioEncoding.ENCODING_OGG, sampleRateHertz: 16000, languageCode: AudioLanguageCode.EN_US } },
+                { audioConfig: { audioEncoding: DialogflowInputAudioEncoding.ENCODING_OGG, sampleRateHertz: 16000, languageCode } },
         };
 
         const { value: onlyTextMessage } = await read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowShowOnlyTextMessages);
