@@ -30,12 +30,36 @@
 
 ## `imagecards` Params
 
+- Table of parameters:
+
 | **Param Name** | **Param Type** |      **Description**     | **Dependency** | **Acceptable Values** |                             **Example**                            |
 |:--------------:|:--------------:|:------------------------:|:--------------:|:---------------------:|:------------------------------------------------------------------:|
 |   `image_url`  |     String     |     URL of the image.    |    Required    |          Any          | ``` "image_url": "https://images.acc.viasat.io/1565903104.jpg" ``` |
 |     `title`    |     String     |   Title of the message.  |    Optional    |          Any          |                        ``` "title": "OK" ```                       |
 |   `subtitle`   |     String     | Subtitle of the message. |    Optional    |          Any          |            ``` "subtitle": "[Click OK to continue]" ```            |
 |    `buttons`   |      Array     |     Array of buttons.    |    Optional    |          Any          |  ``` "buttons": [ { "buttonStyle": "primary", "text": "OK" } ] ``` |
+
+- Example Usage:
+
+```
+{
+  "quickReplies": {
+    "imagecards": [
+      {
+        "subtitle": "[Select Ok to continue]",
+        "buttons": [
+          {
+            "buttonStyle": "primary",
+            "text": "OK"
+          }
+        ],
+        "title": "Please refer to the following image:",
+        "image_url": "https://images.acc.viasat.io/1565903104.jpg"
+      }
+    ]
+  }
+}
+```
 
 ## Pre-Programmed Buttons
 
