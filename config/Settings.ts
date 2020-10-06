@@ -12,6 +12,7 @@ export enum AppSetting {
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
+    DialogflowLanguage = 'dialogflow_language',
 }
 
 export enum DefaultMessage {
@@ -20,6 +21,36 @@ export enum DefaultMessage {
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
     DEFAULT_UnsupportedAudioFormatMessage = 'Sorry! Only *.wav, *.opus and *.oga extension files are supported as audio input',
 }
+
+export const LanguageCode = [
+    { key: 'zh-CN', i18nLabel: 'chinese_simplified' },
+    { key: 'da', i18nLabel: 'danish' },
+    { key: 'nl', i18nLabel: 'dutch' },
+    { key: 'en', i18nLabel: 'english' },
+    { key: 'en-AU', i18nLabel: 'english_australia' },
+    { key: 'en-CA', i18nLabel: 'english_canada' },
+    { key: 'en-GB', i18nLabel: 'english_great_britain' },
+    { key: 'en-IN', i18nLabel: 'english_india' },
+    { key: 'en-US', i18nLabel: 'english_us' },
+    { key: 'fr-CA', i18nLabel: 'french_canada' },
+    { key: 'fr-FR', i18nLabel: 'french_france' },
+    { key: 'de', i18nLabel: 'german' },
+    { key: 'hi', i18nLabel: 'hindi' },
+    { key: 'id', i18nLabel: 'indonesian' },
+    { key: 'it', i18nLabel: 'italian' },
+    { key: 'ja', i18nLabel: 'japanese' },
+    { key: 'ko', i18nLabel: 'korean' },
+    { key: 'no', i18nLabel: 'norwegian' },
+    { key: 'pl', i18nLabel: 'polish' },
+    { key: 'pt-BR', i18nLabel: 'portuguese-brazil' },
+    { key: 'pt', i18nLabel: 'portuguese-portugal' },
+    { key: 'ru', i18nLabel: 'russian' },
+    { key: 'es', i18nLabel: 'spanish' },
+    { key: 'es-ES', i18nLabel: 'spanish-spain' },
+    { key: 'sv', i18nLabel: 'swedish' },
+    { key: 'tr', i18nLabel: 'turkish' },
+    { key: 'uk', i18nLabel: 'ukrainian' },
+];
 
 export const settings: Array<ISetting> = [
     {
@@ -81,6 +112,16 @@ export const settings: Array<ISetting> = [
         value: true,
         i18nLabel: 'show_only_text_messages',
         i18nDescription: 'show_only_text_messages_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowLanguage,
+        public: true,
+        type: SettingType.SELECT,
+        values: LanguageCode,
+        packageValue: 'en',
+        value: 'en',
+        i18nLabel: 'dialogflow_language',
         required: true,
     },
     {
