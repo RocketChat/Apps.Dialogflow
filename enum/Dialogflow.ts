@@ -39,6 +39,9 @@ export interface IDialogflowQuickReplyOptions {
     actionId?: string;
     buttonStyle?: ButtonStyle;
     salesforceButtonId?: string;
+    data?: {
+        [prop: string]: any;
+    };
 }
 
 export interface IDialogflowAccessToken {
