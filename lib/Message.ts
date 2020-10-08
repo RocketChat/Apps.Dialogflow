@@ -28,7 +28,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                     };
 
                     if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                        buttonElement.value = payload.departmentName ? payload.departmentName : undefined;
+                        buttonElement.value = payload.data && payload.data.departmentName ? payload.data.departmentName : undefined;
                     }
 
                     return buttonElement;

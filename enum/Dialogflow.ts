@@ -15,7 +15,9 @@ export interface IDialogflowQuickReplyOptions {
     text: string;
     actionId?: string;
     buttonStyle?: ButtonStyle;
-    departmentName?: string;
+    data?: {
+        [prop: string]: any;
+    };
 }
 
 export interface IDialogflowAccessToken {
