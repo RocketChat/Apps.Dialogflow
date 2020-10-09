@@ -42,7 +42,7 @@ class DialogflowClass {
 			sessionId,
 		);
 
-		const languageCode = await getAppSettingValue(read, AppSetting.DialogflowLanguage) || LanguageCode.EN;
+		const languageCode = await getAppSettingValue(read, AppSetting.DialogflowDefaultLanguage) || LanguageCode.EN;
 
 		const queryInput = {
 			...requestType === DialogflowRequestType.EVENT && {

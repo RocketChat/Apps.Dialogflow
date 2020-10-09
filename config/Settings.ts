@@ -16,7 +16,7 @@ export enum AppSetting {
 	DialogflowHandoverFailedMessage = 'dialogflow_no_agents_online_for_handover',
 	DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
 	DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
-    DialogflowLanguage = 'dialogflow_language',
+    DialogflowDefaultLanguage = 'dialogflow_default_language',
 }
 
 export enum ServerSetting {
@@ -31,11 +31,11 @@ export enum DefaultMessage {
 }
 
 export const LanguageCode = [
-    { key: 'zh-CN', i18nLabel: 'chinese_simplified' },
+    { key: 'zh-CN', i18nLabel: 'Chinese Simplified' },
     { key: 'da', i18nLabel: 'danish' },
     { key: 'nl', i18nLabel: 'dutch' },
     { key: 'en', i18nLabel: 'english' },
-    { key: 'en-AU', i18nLabel: 'english_australia' },
+    { key: 'en-AU', i18nLabel: 'Australian English' },
     { key: 'en-CA', i18nLabel: 'english_canada' },
     { key: 'en-GB', i18nLabel: 'english_great_britain' },
     { key: 'en-IN', i18nLabel: 'english_india' },
@@ -103,14 +103,14 @@ export const settings: Array<ISetting> = [
 		required: true,
 	},
     {
-        id: AppSetting.DialogflowLanguage,
+        id: AppSetting.DialogflowDefaultLanguage,
         public: true,
         type: SettingType.SELECT,
         values: LanguageCode,
         packageValue: 'en',
         value: 'en',
-        i18nLabel: 'dialogflow_language',
-        required: false,
+        i18nLabel: 'dialogflow_default_language',
+		required: false,
     },
 	{
 		id: AppSetting.DialogflowFallbackResponsesLimit,
