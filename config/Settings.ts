@@ -6,6 +6,7 @@ export enum AppSetting {
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
     DialogflowFallbackResponsesLimit = 'dialogflow_fallback_responses_limit',
+    DialogflowShowOnlyTextMessages = 'show_only_text_messages',
     FallbackTargetDepartment = 'fallback_target_department',
     DialogflowHandoverMessage = 'dialogflow_handover_message',
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
@@ -17,6 +18,7 @@ export enum DefaultMessage {
     DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
+    DEFAULT_UnsupportedAudioFormatMessage = 'Sorry! Only *.wav, *.opus and *.oga extension files are supported as audio input',
 }
 
 export const settings: Array<ISetting> = [
@@ -70,6 +72,16 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'target_department_for_handover',
         i18nDescription: 'target_department_for_handover_description',
         required: false,
+    },
+    {
+        id: AppSetting.DialogflowShowOnlyTextMessages,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: true,
+        value: true,
+        i18nLabel: 'show_only_text_messages',
+        i18nDescription: 'show_only_text_messages_description',
+        required: true,
     },
     {
         id: AppSetting.DialogflowHandoverMessage,

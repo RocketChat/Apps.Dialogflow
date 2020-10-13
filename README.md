@@ -55,11 +55,14 @@ You can find all these credentials in a JSON file, which u can get from [here](h
         - To Deactivate this feature, simply set the value to `0`.
     6. Target Department for Handover (optional)
         - Enter the department name where you want the visitor to be transferred upon handover.
-    7. Handover Message (optional)
+    7. Show only Text Messages
+        - If this setting is enabled, then the bot will always reply back with Text Message. However if this setting is disabled, then the bot will reply back with audio if the visitor has provided audio as input.
+        - Please note, currently the output audio will only work for Livechat widget. If you are using any other channels like WhatsApp or Messenger, then please keep this setting enabled. 
+    8. Handover Message (optional)
         - The Bot will send this message to Visitor upon handover
-    8. Service Unavailable Message (optional)
+    9. Service Unavailable Message (optional)
         - The Bot will send this message to Visitor if service is unavailable like suppose if no agents are online.
-    9. Close Chat Message (optional)
+    10. Close Chat Message (optional)
         - This message will be sent automatically when a chat is closed
     10. Hide Quick Replies (required)
         - If enabled, then all quick-replies will hide when a visitor clicks on any one of them

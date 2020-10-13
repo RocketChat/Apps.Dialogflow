@@ -1,15 +1,38 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { IUploadDescriptor } from '@rocket.chat/apps-engine/definition/uploads/IUploadDescriptor';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { Buffer } from 'buffer';
 import { AppSetting } from '../config/Settings';
-import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
+import { DialogflowJWT, IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
-import { uuid } from './Helper';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
-    const { messages = [] } = dialogflowMessage;
+    const { messages = [], audio } = dialogflowMessage;
+
+    const room = await read.getRoomReader().getById(rid);
+    if (!room) {
+        throw new Error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+    }
+    const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    if (!botUserName) {
+        throw new Error(Logs.EMPTY_BOT_USERNAME_SETTING);
+    }
+    const sender = await read.getUserReader().getByUsername(botUserName);
+    if (!sender) {
+        throw new Error(Logs.INVALID_BOT_USERNAME_SETTING);
+    }
+    if (audio) {
+        const buffer = Buffer.from(audio, DialogflowJWT.BASE_64);
+        const uploadDescriptor: IUploadDescriptor = {
+            filename: 'audio.wav',
+            room,
+            user: sender,
+        };
+        await modify.getCreator().getUploadCreator().uploadBuffer(buffer, uploadDescriptor);
+    }
 
     for (const message of messages) {
         const { text, options } = message as IDialogflowQuickReplies;
@@ -125,4 +148,14 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
     msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const uuid = (): string => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        // tslint:disable-next-line: no-bitwise
+        const r = Math.random() * 16 | 0;
+        // tslint:disable-next-line: no-bitwise
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 };
