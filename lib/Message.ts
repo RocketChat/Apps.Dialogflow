@@ -1,6 +1,6 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, IImageBlock, ITextObject, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
@@ -13,7 +13,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
-        const { text, options, customFields = null } = message as IDialogflowQuickReplies;
+        const { text, options, customFields = null, imagecards } = message as IDialogflowQuickReplies;
         const data: any = { customFields };
 
         if (text && text.trim().length > 0) {
@@ -38,14 +38,67 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                 if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
                     buttonElement.value = payload.salesforceButtonId ? payload.salesforceButtonId : undefined;
                 }
-                
+
                 return buttonElement;
             });
 
             data.actionsBlock = { type: BlockType.ACTIONS, elements };
         }
-        
+
         await createMessage(rid, read, modify, data);
+
+        if (imagecards) {
+            const imageCardBlock: Array<any> = imagecards.map((payload) => {
+                const imageBlock: IImageBlock = {
+                    type: BlockType.IMAGE,
+                    altText: payload.image_url,
+                    imageUrl: payload.image_url,
+                    ...payload.subtitle && { title: { text: payload.subtitle, type: TextObjectType.MARKDOWN } as ITextObject },
+                };
+
+                if (payload.buttons) {
+                    const cardElements: Array<IButtonElement> = payload.buttons.map((cardElementPayload: IDialogflowQuickReplyOptions) => {
+                        const buttonElement: IButtonElement = {
+                            type: BlockElementType.BUTTON,
+                            actionId: cardElementPayload.actionId || uuid(),
+                            text: {
+                                text: cardElementPayload.text,
+                                type: TextObjectType.PLAINTEXT,
+                            },
+                            value: cardElementPayload.text,
+                            ...cardElementPayload.buttonStyle && { style: cardElementPayload.buttonStyle },
+                        };
+
+                        if (cardElementPayload.actionId && cardElementPayload.actionId === ActionIds.PERFORM_HANDOVER) {
+                            buttonElement.value = cardElementPayload.salesforceButtonId ? cardElementPayload.salesforceButtonId : undefined;
+                        }
+
+                        return buttonElement;
+                    });
+
+                    const cardActionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements: cardElements };
+
+                    return {
+                        ...payload.title && { title: payload.title },
+                        imageBlock,
+                        cardActionsBlock,
+                    };
+                }
+
+                return {
+                    ...payload.title && { title: payload.title },
+                    imageBlock,
+                };
+            });
+
+            imageCardBlock.forEach(async (i) => {
+                await createMessage(rid, read, modify, {
+                    imageCardBlock: i.imageBlock,
+                    ...i.title && { text: i.title },
+                    ...i.cardActionsBlock && { actionsBlock: i.cardActionsBlock },
+                });
+            });
+        }
     }
 };
 
@@ -72,7 +125,7 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         return;
     }
 
-    const { text, actionsBlock, attachment, customFields } = message;
+    const { text, actionsBlock, attachment, customFields, imageCardBlock } = message;
     let data = { room, sender };
 
     if (customFields) {
@@ -87,6 +140,10 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
 
     if (attachment) {
         msg.addAttachment(attachment);
+    }
+
+    if (imageCardBlock) {
+        msg.addBlocks(modify.getCreator().getBlockBuilder().addImageBlock(imageCardBlock));
     }
 
     if (actionsBlock) {

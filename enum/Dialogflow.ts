@@ -1,7 +1,7 @@
 import { ButtonStyle } from '@rocket.chat/apps-engine/definition/uikit';
 
 export interface IDialogflowMessage {
-    messages?: Array<string | IDialogflowQuickReplies | IDialogflowPayload>;
+    messages?: Array<string | IDialogflowQuickReplies | IDialogflowPayload |  IDialogflowImageCard>;
     isFallback: boolean;
     sessionId?: string;
 }
@@ -10,6 +10,14 @@ export interface IDialogflowQuickReplies {
     text?: string;
     options?: Array<IDialogflowQuickReplyOptions>;
     customFields?: IDialogflowCustomFields;
+    imagecards?: Array<IDialogflowImageCard>;
+}
+
+export interface IDialogflowImageCard {
+    subtitle?: string;
+    title?: string;
+    image_url: string;
+    buttons?: Array<IDialogflowQuickReplyOptions>;
 }
 
 export interface IDialogflowCustomFields {
