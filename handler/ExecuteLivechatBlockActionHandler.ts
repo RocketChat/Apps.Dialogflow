@@ -4,8 +4,10 @@ import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IUIKitResponse, UIKitLivechatBlockInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 import { UIKitIncomingInteractionContainerType } from '@rocket.chat/apps-engine/definition/uikit/UIKitIncomingInteractionContainer';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { AppSetting } from '../config/Settings';
-import { createLivechatMessage, deleteAllActionBlocks } from '../lib/Message';
+import { AppSetting, DefaultMessage } from '../config/Settings';
+import { ActionIds } from '../enum/ActionIds';
+import { createLivechatMessage, createMessage, deleteAllActionBlocks } from '../lib/Message';
+import { closeChat, performHandover } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class ExecuteLivechatBlockActionHandler {
@@ -19,8 +21,7 @@ export class ExecuteLivechatBlockActionHandler {
     public async run(): Promise<IUIKitResponse> {
         try {
             const interactionData = this.context.getInteractionData();
-
-            const { visitor, room, container: { id, type }, value } = interactionData;
+            const { visitor, room, container: { id, type }, value, actionId } = interactionData;
 
             if (type !== UIKitIncomingInteractionContainerType.MESSAGE) {
                 return this.context.getInteractionResponder().successResponse();
@@ -35,7 +36,24 @@ export class ExecuteLivechatBlockActionHandler {
 
             const appUser = await this.read.getUserReader().getAppUser(this.app.getID()) as IUser;
 
-            await createLivechatMessage(rid, this.read, this.modify, { text: value }, visitor);
+            switch (actionId) {
+                case ActionIds.PERFORM_HANDOVER:
+                    const targetDepartment: string = value || await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
+                    if (!targetDepartment) {
+                        await createMessage(rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
+                        break;
+                    }
+                    await performHandover(this.modify, this.read, rid, visitor.token, targetDepartment);
+                    break;
+
+                case ActionIds.CLOSE_CHAT:
+                    await closeChat(this.modify, this.read, rid);
+                    break;
+
+                default:
+                    await createLivechatMessage(rid, this.read, this.modify, { text: value }, visitor);
+                    break;
+            }
 
             const { value: hideQuickRepliesSetting } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowHideQuickReplies);
             if (hideQuickRepliesSetting) {
