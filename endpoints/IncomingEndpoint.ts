@@ -1,13 +1,14 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IDialogflowMessage, DialogflowRequestType } from '../enum/Dialogflow';
+import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createHttpResponse } from '../lib/Http';
 import { createDialogflowMessage } from '../lib/Message';
+import { handlePayloadActions } from '../lib/payloadAction';
 import { closeChat, performHandover } from '../lib/Room';
 
 export class IncomingEndpoint extends ApiEndpoint {
@@ -51,7 +52,12 @@ export class IncomingEndpoint extends ApiEndpoint {
 
                 try {
                     const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, sessionId, event, DialogflowRequestType.EVENT);
+                    const livechatRoom = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+                    if (!livechatRoom) { throw new Error(); }
+                    const { visitor: { token: vToken } } = livechatRoom;
                     await createDialogflowMessage(sessionId, read, modify, response);
+                    this.app.getLogger().log(response)
+                    handlePayloadActions(read, modify, sessionId, vToken, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                     throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);

@@ -8,6 +8,7 @@ import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogfl
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
+import { handlePayloadActions } from '../lib/payloadAction';
 import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
@@ -73,7 +74,7 @@ export class PostMessageSentHandler {
             return;
         }
 
-        this.handlePayloadActions(rid, visitorToken, response);
+        handlePayloadActions(this.read, this.modify, rid, visitorToken, response);
 
         const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
@@ -100,27 +101,6 @@ export class PostMessageSentHandler {
                 }, DialogflowRequestType.EVENT));
             } catch (error) {
                 this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
-            }
-        }
-    }
-
-    private async handlePayloadActions(rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) {
-        const { messages = [] } = dialogflowMessage;
-        for (const message of messages) {
-            const { action = null } = message as IDialogflowPayload;
-            if (action) {
-                const { name: actionName, params } = action as IDialogflowAction;
-                const targetDepartment: string = await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
-                if (actionName) {
-                    if (actionName === ActionIds.PERFORM_HANDOVER) {
-                        if (params && params.salesforceButtonId) {
-                            updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, this.read, this.modify);
-                        }
-                        await performHandover(this.modify, this.read, rid, visitorToken, targetDepartment);
-                    } else if (actionName === ActionIds.CLOSE_CHAT) {
-                        await closeChat(this.modify, this.read, rid);
-                    }
-                }
             }
         }
     }
