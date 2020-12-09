@@ -27,7 +27,6 @@ export enum DefaultMessage {
     DEFAULT_DialogflowHandoverFailedMessage = 'Sorry I\'m unable to transfer you to an agent.',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
     DEFAULT_DialogflowWelcomeMessage = 'Thanks for connecting',
-    DEFAULT_DialogflowRequestFailedMessage = 'Apologies but your request cannot be completed.',
 }
 
 export const settings: Array<ISetting> = [
