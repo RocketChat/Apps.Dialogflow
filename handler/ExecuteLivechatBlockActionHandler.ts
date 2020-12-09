@@ -7,7 +7,7 @@ import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import { createLivechatMessage, createMessage, deleteAllActionBlocks } from '../lib/Message';
-import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
+import { closeChat, performHandover } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class ExecuteLivechatBlockActionHandler {
@@ -39,12 +39,10 @@ export class ExecuteLivechatBlockActionHandler {
             switch (actionId) {
                 case ActionIds.PERFORM_HANDOVER:
                     const targetDepartment: string = value || await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
-
                     if (!targetDepartment) {
                         await createMessage(rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
                         break;
                     }
-
                     await performHandover(this.modify, this.read, rid, visitor.token, targetDepartment);
                     break;
 
