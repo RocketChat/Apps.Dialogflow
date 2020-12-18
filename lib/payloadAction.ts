@@ -15,7 +15,11 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
             if (actionName) {
                 if (actionName === ActionIds.PERFORM_HANDOVER) {
                     if (params && params.salesforceButtonId) {
-                        updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, read, modify);
+                        if (params.salesforceId) {
+                            updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId }, read, modify);
+                        } else {
+                            updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, read, modify);
+                        }
                     }
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
                 } else if (actionName === ActionIds.CLOSE_CHAT) {
