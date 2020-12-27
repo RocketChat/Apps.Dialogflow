@@ -7,11 +7,6 @@ import { getAppSettingValue } from '../lib/Settings';
 
 export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify ) => {
 
-	// const { text } = message;
-	// if (!text || (text && text.trim().length === 0)) {
-	// 	return;
-	// }
-
 	if (message.room.type !== RoomType.LIVE_CHAT || (message.customFields && message.customFields.idleTimeoutConfig)) {
 		return;
 	}
