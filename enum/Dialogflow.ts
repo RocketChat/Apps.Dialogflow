@@ -87,4 +87,5 @@ export enum DialogflowRequestType {
 
 export enum Message {
     CLOSED_BY_VISITOR = 'Closed by visitor',
+    CUSTOMER_IDEL_TIMEOUT = 'customer_idle_timeout'
 }

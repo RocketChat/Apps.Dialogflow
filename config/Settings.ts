@@ -18,6 +18,10 @@ export enum AppSetting {
     DialogflowWelcomeMessage = 'dialogflow_welcome_message',
     DialogflowChatClosedByVisitorEventName = 'dialogflow_chat_closed_by_visitor_event_name',
     DialogflowWelcomeIntentOnStart = 'dialogflow_welcome_intent_on_start',
+    DialogflowEnableCustomerTimeout = 'dialogflow_enable_customer_timeout',
+    DialogflowCustomerTimeoutTime = 'dialogflow_customer_timeout_time',
+    DialogflowCustomerTimeoutWarningTime = 'dialogflow_customer_timeout_warning_time',
+    DialogflowCustomerTimeoutWarningMessage = 'dialogflow_customer_timeout_warning_message',
 }
 
 export enum DefaultMessage {
@@ -181,6 +185,42 @@ export const settings: Array<ISetting> = [
         packageValue: false,
         i18nLabel: 'dialogflow_welcome_intent_on_start',
         i18nDescription: 'dialogflow_welcome_intent_on_start_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowEnableCustomerTimeout,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        i18nLabel: 'dialogflow_enable_customer_timeout',
+        i18nDescription: 'dialogflow_enable_customer_timeout_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowCustomerTimeoutTime,
+        public: true,
+        type: SettingType.NUMBER,
+        packageValue: 35,
+        i18nLabel: 'dialogflow_customer_timeout_time',
+        i18nDescription: 'dialogflow_customer_timeout_time_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowCustomerTimeoutWarningTime,
+        public: true,
+        type: SettingType.NUMBER,
+        packageValue: 25,
+        i18nLabel: 'dialogflow_customer_timeout_warning_time',
+        i18nDescription: 'dialogflow_customer_timeout_warning_time_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowCustomerTimeoutWarningMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: 'Are you still there? Please send a message within %t or this chat will time out.',
+        i18nLabel: 'dialogflow_customer_timeout_warning_message',
+        i18nDescription: 'dialogflow_customer_timeout_warning_message_description',
         required: true,
     },
 ];

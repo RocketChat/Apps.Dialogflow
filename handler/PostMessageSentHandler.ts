@@ -12,13 +12,14 @@ import { handlePayloadActions } from '../lib/payloadAction';
 import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
+import { handleTimeout } from '../lib/Timeout';
 
 export class PostMessageSentHandler {
     constructor(private readonly app: IApp,
         private readonly message: ILivechatMessage,
         private readonly read: IRead,
         private readonly http: IHttp,
-        private readonly persis: IPersistence,
+        private readonly persistence: IPersistence,
         private readonly modify: IModify) { }
 
     public async run() {
@@ -30,14 +31,20 @@ export class PostMessageSentHandler {
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
         if (text === Message.CLOSED_BY_VISITOR) {
-            this.handleClosedByVisitor(rid);
+            await this.handleClosedByVisitor(rid);
         }
+
+        if (text === Message.CUSTOMER_IDEL_TIMEOUT) {
+            await this.handleClosedByVisitor(rid)
+            await closeChat(this.modify, this.read, rid)
+            return;
+		}
 
         if (!type || type !== RoomType.LIVE_CHAT) {
             return;
         }
 
-        if (!isOpen || !token || editedAt || !text) {
+        if (!isOpen || editedAt || !text) {
             return;
         }
 
@@ -45,11 +52,13 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (sender.username === DialogflowBotUsername) {
+        if (!text || (text && text.trim().length === 0)) {
             return;
         }
 
-        if (!text || (text && text.trim().length === 0)) {
+        await handleTimeout(this.app, this.message, this.read, this.http, this.persistence, this.modify);
+
+        if (sender.username === DialogflowBotUsername) {
             return;
         }
 
