@@ -72,6 +72,8 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
         livechatTransferData.targetDepartment = targetDepartment.id;
     }
 
+    await updateRoomCustomFields(rid, {isHandedOverFromDialogFlow: true}, read, modify);
+
     const result = await modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
         .catch((error) => {
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
