@@ -28,5 +28,13 @@
     "dialogflow_welcome_message": "Dialogflow Message to send on start",
     "dialogflow_welcome_message_description": "Custom welcome message to send to visitor",
     "dialogflow_welcome_intent_on_start": "Send Welcome Intent",
-    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor"
+    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor",
+    "dialogflow_enable_customer_timeout":"Enable Customer Time-Out",
+    "dialogflow_enable_customer_timeout_description":"Indicates whether chats are ended if the customer doesn’t respond within a specified period.",
+    "dialogflow_customer_timeout_time":"Customer Time-Out Time (seconds)",
+    "dialogflow_customer_timeout_time_description":"Sets the amount of time that a customer has to respond to an agent message before the session ends. The timer stops when the customer sends a message and starts again from 0 on the next agent's message.",
+    "dialogflow_customer_timeout_warning_time":"Customer Time-Out Warning Time (seconds)",
+    "dialogflow_customer_timeout_warning_time_description":"Sets the amount of time that a customer has to respond to an agent message before a warning appears and a timer begins a countdown. \nThe warning disappears (and the timer stops) each time the customer sends a message. \nThe warning disappears (and the timer resets to 0) each time the agent sends message. \nThe warning value must be shorter than the time-out value (we recommend at least 30 seconds).",
+    "dialogflow_customer_timeout_warning_message":"Customer Time-Out Warning Message",
+    "dialogflow_customer_timeout_warning_message_description":"Enter message to show to user as idle timeout warning. Use %t as placeholder for count down."
 }
