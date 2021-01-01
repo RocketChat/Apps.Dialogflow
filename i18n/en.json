@@ -36,5 +36,9 @@
     "dialogflow_customer_timeout_warning_time":"Customer Time-Out Warning Time (seconds)",
     "dialogflow_customer_timeout_warning_time_description":"Sets the amount of time that a customer has to respond to an agent message before a warning appears and a timer begins a countdown. \nThe warning disappears (and the timer stops) each time the customer sends a message. \nThe warning disappears (and the timer resets to 0) each time the agent sends message. \nThe warning value must be shorter than the time-out value (we recommend at least 30 seconds).",
     "dialogflow_customer_timeout_warning_message":"Customer Time-Out Warning Message",
-    "dialogflow_customer_timeout_warning_message_description":"Enter message to show to user as idle timeout warning. Use %t as placeholder for count down."
+    "dialogflow_customer_timeout_warning_message_description":"Enter message to show to user as idle timeout warning. Use %t as placeholder for count down.",
+    "dialogflow_session_maintenance_interval":"Session Maintenance Inverval",
+    "dialogflow_session_maintenance_interval_description":"The bot will send session maintenance event to dialogflow at every interval. The interval is a human-readable format String (i.e. 8 minutes). Session Maintenance is for keeping long running dialogflow sessions active.",
+    "dialogflow_session_maintenance_event_name":"Session Maintenance Event Name",
+    "dialogflow_session_maintenance_event_name_description":"The bot will trigger this dialogflow event for session maintenance"
 }

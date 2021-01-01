@@ -22,6 +22,8 @@ export enum AppSetting {
     DialogflowCustomerTimeoutTime = 'dialogflow_customer_timeout_time',
     DialogflowCustomerTimeoutWarningTime = 'dialogflow_customer_timeout_warning_time',
     DialogflowCustomerTimeoutWarningMessage = 'dialogflow_customer_timeout_warning_message',
+    DialogflowSessionMaintenanceInterval = 'dialogflow_session_maintenance_interval',
+    DialogflowSessionMaintenanceEventName = 'dialogflow_session_maintenance_event_name',
 }
 
 export enum DefaultMessage {
@@ -222,5 +224,23 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'dialogflow_customer_timeout_warning_message',
         i18nDescription: 'dialogflow_customer_timeout_warning_message_description',
         required: true,
+    },
+    {
+        id: AppSetting.DialogflowSessionMaintenanceInterval,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '8 minutes',
+        i18nLabel: 'dialogflow_session_maintenance_interval',
+        i18nDescription: 'dialogflow_session_maintenance_interval_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowSessionMaintenanceEventName,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: 'session_maintenance',
+        i18nLabel: 'dialogflow_session_maintenance_event_name',
+        i18nDescription: 'dialogflow_session_maintenance_event_name_description',
+        required: false,
     },
 ];

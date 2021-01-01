@@ -32,6 +32,7 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
 };
 
 export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
+    await modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 

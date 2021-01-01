@@ -10,7 +10,7 @@ import {
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
-import { ILivechatEventContext, ILivechatMessage, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned } from '@rocket.chat/apps-engine/definition/livechat';
+import { ILivechatEventContext, ILivechatMessage, ILivechatRoom, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned, IPostLivechatRoomClosed } from '@rocket.chat/apps-engine/definition/livechat';
 import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
@@ -19,12 +19,15 @@ import { settings } from './config/Settings';
 import { FulfillmentsEndpoint } from './endpoints/FulfillmentsEndpoint';
 import { IncomingEndpoint } from './endpoints/IncomingEndpoint';
 import { ExecuteLivechatBlockActionHandler } from './handler/ExecuteLivechatBlockActionHandler';
+import { LivechatRoomClosedHandler } from './handler/LivechatRoomClosedHandler';
 import { OnAgentAssignedHandler } from './handler/OnAgentAssignedHandler';
 import { OnAgentUnassignedHandler } from './handler/OnAgentUnassignedHandler';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
-export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned, IUIKitLivechatInteractionHandler {
+import { SessionMaintenanceProcessor } from './lib/sessionMaintenance/SessionMaintenanceProcessor';
+
+export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned, IPostLivechatRoomClosed, IUIKitLivechatInteractionHandler {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -65,6 +68,11 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
         await handler.run();
     }
 
+    public async executePostLivechatRoomClosed(room: ILivechatRoom, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify): Promise<void> {
+		const livechatRoomClosedHandler = new LivechatRoomClosedHandler(this, room, read, http, persistence, modify);
+		await livechatRoomClosedHandler.exec();
+	}
+
     public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
         const onSettingUpdatedHandler: OnSettingUpdatedHandler = new OnSettingUpdatedHandler(this, read, http);
         await onSettingUpdatedHandler.run();
@@ -79,6 +87,8 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
                 new FulfillmentsEndpoint(this),
             ],
         });
+        await configuration.scheduler.registerProcessors([new SessionMaintenanceProcessor('session-maintenance')]);
+
         await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));
     }
 }

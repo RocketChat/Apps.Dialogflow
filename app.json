@@ -16,6 +16,7 @@
         "IPostMessageSent",
         "IPostLivechatAgentAssigned",
         "IPostLivechatAgentUnassigned",
+        "IPostLivechatRoomClosed",
         "IUIKitLivechatInteractionHandler"
     ]
 }
