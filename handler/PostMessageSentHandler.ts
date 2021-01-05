@@ -31,17 +31,21 @@ export class PostMessageSentHandler {
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
         if (text === Message.CLOSED_BY_VISITOR) {
+            if (customFields && customFields.isHandedOverFromDialogFlow === true) {
+                return;
+            }
+            await this.modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
             await this.handleClosedByVisitor(rid);
         }
 
         if (text === Message.CUSTOMER_IDEL_TIMEOUT) {
-            if(customFields && customFields.isHandedOverFromDialogFlow === true) {
+            if (customFields && customFields.isHandedOverFromDialogFlow === true) {
                 return;
             }
-            await this.handleClosedByVisitor(rid)
-            await closeChat(this.modify, this.read, rid)
+            await this.handleClosedByVisitor(rid);
+            await closeChat(this.modify, this.read, rid);
             return;
-		}
+        }
 
         if (!type || type !== RoomType.LIVE_CHAT) {
             return;
