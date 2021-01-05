@@ -6,6 +6,7 @@ import { AppSetting, DefaultMessage } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload, LanguageCode, Message } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
+import { botTypingListener, removeBotTypingListener } from '../lib//BotTyping';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { handlePayloadActions } from '../lib/payloadAction';
@@ -73,6 +74,7 @@ export class PostMessageSentHandler {
         const { visitor: { token: visitorToken } } = room as ILivechatRoom;
 
         try {
+            await botTypingListener(rid, this.modify.getNotifier().typing({ id: rid, username: DialogflowBotUsername }));
             response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
@@ -97,10 +99,13 @@ export class PostMessageSentHandler {
         // synchronous handover check
         const { isFallback } = response;
         if (isFallback) {
+            await removeBotTypingListener(rid);
             return incFallbackIntentAndSendResponse(this.read, this.modify, rid, createResponseMessage);
         }
 
         await createResponseMessage();
+
+        await removeBotTypingListener(rid);
 
         return resetFallbackIntent(this.read, this.modify, rid);
     }
