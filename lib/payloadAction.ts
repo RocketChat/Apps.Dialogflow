@@ -17,18 +17,19 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
                     if (params && params.salesforceButtonId) {
                         if (params.salesforceId) {
                             if (params.customDetail) {
-                                updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId, customDetail: params.customDetail }, read, modify);
+                                await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId, customDetail: params.customDetail }, read, modify);
                             }
                             else {
-                                updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId }, read, modify);
+                                await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId }, read, modify);
                             }
                         } else {
                             if (params.customDetail) {
-                                updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, customDetail: params.customDetail }, read, modify);
+                                await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, customDetail: params.customDetail }, read, modify);
                             }
                             else {
-                                updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, read, modify);
+                                await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, read, modify);
                             }
+
                         }
                     }
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
