@@ -5,6 +5,7 @@ import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from '../lib/Settings';
 import { createMessage, sendCloseChatButton } from './Message';
+import { SessionMaintenanceOnceSchedule } from './sessionMaintenance/SessionMaintenanceOnceSchedule';
 
 export const updateRoomCustomFields = async (rid: string, data: any, read: IRead,  modify: IModify): Promise<any> => {
     if (!rid) {
@@ -85,5 +86,17 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 
         await sendCloseChatButton (read, modify, rid);
+        return;
+    }
+
+    // Viasat : Start maintaining session after handover
+    const sessionMaintenanceInterval: string = await getAppSettingValue(read, AppSetting.DialogflowSessionMaintenanceInterval);
+
+    if (!sessionMaintenanceInterval) {
+        console.log('Session Maintenance Settings not configured');
+    } else {
+        await modify.getScheduler().scheduleOnce(new SessionMaintenanceOnceSchedule('session-maintenance', sessionMaintenanceInterval, {
+            sessionId: room.id,
+        }));
     }
 };

@@ -8,7 +8,6 @@ import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { updateRoomCustomFields } from '../lib/Room';
-import { SessionMaintenanceOnceSchedule } from '../lib/sessionMaintenance/SessionMaintenanceOnceSchedule';
 import { getAppSettingValue } from '../lib/Settings';
 
 export class OnAgentAssignedHandler {
@@ -58,16 +57,6 @@ export class OnAgentAssignedHandler {
             const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, event, DialogflowRequestType.EVENT);
 
             await createDialogflowMessage(rid, this.read, this.modify, response);
-
-            const sessionMaintenanceInterval: string = await getAppSettingValue(this.read, AppSetting.DialogflowSessionMaintenanceInterval);
-
-            if (!sessionMaintenanceInterval) {
-                console.log('Session Maintenance Settings not configured');
-            } else {
-                await this.modify.getScheduler().scheduleOnce(new SessionMaintenanceOnceSchedule('session-maintenance', sessionMaintenanceInterval, {
-                    sessionId: room.id,
-                }));
-            }
           } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
