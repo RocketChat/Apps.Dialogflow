@@ -14,11 +14,19 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
             const targetDepartment: string = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
             if (actionName) {
                 if (actionName === ActionIds.PERFORM_HANDOVER) {
-                    if (params && params.salesforceButtonId) {
+                    if (params) {
+                        const customFields: any = {};
+                        if (params.salesforceButtonId) {
+                            customFields.reqButtonId = params.salesforceButtonId;
+                        }
                         if (params.salesforceId) {
-                            await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId, salesforceId: params.salesforceId }, read, modify);
-                        } else {
-                            await updateRoomCustomFields(rid, { reqButtonId: params.salesforceButtonId }, read, modify);
+                            customFields.salesforceId = params.salesforceId;
+                        }
+                        if (params.customDetail) {
+                            customFields.customDetail = params.customDetail;
+                        }
+                        if (Object.keys(customFields).length > 0) {
+                            await updateRoomCustomFields(rid, customFields, read, modify);
                         }
                     }
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
