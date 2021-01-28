@@ -4,7 +4,8 @@ import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/defini
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
-import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload, LanguageCode, Message } from '../enum/Dialogflow';
+import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload, IDialogflowQuickReplies, LanguageCode, Message } from '../enum/Dialogflow';
+
 import { Logs } from '../enum/Logs';
 import { botTypingListener, removeBotTypingListener } from '../lib//BotTyping';
 import { Dialogflow } from '../lib/Dialogflow';
@@ -104,10 +105,26 @@ export class PostMessageSentHandler {
         }
 
         await createResponseMessage();
-
-        await removeBotTypingListener(rid);
+        await this.handleBotTyping(rid, response);
 
         return resetFallbackIntent(this.read, this.modify, rid);
+    }
+
+    private async handleBotTyping(rid: string, dialogflowMessage: IDialogflowMessage) {
+        const { messages = [] } = dialogflowMessage;
+        let isDisableInput = false;
+
+        for (const message of messages) {
+            const { customFields = null } = message as IDialogflowQuickReplies;
+
+            if (customFields && (customFields.disableInput === true)) {
+                isDisableInput = true;
+            }
+        }
+
+        if (!isDisableInput) {
+            await removeBotTypingListener(rid);
+        }
     }
 
     private async handleClosedByVisitor(rid: string) {
