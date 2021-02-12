@@ -112,17 +112,21 @@ export class PostMessageSentHandler {
 
     private async handleBotTyping(rid: string, dialogflowMessage: IDialogflowMessage) {
         const { messages = [] } = dialogflowMessage;
-        let isDisableInput = false;
+        let removeTypingIndicator = true;
 
         for (const message of messages) {
             const { customFields = null } = message as IDialogflowQuickReplies;
 
-            if (customFields && (customFields.disableInput === true)) {
-                isDisableInput = true;
+            if (customFields) {
+                const { disableInput, displayTyping } = customFields;
+                console.log({disableInput, displayTyping});
+                if (disableInput === true && displayTyping === true) {
+                    removeTypingIndicator = false;
+                }
             }
         }
 
-        if (!isDisableInput) {
+        if (removeTypingIndicator) {
             await removeBotTypingListener(rid);
         }
     }

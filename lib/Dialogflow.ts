@@ -107,6 +107,7 @@ class DialogflowClass {
                 if (customFields) {
                     msgCustomFields.disableInput = !!customFields.disableInput;
                     msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                    msgCustomFields.displayTyping = customFields.displayTyping;
                 }
                 if (action) {
                     messages.push({action});
