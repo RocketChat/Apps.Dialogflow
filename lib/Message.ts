@@ -7,7 +7,6 @@ import { ActionIds } from '../enum/ActionIds';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { uuid } from './Helper';
-import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {

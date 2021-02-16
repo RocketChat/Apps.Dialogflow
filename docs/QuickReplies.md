@@ -78,7 +78,7 @@ These buttons perform a specific action in the app. You can add them by simply p
 |    `actionId`    | **Required** |   String   |        `df_perform_handover`        |
 |      `text`      | **Required** |   String   |               **Any**               |
 |   `buttonStyle`  | **Optional** |   String   |        `primary` or `danger`        |
-| `data` | **Optional** |   String   | **Object, departmentName : Any Omnichannel department name, salesforceButtonId: Any Liveagent ButtonId** |
+| `data` | **Optional** |   String   | **Object(Key: Value), departmentName : Any Omnichannel department name** |
 
 - Example Structure:
 
@@ -89,7 +89,6 @@ These buttons perform a specific action in the app. You can add them by simply p
    "actionId": "df_perform_handover",
    "data": {
       "departmentName": "sales",
-      "salesforceButtonId" : "12345678",
    }
 }
 ```
