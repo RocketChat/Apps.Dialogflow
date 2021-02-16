@@ -36,7 +36,7 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                 };
 
                 if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                    buttonElement.value = payload.salesforceButtonId ? payload.salesforceButtonId : undefined;
+                    buttonElement.value = payload.data && payload.data.departmentName ? payload.data.departmentName : undefined;
                 }
 
                 return buttonElement;
@@ -70,7 +70,8 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                         };
 
                         if (cardElementPayload.actionId && cardElementPayload.actionId === ActionIds.PERFORM_HANDOVER) {
-                            buttonElement.value = cardElementPayload.salesforceButtonId ? cardElementPayload.salesforceButtonId : undefined;
+                            buttonElement.value = cardElementPayload.data && cardElementPayload.data.departmentName
+                                ? cardElementPayload.data.departmentName : undefined;
                         }
 
                         return buttonElement;
