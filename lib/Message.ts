@@ -7,6 +7,7 @@ import { ActionIds } from '../enum/ActionIds';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { uuid } from './Helper';
+import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
@@ -37,9 +38,6 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
 
                 if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
                     buttonElement.value = payload.data && payload.data.departmentName ? payload.data.departmentName : undefined;
-                    if (payload.data && payload.data.salesforceButtonId ){
-                        // payload.data.salesforceButtonId
-                    }
                 }
 
                 return buttonElement;
@@ -75,9 +73,6 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                         if (cardElementPayload.actionId && cardElementPayload.actionId === ActionIds.PERFORM_HANDOVER) {
                             buttonElement.value = cardElementPayload.data && cardElementPayload.data.departmentName
                                 ? cardElementPayload.data.departmentName : undefined;
-                            if (cardElementPayload.data && cardElementPayload.data.salesforceButtonId ) {
-                                // cardElementPayload.data.salesforceButtonId
-                            }
                         }
 
                         return buttonElement;
