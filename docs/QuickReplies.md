@@ -14,10 +14,11 @@
 
 ## Params
 
-| **Param Name** | **Param Type** |                **Description**                | **Dependency** |                                                                         **Example**                                                                         |
-|:--------------:|:--------------:|:---------------------------------------------:|:--------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|     `text`     |     String     | The title of the collection of quick replies. |    Required    |                                 ``` "text": "Sorry I don't know the answer. Please select one of the following options:" ```                                |
-|    `options`   |      Array     |    The collection of quick replies objects.   |    Required    | ``` "options": [       {         "text": "Start chat with agent",         "actionId": "sflaia-start-chat",         "buttonStyle" : "primary"       }  ] ``` |
+| **Param Name** | **Param Type** |                **Description**                | **Dependency** |                                                                                                                **Example**                                                                                                                |
+|:--------------:|:--------------:|:---------------------------------------------:|:--------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|     `text`     |     String     | The title of the collection of quick replies. |    Optional    |                                                                        ``` "text": "Sorry I don't know the answer. Please select one of the following options:" ```                                                                       |
+|    `options`   |      Array     |    The collection of quick replies objects.   |    Required    |                                                           ``` "options": [ { "text": "Start chat with agent", "actionId": "sflaia-start-chat", "buttonStyle" : "primary" } ] ```                                                          |
+|  `imagecards`  |      Array     |     The collection of image card objects.     |    Optional    | ``` "imagecards": [ { "subtitle": "[Select Ok to continue]", "buttons": { "buttonStyle": "primary", "text": "OK" } ], "title": "Please refer to the following image:", "image_url": "https://images.acc.viasat.io/1565903104.jpg" } ] ``` |
 
 ## `options` Params
 
@@ -26,6 +27,39 @@
 |     `text`     |     String     |                                                            Title of the quick replies action.                                                            |    Required    |          Any          |       ``` "text": "Start Chat" ```      |
 |   `actionId`   |     String     |                                                              Id of the quick replies action.                                                             |    Optional    |          Any          | ``` "actionId": "sflaia-start-chat" ``` |
 |  `buttonStyle` |     String     | Button style of your quick replies action. Use `danger` to render a red colour action and `primary` for an action that matches your Livechat Bar colour. |    Optional    | `danger` or `primary` |     ``` "buttonStyle": "primary" ```    |
+
+## `imagecards` Params
+
+- Table of parameters:
+
+| **Param Name** | **Param Type** |      **Description**     | **Dependency** | **Acceptable Values** |                             **Example**                            |
+|:--------------:|:--------------:|:------------------------:|:--------------:|:---------------------:|:------------------------------------------------------------------:|
+|   `image_url`  |     String     |     URL of the image.    |    Required    |          Any          | ``` "image_url": "https://images.acc.viasat.io/1565903104.jpg" ``` |
+|     `title`    |     String     |   Title of the message.  |    Optional    |          Any          |                        ``` "title": "OK" ```                       |
+|   `subtitle`   |     String     | Subtitle of the message. |    Optional    |          Any          |            ``` "subtitle": "[Click OK to continue]" ```            |
+|    `buttons`   |      Array     |     Array of buttons.    |    Optional    |          Any          |  ``` "buttons": [ { "buttonStyle": "primary", "text": "OK" } ] ``` |
+
+- Example Usage:
+
+```
+{
+  "quickReplies": {
+    "imagecards": [
+      {
+        "subtitle": "[Select Ok to continue]",
+        "buttons": [
+          {
+            "buttonStyle": "primary",
+            "text": "OK"
+          }
+        ],
+        "title": "Please refer to the following image:",
+        "image_url": "https://images.acc.viasat.io/1565903104.jpg"
+      }
+    ]
+  }
+}
+```
 
 ## Pre-Programmed Buttons
 
@@ -44,7 +78,7 @@ These buttons perform a specific action in the app. You can add them by simply p
 |    `actionId`    | **Required** |   String   |        `df_perform_handover`        |
 |      `text`      | **Required** |   String   |               **Any**               |
 |   `buttonStyle`  | **Optional** |   String   |        `primary` or `danger`        |
-| `departmentName` | **Optional** |   String   | **Any Omnichannel department name** |
+| `data` | **Optional** |   String   | **Object, departmentName : Any Omnichannel department name, salesforceButtonId: Any Liveagent ButtonId** |
 
 - Example Structure:
 
@@ -53,7 +87,10 @@ These buttons perform a specific action in the app. You can add them by simply p
    "text": "Perform Handover",
    "buttonStyle": "primary",
    "actionId": "df_perform_handover",
-   "departmentName": "sales"
+   "data": {
+      "departmentName": "sales",
+      "salesforceButtonId" : "12345678",
+   }
 }
 ```
 

@@ -1,6 +1,6 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, IImageBlock, ITextObject, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
@@ -13,36 +13,98 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
-        const { text, options } = message as IDialogflowQuickReplies;
-        if (text && options) {
+        const { text, options, customFields = null, imagecards } = message as IDialogflowQuickReplies;
+        const data: any = { customFields };
+
+        if (text && text.trim().length > 0) {
+            data.text = text;
+        } else if (typeof message === 'string') {
+            data.text = message;
+        }
+
+        if (options) {
             const elements: Array<IButtonElement> = options.map((payload: IDialogflowQuickReplyOptions) => {
-                    const buttonElement: IButtonElement = {
-                        type: BlockElementType.BUTTON,
-                        actionId: payload.actionId || uuid(),
-                        text: {
-                            text: payload.text,
-                            type: TextObjectType.PLAINTEXT,
-                        },
-                        value: payload.text,
-                        ...payload.buttonStyle && { style: payload.buttonStyle },
-                    };
+                const buttonElement: IButtonElement = {
+                    type: BlockElementType.BUTTON,
+                    actionId: payload.actionId || uuid(),
+                    text: {
+                        text: payload.text,
+                        type: TextObjectType.PLAINTEXT,
+                    },
+                    value: payload.text,
+                    ...payload.buttonStyle && { style: payload.buttonStyle },
+                };
 
-                    if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
-                        buttonElement.value = payload.data && payload.data.departmentName ? payload.data.departmentName : undefined;
+                if (payload.actionId && payload.actionId === ActionIds.PERFORM_HANDOVER) {
+                    buttonElement.value = payload.data && payload.data.departmentName ? payload.data.departmentName : undefined;
+                    if (payload.data && payload.data.salesforceButtonId ){
+                        // payload.data.salesforceButtonId
                     }
+                }
 
-                    return buttonElement;
+                return buttonElement;
             });
 
-            const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+            data.actionsBlock = { type: BlockType.ACTIONS, elements };
+        }
 
-            await createMessage(rid, read, modify, { text });
-            await createMessage(rid, read, modify, { actionsBlock });
-        } else {
-            // message is instanceof string
-            if ((message as string).trim().length > 0) {
-                await createMessage(rid, read, modify, { text: message });
-            }
+        await createMessage(rid, read, modify, data);
+
+        if (imagecards) {
+            const imageCardBlock: Array<any> = imagecards.map((payload) => {
+                const imageBlock: IImageBlock = {
+                    type: BlockType.IMAGE,
+                    altText: payload.image_url,
+                    imageUrl: payload.image_url,
+                    ...payload.subtitle && { title: { text: payload.subtitle, type: TextObjectType.MARKDOWN } as ITextObject },
+                };
+
+                if (payload.buttons) {
+                    const cardElements: Array<IButtonElement> = payload.buttons.map((cardElementPayload: IDialogflowQuickReplyOptions) => {
+                        const buttonElement: IButtonElement = {
+                            type: BlockElementType.BUTTON,
+                            actionId: cardElementPayload.actionId || uuid(),
+                            text: {
+                                text: cardElementPayload.text,
+                                type: TextObjectType.PLAINTEXT,
+                            },
+                            value: cardElementPayload.text,
+                            ...cardElementPayload.buttonStyle && { style: cardElementPayload.buttonStyle },
+                        };
+
+                        if (cardElementPayload.actionId && cardElementPayload.actionId === ActionIds.PERFORM_HANDOVER) {
+                            buttonElement.value = cardElementPayload.data && cardElementPayload.data.departmentName
+                                ? cardElementPayload.data.departmentName : undefined;
+                            if (cardElementPayload.data && cardElementPayload.data.salesforceButtonId ) {
+                                // cardElementPayload.data.salesforceButtonId
+                            }
+                        }
+
+                        return buttonElement;
+                    });
+
+                    const cardActionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements: cardElements };
+
+                    return {
+                        ...payload.title && { title: payload.title },
+                        imageBlock,
+                        cardActionsBlock,
+                    };
+                }
+
+                return {
+                    ...payload.title && { title: payload.title },
+                    imageBlock,
+                };
+            });
+
+            imageCardBlock.forEach(async (i) => {
+                await createMessage(rid, read, modify, {
+                    imageCardBlock: i.imageBlock,
+                    ...i.title && { text: i.title },
+                    ...i.cardActionsBlock && { actionsBlock: i.cardActionsBlock },
+                });
+            });
         }
     }
 };
@@ -70,9 +132,14 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         return;
     }
 
-    const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
+    const { text, actionsBlock, attachment, customFields, imageCardBlock } = message;
+    let data = { room, sender };
 
-    const { text, actionsBlock, attachment } = message;
+    if (customFields) {
+        data = Object.assign(data, { customFields });
+    }
+
+    const msg = modify.getCreator().startMessage(data);
 
     if (text) {
         msg.setText(text);
@@ -80,6 +147,10 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
 
     if (attachment) {
         msg.addAttachment(attachment);
+    }
+
+    if (imageCardBlock) {
+        msg.addBlocks(modify.getCreator().getBlockBuilder().addImageBlock(imageCardBlock));
     }
 
     if (actionsBlock) {
@@ -134,4 +205,20 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
     msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const sendCloseChatButton = async (read: IRead, modify: IModify, rid: string) => {
+    const elements: Array<IButtonElement> = [{
+        type: BlockElementType.BUTTON,
+        actionId: ActionIds.CLOSE_CHAT,
+        text: {
+            text: 'Close Chat',
+            type: TextObjectType.PLAINTEXT,
+        },
+        value: 'Close Chat',
+        style: ButtonStyle.DANGER,
+    }];
+
+    const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+    await createMessage(rid, read, modify, { actionsBlock });
 };

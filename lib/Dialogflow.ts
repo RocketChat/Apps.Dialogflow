@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowCustomFields, IDialogflowEvent, IDialogflowMessage, IDialogflowPayload, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -88,21 +88,42 @@ class DialogflowClass {
                 isFallback: isFallback ? isFallback : false,
             };
 
-            const messages: Array<string | IDialogflowQuickReplies> = [];
+            const messages: Array<string | IDialogflowQuickReplies | IDialogflowPayload> = [];
+            // customFields should be sent as the response of last message on client side
+            const msgCustomFields: IDialogflowCustomFields = {};
 
             fulfillmentMessages.forEach((message) => {
-                const { text, payload: { quickReplies = null } = {} } = message;
+                const { text, payload: { quickReplies = null, customFields = null, action = null } = {} } = message;
                 if (text) {
                     const { text: textMessageArray } = text;
-                    messages.push(textMessageArray[0]);
+                    messages.push({ text: textMessageArray[0] });
                 }
                 if (quickReplies) {
-                    const { text: optionsText, options } = quickReplies;
-                    if (optionsText && options) {
+                    const { options, imagecards } = quickReplies;
+                    if (options || imagecards) {
                         messages.push(quickReplies);
                     }
                 }
+                if (customFields) {
+                    msgCustomFields.disableInput = !!customFields.disableInput;
+                    msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                    msgCustomFields.displayTyping = customFields.displayTyping;
+                }
+                if (action) {
+                    messages.push({action});
+                }
             });
+
+            if (Object.keys(msgCustomFields).length > 0) {
+                if (messages.length > 0) {
+                    let lastObj = messages[messages.length - 1];
+                    lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
+                    messages[messages.length - 1] = lastObj;
+                } else {
+                    messages.push({ customFields: msgCustomFields });
+                }
+            }
+
             if (messages.length > 0) {
                 parsedMessage.messages = messages;
             }
@@ -128,18 +149,26 @@ class DialogflowClass {
     }
 
     private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
-        const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
+        const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
+        const projectIds = (await getAppSettingValue(read, AppSetting.DialogflowProjectId)).split(',');
+        const projectId = projectIds.length >= botId ? projectIds[botId - 1] : projectIds[0];
+        const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
+        const environment = environments.length >= botId ? environments[botId - 1] : environments[0];
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
-        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
+        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment || 'draft'}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
     private async getAccessToken(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
 
-        const clientEmail = await getAppSettingValue(read, AppSetting.DialogflowClientEmail);
-        const privateKey = await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey);
+        const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
+        const clientEmails = (await getAppSettingValue(read, AppSetting.DialogflowClientEmail)).split(',');
+        const privateKeys = (await getAppSettingValue(read, AppSetting.DialogFlowPrivateKey)).split(',');
+        const privateKey = privateKeys.length >= botId ? privateKeys[botId - 1] : privateKeys[0];
+        const clientEmail = clientEmails.length >= botId ? clientEmails[botId - 1] : clientEmails[0];
+
         if (!privateKey || !clientEmail) { throw new Error(Logs.EMPTY_CLIENT_EMAIL_OR_PRIVATE_KEY_SETTING); }
 
         const room: IRoom = await read.getRoomReader().getById(sessionId) as IRoom;

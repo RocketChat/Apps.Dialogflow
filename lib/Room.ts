@@ -4,7 +4,8 @@ import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
 import { getAppSettingValue } from '../lib/Settings';
-import { createMessage } from './Message';
+import { createMessage, sendCloseChatButton } from './Message';
+import { SessionMaintenanceOnceSchedule } from './sessionMaintenance/SessionMaintenanceOnceSchedule';
 
 export const updateRoomCustomFields = async (rid: string, data: any, read: IRead,  modify: IModify): Promise<any> => {
     if (!rid) {
@@ -32,6 +33,7 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
 };
 
 export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
+    await modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
@@ -42,10 +44,18 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
-export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
+export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string, dialogflowMessage?: () => any) => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
-    await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
+
+    // Use handoverMessage if set
+    if (handoverMessage) {
+        await createMessage(rid, read, modify, { text: handoverMessage });
+    } else if (dialogflowMessage)  {
+        await dialogflowMessage();
+    } else {
+        await createMessage(rid, read, modify, { text: DefaultMessage.DEFAULT_DialogflowHandoverMessage });
+    }
 
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
@@ -64,6 +74,8 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
         livechatTransferData.targetDepartment = targetDepartment.id;
     }
 
+    await updateRoomCustomFields(rid, {isHandedOverFromDialogFlow: true}, read, modify);
+
     const result = await modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
         .catch((error) => {
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
@@ -71,6 +83,20 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     if (!result) {
         const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
+
+        await sendCloseChatButton (read, modify, rid);
+        return;
+    }
+
+    // Viasat : Start maintaining session after handover
+    const sessionMaintenanceInterval: string = await getAppSettingValue(read, AppSetting.DialogflowSessionMaintenanceInterval);
+
+    if (!sessionMaintenanceInterval) {
+        console.log('Session Maintenance Settings not configured');
+    } else {
+        await modify.getScheduler().scheduleOnce(new SessionMaintenanceOnceSchedule('session-maintenance', sessionMaintenanceInterval, {
+            sessionId: room.id,
+        }));
     }
 };

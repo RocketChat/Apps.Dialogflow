@@ -1,14 +1,38 @@
 import { ButtonStyle } from '@rocket.chat/apps-engine/definition/uikit';
 
 export interface IDialogflowMessage {
-    messages?: Array<string | IDialogflowQuickReplies>;
+    messages?: Array<string | IDialogflowQuickReplies | IDialogflowPayload |  IDialogflowImageCard>;
     isFallback: boolean;
     sessionId?: string;
 }
 
 export interface IDialogflowQuickReplies {
-    text: string;
-    options: Array<IDialogflowQuickReplyOptions>;
+    text?: string;
+    options?: Array<IDialogflowQuickReplyOptions>;
+    customFields?: IDialogflowCustomFields;
+    imagecards?: Array<IDialogflowImageCard>;
+}
+
+export interface IDialogflowImageCard {
+    subtitle?: string;
+    title?: string;
+    image_url: string;
+    buttons?: Array<IDialogflowQuickReplyOptions>;
+}
+
+export interface IDialogflowCustomFields {
+    disableInput?: boolean;
+    disableInputMessage?: string;
+    displayTyping?: boolean;
+}
+
+export interface IDialogflowPayload {
+    action: IDialogflowAction;
+}
+
+export interface IDialogflowAction {
+    name: string;
+    params?: any;
 }
 
 export interface IDialogflowQuickReplyOptions {
@@ -59,4 +83,9 @@ export enum LanguageCode {
 export enum DialogflowRequestType {
     MESSAGE = 'message',
     EVENT = 'event',
+}
+
+export enum Message {
+    CLOSED_BY_VISITOR = 'Closed by visitor',
+    CUSTOMER_IDEL_TIMEOUT = 'customer_idle_timeout'
 }
