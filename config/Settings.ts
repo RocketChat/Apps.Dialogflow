@@ -29,7 +29,7 @@ export enum AppSetting {
 export enum DefaultMessage {
     DEFAULT_DialogflowRequestFailedMessage = 'Sorry, I\'m having trouble with that.',
     DEFAULT_DialogflowHandoverFailedMessage = 'Sorry I\'m unable to transfer you to an agent.',
-    DEFAULT_DialogflowWelcomeMessage = 'Thank you for contacting Viasat, please tell me in a few words how I can help you today.',
+    DEFAULT_DialogflowWelcomeMessage = 'Thank you for contacting Viasat.',
     DEFAULT_DialogflowServiceUnavailableMessage = 'There are no agents currently available. Our Customer Care team is available by phone 24/7 at 1-855-463-9333.',
     DEFAULT_DialogflowCloseChatMessage = 'Thanks for contacting Viasat Customer Care. We appreciate your business. Please close this window to end your chat session.',
     DEFAULT_DialogflowHandoverMessage = 'Connecting you with a live agent',
