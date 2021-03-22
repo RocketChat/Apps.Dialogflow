@@ -3,8 +3,7 @@ import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatMessage, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
-import { ActionIds } from '../enum/ActionIds';
-import { DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload, IDialogflowQuickReplies, LanguageCode, Message } from '../enum/Dialogflow';
+import { DialogflowRequestType, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode, Message } from '../enum/Dialogflow';
 
 import { Logs } from '../enum/Logs';
 import { botTypingListener, removeBotTypingListener } from '../lib//BotTyping';
@@ -119,7 +118,6 @@ export class PostMessageSentHandler {
 
             if (customFields) {
                 const { disableInput, displayTyping } = customFields;
-                console.log({disableInput, displayTyping});
                 if (disableInput === true && displayTyping === true) {
                     removeTypingIndicator = false;
                 }
@@ -134,6 +132,7 @@ export class PostMessageSentHandler {
     private async handleClosedByVisitor(rid: string) {
         const DialogflowEnableChatClosedByVisitorEvent: boolean = await getAppSettingValue(this.read, AppSetting.DialogflowEnableChatClosedByVisitorEvent);
         const DialogflowChatClosedByVisitorEventName: string = await getAppSettingValue(this.read, AppSetting.DialogflowChatClosedByVisitorEventName);
+        await removeBotTypingListener(rid);
         if (DialogflowEnableChatClosedByVisitorEvent) {
             try {
                 let res: IDialogflowMessage;

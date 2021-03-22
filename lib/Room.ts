@@ -3,6 +3,7 @@ import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@ro
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
+import { removeBotTypingListener } from '../lib//BotTyping';
 import { getAppSettingValue } from '../lib/Settings';
 import { createMessage, sendCloseChatButton } from './Message';
 import { SessionMaintenanceOnceSchedule } from './sessionMaintenance/SessionMaintenanceOnceSchedule';
@@ -36,6 +37,8 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     await modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
+
+    await removeBotTypingListener(rid);
 
     const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
 
