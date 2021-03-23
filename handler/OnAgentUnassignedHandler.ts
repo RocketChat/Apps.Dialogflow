@@ -2,6 +2,7 @@ import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/de
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting, DefaultMessage } from '../config/Settings';
+import { removeBotTypingListener } from '../lib//BotTyping';
 import { createMessage, sendCloseChatButton } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
 
@@ -17,6 +18,9 @@ export class OnAgentUnassignedHandler {
         const livechatRoom: ILivechatRoom = this.context.room as ILivechatRoom;
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
         const { isChatBotFunctional: allowChatBotSession } = this.context.room.customFields as any;
+        const {id: rid} = livechatRoom;
+
+        await removeBotTypingListener(rid);
 
         if (!livechatRoom.servedBy) {
             return;
