@@ -158,7 +158,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowChatClosedByVisitorEventName,
         public: true,
         type: SettingType.STRING,
-        packageValue: 'end_session',
+        packageValue: 'end_live_chat',
         i18nLabel: 'dialogflow_chat_closed_by_visitor_event_name',
         i18nDescription: 'dialogflow_chat_closed_by_visitor_event_name_description',
         required: false,
