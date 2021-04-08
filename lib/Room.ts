@@ -88,7 +88,7 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
 
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 
-        await sendCloseChatButton (read, modify, rid);
+        await closeChat(modify, read, rid);
         return;
     }
 

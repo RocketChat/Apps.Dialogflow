@@ -31,7 +31,7 @@ export class OnAgentUnassignedHandler {
                 await createMessage(livechatRoom.id, this.read, this.modify,
                     { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
 
-                await sendCloseChatButton (this.read, this.modify, livechatRoom.id);
+                await closeChat(modify, read, rid);
             }
 
         return;
