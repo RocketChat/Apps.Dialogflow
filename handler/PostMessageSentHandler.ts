@@ -52,7 +52,18 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (!isOpen || editedAt || !text) {
+        if (!isOpen || editedAt) {
+            return;
+        }
+
+        if (customFields) {
+            const { disableInput, displayTyping } = customFields;
+            if (disableInput === true && displayTyping !== true) {
+                await removeBotTypingListener(rid);
+            }
+        }
+
+        if (!text) {
             return;
         }
 
