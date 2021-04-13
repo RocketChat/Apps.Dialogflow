@@ -52,7 +52,7 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (!isOpen || editedAt) {
+        if (!isOpen) {
             return;
         }
 
@@ -63,7 +63,7 @@ export class PostMessageSentHandler {
             }
         }
 
-        if (!text) {
+        if (!text || editedAt) {
             return;
         }
 
