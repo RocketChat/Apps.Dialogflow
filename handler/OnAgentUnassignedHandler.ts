@@ -5,6 +5,8 @@ import { AppSetting, DefaultMessage } from '../config/Settings';
 import { removeBotTypingListener } from '../lib//BotTyping';
 import { createMessage, sendCloseChatButton } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
+import { Logs } from '../enum/Logs';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
 export class OnAgentUnassignedHandler {
     constructor(private readonly app: IApp,
@@ -31,9 +33,23 @@ export class OnAgentUnassignedHandler {
                 await createMessage(livechatRoom.id, this.read, this.modify,
                     { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
 
-                await sendCloseChatButton (this.read, this.modify, livechatRoom.id);
+                await closeChat(this.modify, this.read, rid);
             }
 
         return;
     }
 }
+
+export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
+    await modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
+    const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
+    if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
+
+    await removeBotTypingListener(rid);
+
+    const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
+
+    const result = await modify.getUpdater().getLivechatUpdater()
+                                .closeRoom(room, closeChatMessage ? closeChatMessage : DefaultMessage.DEFAULT_DialogflowCloseChatMessage);
+    if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
+};
