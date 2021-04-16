@@ -83,6 +83,9 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
         .catch((error) => {
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
+
+    await removeBotTypingListener(rid);
+
     if (!result) {
         const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
 

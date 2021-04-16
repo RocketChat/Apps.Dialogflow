@@ -24,15 +24,15 @@ export class PostMessageSentHandler {
         private readonly modify: IModify) { }
 
     public async run() {
-        const { text, editedAt, room, token, sender } = this.message;
+        const { text, editedAt, room, token, sender, customFields } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen, customFields } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen, customFields: roomCustomFields } = livechatRoom;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
         if (text === Message.CLOSED_BY_VISITOR) {
-            if (customFields && customFields.isHandedOverFromDialogFlow === true) {
+            if (roomCustomFields && roomCustomFields.isHandedOverFromDialogFlow === true) {
                 return;
             }
             await this.modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
@@ -40,7 +40,7 @@ export class PostMessageSentHandler {
         }
 
         if (text === Message.CUSTOMER_IDEL_TIMEOUT) {
-            if (customFields && customFields.isHandedOverFromDialogFlow === true) {
+            if (roomCustomFields && roomCustomFields.isHandedOverFromDialogFlow === true) {
                 return;
             }
             await this.handleClosedByVisitor(rid);
@@ -52,7 +52,18 @@ export class PostMessageSentHandler {
             return;
         }
 
-        if (!isOpen || editedAt || !text) {
+        if (!isOpen) {
+            return;
+        }
+
+        if (customFields) {
+            const { disableInput, displayTyping } = customFields;
+            if (disableInput === true && displayTyping !== true) {
+                await removeBotTypingListener(rid);
+            }
+        }
+
+        if (!text || editedAt) {
             return;
         }
 
