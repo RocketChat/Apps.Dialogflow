@@ -93,7 +93,7 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
             targetDepartment: livechatTransferData.targetDepartment
         }
 
-        console.log('Failed to handover', handoverFailure);
+        console.log('Failed to handover', JSON.stringify(handoverFailure));
 
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 
