@@ -1,4 +1,5 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { BlockElementType, BlockType, ButtonStyle, IActionsBlock, IButtonElement, IImageBlock, ITextObject, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
@@ -120,9 +121,13 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         return;
     }
 
-    const room = await read.getRoomReader().getById(rid);
+    const room = await read.getRoomReader().getById(rid) as ILivechatRoom;
     if (!room) {
         this.app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+        return;
+    }
+
+    if (!room.isOpen) {
         return;
     }
 

@@ -69,9 +69,9 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
     }
 
     public async executePostLivechatRoomClosed(room: ILivechatRoom, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify): Promise<void> {
-		const livechatRoomClosedHandler = new LivechatRoomClosedHandler(this, room, read, http, persistence, modify);
-		await livechatRoomClosedHandler.exec();
-	}
+        const livechatRoomClosedHandler = new LivechatRoomClosedHandler(this, room, read, http, persistence, modify);
+        await livechatRoomClosedHandler.exec();
+    }
 
     public async onSettingUpdated(setting: ISetting, configurationModify: IConfigurationModify, read: IRead, http: IHttp): Promise<void> {
         const onSettingUpdatedHandler: OnSettingUpdatedHandler = new OnSettingUpdatedHandler(this, read, http);

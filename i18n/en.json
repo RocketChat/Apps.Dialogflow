@@ -40,5 +40,7 @@
     "dialogflow_session_maintenance_interval":"Session Maintenance Inverval",
     "dialogflow_session_maintenance_interval_description":"The bot will send session maintenance event to dialogflow at every interval. The interval is a human-readable format String (i.e. 8 minutes). Session Maintenance is for keeping long running dialogflow sessions active.",
     "dialogflow_session_maintenance_event_name":"Session Maintenance Event Name",
-    "dialogflow_session_maintenance_event_name_description":"The bot will trigger this dialogflow event for session maintenance"
+    "dialogflow_session_maintenance_event_name_description":"The bot will trigger this dialogflow event for session maintenance",
+    "dialogflow_log_level":"DialogFlow App Log Level",
+    "dialogflow_log_level_description":"Redeploying app or restarting server is required to apply changes"
 }

@@ -24,6 +24,7 @@ export enum AppSetting {
     DialogflowCustomerTimeoutWarningMessage = 'dialogflow_customer_timeout_warning_message',
     DialogflowSessionMaintenanceInterval = 'dialogflow_session_maintenance_interval',
     DialogflowSessionMaintenanceEventName = 'dialogflow_session_maintenance_event_name',
+    DialogflowLogLevel = 'log_level',
 }
 
 export enum DefaultMessage {
@@ -129,7 +130,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowCloseChatMessage,
         public: true,
         type: SettingType.STRING,
-		packageValue: DefaultMessage.DEFAULT_DialogflowCloseChatMessage,
+        packageValue: DefaultMessage.DEFAULT_DialogflowCloseChatMessage,
         i18nLabel: 'dialogflow_close_chat_message',
         i18nDescription: 'dialogflow_close_chat_message_description',
         required: false,
@@ -242,6 +243,28 @@ export const settings: Array<ISetting> = [
         packageValue: 'session_maintenance',
         i18nLabel: 'dialogflow_session_maintenance_event_name',
         i18nDescription: 'dialogflow_session_maintenance_event_name_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowLogLevel,
+        public: true,
+        type: SettingType.SELECT,
+        packageValue: '0',
+        value: '0',
+        values: [
+            {
+                key: '0',
+                i18nLabel: '0_Errors_Only',
+            }, {
+                key: '1',
+                i18nLabel: '1_Errors_and_Information',
+            }, {
+                key: '2',
+                i18nLabel: '2_Erros_Information_and_Debug',
+            },
+        ],
+        i18nLabel: 'dialogflow_log_level',
+        i18nDescription: 'dialogflow_log_level_description',
         required: false,
     },
 ];
