@@ -93,7 +93,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowFallbackResponsesLimit,
         public: true,
         type: SettingType.NUMBER,
-        packageValue: 0,
+        packageValue: 3,
         value: 3,
         i18nLabel: 'dialogflow_fallback_responses_limit',
         i18nDescription: 'dialogflow_fallback_responses_limit_description',
