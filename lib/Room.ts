@@ -42,7 +42,7 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
-export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
+export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string): Promise<boolean> => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
     await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
@@ -69,8 +69,11 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverFailedMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
+
+        return false;
     }
+    return true;
 };

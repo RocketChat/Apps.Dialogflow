@@ -20,4 +20,5 @@ export enum Logs {
     HTTP_REQUEST_ERROR = 'Error occurred while sending a HTTP Request',
     CLOSE_CHAT_REQUEST_FAILED_ERROR = 'Error: Internal Server Error. Could not close the chat',
     HANDOVER_REQUEST_FAILED_ERROR = 'Error occurred while processing handover. Details',
+    NO_AGENTS_ONLINE = 'Handover failed! No agents online',
 }
