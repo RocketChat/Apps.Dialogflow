@@ -1,7 +1,7 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
-import { IDialogflowMessage, DialogflowRequestType } from '../enum/Dialogflow';
+import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
 import { EndpointActionNames, IActionsEndpointContent } from '../enum/Endpoints';
 import { Headers, Response } from '../enum/Http';
 import { Logs } from '../enum/Logs';
@@ -43,7 +43,10 @@ export class IncomingEndpoint extends ApiEndpoint {
                 const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
                 if (!room) { throw new Error(); }
                 const { visitor: { token: visitorToken } } = room;
-                await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                const result = await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                if (!result) {
+                    throw new Error(Logs.NO_AGENTS_ONLINE);
+                }
                 break;
             case EndpointActionNames.TRIGGER_EVENT:
                 const { actionData: { event = null } = {} } = endpointContent;

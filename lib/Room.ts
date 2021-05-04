@@ -42,7 +42,7 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
-export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
+export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string): Promise<boolean> => {
 
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
     await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
@@ -73,6 +73,7 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
 
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
 
-        throw new Error(Logs.NO_AGENTS_ONLINE);
+        return false;
     }
+    return true;
 };
