@@ -69,9 +69,9 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverFailedMessage);
 
-        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+        await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 
         return false;
     }
