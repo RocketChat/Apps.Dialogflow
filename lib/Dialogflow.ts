@@ -2,7 +2,7 @@ import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
-import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
+import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, IDialogflowCustomFields, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
@@ -89,9 +89,11 @@ class DialogflowClass {
             };
 
             const messages: Array<string | IDialogflowQuickReplies> = [];
+            // customFields should be sent as the response of last message on client side
+            let msgCustomFields: IDialogflowCustomFields = {};
 
             fulfillmentMessages.forEach((message) => {
-                const { text, payload: { quickReplies = null } = {} } = message;
+                const { text, payload: { quickReplies = null, customFields = null } = {} } = message;
                 if (text) {
                     const { text: textMessageArray } = text;
                     messages.push(textMessageArray[0]);
@@ -102,8 +104,19 @@ class DialogflowClass {
                         messages.push(quickReplies);
                     }
                 }
+                if (customFields) {
+                    msgCustomFields.disableInput = !!customFields.disableInput;
+                    msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                }
             });
+
+            
             if (messages.length > 0) {
+                if (Object.keys(msgCustomFields).length > 0) {
+                    let lastObj = messages[messages.length - 1];
+                    lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
+                    messages[messages.length - 1] = lastObj;
+                }
                 parsedMessage.messages = messages;
             }
 

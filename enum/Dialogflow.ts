@@ -9,6 +9,12 @@ export interface IDialogflowMessage {
 export interface IDialogflowQuickReplies {
     text: string;
     options: Array<IDialogflowQuickReplyOptions>;
+    customFields?: IDialogflowCustomFields; 
+}
+
+export interface IDialogflowCustomFields {
+    disableInput?: boolean;
+    disableInputMessage?: string;
 }
 
 export interface IDialogflowQuickReplyOptions {
