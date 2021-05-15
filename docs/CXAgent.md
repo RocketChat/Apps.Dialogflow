@@ -5,16 +5,23 @@
 ### Set up for users with no existing google cloud project 
 
 - Go to the [Dialogflow CX platform](https://dialogflow.cloud.google.com/cx/projects) and create a new project. <br>
+
 <img src="https://i.imgur.com/7TNUxl0.png" width="75%" />
-- Generate a key with the services credentials from `Service Accounts -> Actions -> Manage keys -> Add Key -> Create new key` with JSON key type <br> <img src="https://i.imgur.com/HuwAbZp.png" width="75%"/>
+
+- Generate a key with the services credentials from `Service Accounts -> Actions -> Manage keys -> Add Key -> Create new key` with JSON key type <br> 
+
+<img src="https://i.imgur.com/HuwAbZp.png" width="75%"/>
+
 - Create a Billing Account with a specificied payment method on your Google platform in `Billing -> Manage Billing Accounts -> Create Account`. Setup up a billing profile and activate billing.
-- From your Google Cloud Platform dashboard enable the Dialogflow API from `APIs & Services -> ENABLE APIS AND SERVICES`, search for ***Dialogflow Api*, select it and click enable.<br>
+
+- From your Google Cloud Platform dashboard enable the Dialogflow API from `APIs & Services -> ENABLE APIS AND SERVICES`, search for **Dialogflow Api**, select it and click enable.<br>
+
 <img src="https://i.imgur.com/Sv6I1x3.png" width="75%"/>
 
 ### Set up for users with existing google cloud project 
 
 - Create a Billing Account with a specificied payment method on your Google platform in `Billing -> Manage Billing Accounts -> Create Account`. Setup up a billing profile and activate billing.
-- From your Google Cloud Platform dashboard enable the Dialogflow API from `APIs & Services -> ENABLE APIS AND SERVICES`, search for ***Dialogflow Api*, select it and click enable.
+- From your Google Cloud Platform dashboard enable the Dialogflow API from `APIs & Services -> ENABLE APIS AND SERVICES`, search for **Dialogflow Api**, select it and click enable.
 
 <hr>
 
