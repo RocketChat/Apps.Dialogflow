@@ -1,9 +1,9 @@
 import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/settings';
-
 export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
     DialogflowBotId = 'dialogflow_bot_id',
     DialogflowProjectId = 'dialogflow_project_id',
+    DialogflowVersion = "dialog_flow_version",
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
     DialogflowEnvironment = 'dialogflow_environment',
@@ -25,6 +25,9 @@ export enum AppSetting {
     DialogflowSessionMaintenanceInterval = 'dialogflow_session_maintenance_interval',
     DialogflowSessionMaintenanceEventName = 'dialogflow_session_maintenance_event_name',
     DialogflowLogLevel = 'log_level',
+    DialogflowAgentId = "dialogflow_cx_agent_id",
+    DialogflowRegion = "dialogflow_cx_region",
+    DialogflowCXFallbackEvents = 'dialogflow_cx_fallback_events'
 }
 
 export enum DefaultMessage {
@@ -265,6 +268,45 @@ export const settings: Array<ISetting> = [
         ],
         i18nLabel: 'dialogflow_log_level',
         i18nDescription: 'dialogflow_log_level_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowVersion,
+        public: true,
+        type: SettingType.SELECT,
+        packageValue: 'ES',
+        i18nLabel: 'agent_version',
+        values: [
+            { key: 'ES', i18nLabel: 'ES' },
+            { key: 'CX', i18nLabel: 'CX' },
+        ],
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowAgentId,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'dialogflow_cx_agent_id',
+        i18nDescription: 'dialogflow_cx_agent_id_desc',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowRegion,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'dialogflow_cx_region',
+        i18nDescription: 'dialogflow_cx_region_desc',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowCXFallbackEvents,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: 'NO_MATCH, NO_INPUT',
+        i18nLabel: 'dialogflow_cx_fallback_events',
+        i18nDescription: 'dialogflow_cx_fallback_events_desc',
         required: false,
     },
 ];
