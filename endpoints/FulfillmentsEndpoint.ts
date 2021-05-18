@@ -1,8 +1,9 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { IDialogflowMessage } from '../enum/Dialogflow';
+import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
+import { removeBotTypingListener } from '../lib//BotTyping';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createHttpResponse } from '../lib/Http';
 import { createDialogflowMessage } from '../lib/Message';
@@ -36,5 +37,21 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
         if (!message.sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
 
         await createDialogflowMessage(message.sessionId, read, modify, message);
+        await this.handleBotTyping(message.sessionId, message);
+    }
+
+    private async handleBotTyping(rid: string, dialogflowMessage: IDialogflowMessage) {
+        const { messages = [] } = dialogflowMessage;
+
+        for (const message of messages) {
+            const { customFields = null } = message as IDialogflowQuickReplies;
+
+            if (customFields) {
+                const { disableInput, displayTyping } = customFields;
+                if (disableInput === true && displayTyping !== true) {
+                    await removeBotTypingListener(rid);
+                }
+            }
+        }
     }
 }
