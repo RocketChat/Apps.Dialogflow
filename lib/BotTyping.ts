@@ -2,7 +2,7 @@ const rooms = {};
 
 export async function botTypingListener(rid: string, callback: any) {
     if (rooms[rid]) {
-        return;
+        (await rooms[rid])();
     }
     rooms[rid] = callback;
 }
