@@ -1,12 +1,14 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
+import { AppSetting } from '../config/Settings';
 import { IDialogflowMessage, IDialogflowQuickReplies } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
-import { removeBotTypingListener } from '../lib//BotTyping';
+import { botTypingListener, removeBotTypingListener } from '../lib//BotTyping';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createHttpResponse } from '../lib/Http';
 import { createDialogflowMessage } from '../lib/Message';
+import { getAppSettingValue } from '../lib/Settings';
 
 export class FulfillmentsEndpoint extends ApiEndpoint {
     public path = 'fulfillment';
@@ -37,10 +39,10 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
         if (!message.sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
 
         await createDialogflowMessage(message.sessionId, read, modify, message);
-        await this.handleBotTyping(message.sessionId, message);
+        await this.handleBotTyping(read, modify, message.sessionId, message);
     }
 
-    private async handleBotTyping(rid: string, dialogflowMessage: IDialogflowMessage) {
+    private async handleBotTyping(read: IRead, modify: IModify, rid: string, dialogflowMessage: IDialogflowMessage) {
         const { messages = [] } = dialogflowMessage;
 
         for (const message of messages) {
@@ -48,8 +50,13 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
 
             if (customFields) {
                 const { disableInput, displayTyping } = customFields;
-                if (disableInput === true && displayTyping !== true) {
-                    await removeBotTypingListener(rid);
+                if (disableInput === true) {
+                    if (displayTyping === true) {
+                        const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+                        await botTypingListener(modify, rid, DialogflowBotUsername);
+                    } else {
+                        await removeBotTypingListener(rid);
+                    }
                 }
             }
         }
