@@ -85,7 +85,7 @@ export class PostMessageSentHandler {
         const { visitor: { token: visitorToken } } = room as ILivechatRoom;
 
         try {
-            await botTypingListener(rid, this.modify.getNotifier().typing({ id: rid, username: DialogflowBotUsername }));
+            await botTypingListener(this.modify, rid, DialogflowBotUsername);
             response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
