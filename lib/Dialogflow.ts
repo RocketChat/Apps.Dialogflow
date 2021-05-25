@@ -181,11 +181,10 @@ class DialogflowClass {
         const { session, queryResult } = response;
         if (queryResult) {
             const { responseMessages, match: { matchType } } = queryResult;
-            const fallbackEvents: string = await getAppSettingValue(read, AppSetting.DialogflowCXFallbackEvents);
 
             // Check array of event names from app settings for fallbacks
             const parsedMessage: IDialogflowMessage = {
-                isFallback: fallbackEvents.split(/[ ,]+/).includes(matchType) ? true : false,
+                isFallback: false,
             };
 
             const messages: Array<string | IDialogflowQuickReplies | IDialogflowPayload> = [];
@@ -193,7 +192,7 @@ class DialogflowClass {
             const msgCustomFields: IDialogflowCustomFields = {};
 
             responseMessages.forEach((message) => {
-                const { text, payload: { quickReplies = null, customFields = null, action = null } = {} } = message;
+                const { text, payload: { quickReplies = null, customFields = null, action = null, isFallback = false } = {} } = message;
                 if (text) {
                     const { text: textMessageArray } = text;
                     messages.push({ text: textMessageArray[0] });
@@ -211,6 +210,9 @@ class DialogflowClass {
                 }
                 if (action) {
                     messages.push({action});
+                }
+                if (isFallback) {
+                    parsedMessage.isFallback = isFallback;
                 }
             });
 
@@ -258,13 +260,13 @@ class DialogflowClass {
         const agentId = await getAppSettingValue(read, AppSetting.DialogflowAgentId);
         const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
 
-        const accessToken = await this.getAccessToken(read, modify, http, sessionId);
-        if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
         if (dialogFlowVersion === 'CX') {
             return `https://${regionId}-dialogflow.googleapis.com/v3/projects/${projectId}/locations/${regionId}/agents/${agentId}/sessions/${sessionId}:detectIntent`;
         }
-
+        
+        const accessToken = await this.getAccessToken(read, modify, http, sessionId);
+        if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment || 'draft'}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
