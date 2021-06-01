@@ -1,4 +1,5 @@
 import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
@@ -7,6 +8,7 @@ import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
+import { retrieveDataByAssociation } from './retrieveDataByAssociation';
 import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
@@ -15,6 +17,7 @@ class DialogflowClass {
     public async sendRequest(http: IHttp,
                              read: IRead,
                              modify: IModify,
+                             persistence: IPersistence,
                              sessionId: string,
                              request: IDialogflowEvent | string,
                              requestType: DialogflowRequestType): Promise<any> {
@@ -23,12 +26,16 @@ class DialogflowClass {
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
         if (dialogFlowVersion === 'CX') {
+            
+            const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${sessionId}`);
+            const data = await retrieveDataByAssociation(read, assoc);
 
             const queryInput = {
                 ...requestType === DialogflowRequestType.EVENT && { event: { event: typeof request === 'string' ? request : request.name} },
                 ...requestType === DialogflowRequestType.MESSAGE && { text: { text: request }},
-                languageCode: 'en',
+                languageCode: data.custom_languageCode || LanguageCode.EN,
             };
+
 
             const accessToken = await this.getAccessToken(read, modify, http, sessionId);
             if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
@@ -106,6 +113,7 @@ class DialogflowClass {
     }
 
     public parseRequest(response: any): IDialogflowMessage {
+        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
@@ -176,6 +184,7 @@ class DialogflowClass {
     }
 
     public async parseCXRequest(read: IRead, response: any): Promise<IDialogflowMessage> {
+        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
@@ -239,6 +248,8 @@ class DialogflowClass {
                 }
             }
 
+            parsedMessage.parameters = queryResult.parameters;
+
             return parsedMessage;
         } else {
             // some error occurred. Dialogflow's response has a error field containing more info abt error
@@ -256,15 +267,17 @@ class DialogflowClass {
         const projectId = projectIds.length >= botId ? projectIds[botId - 1] : projectIds[0];
         const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
         const environment = environments.length >= botId ? environments[botId - 1] : environments[0];
-        const regionId = await getAppSettingValue(read, AppSetting.DialogflowRegion);
-        const agentId = await getAppSettingValue(read, AppSetting.DialogflowAgentId);
         const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
 
 
         if (dialogFlowVersion === 'CX') {
+
+            const regionId = await getAppSettingValue(read, AppSetting.DialogflowRegion);
+            const agentId = await getAppSettingValue(read, AppSetting.DialogflowAgentId);
+
             return `https://${regionId}-dialogflow.googleapis.com/v3/projects/${projectId}/locations/${regionId}/agents/${agentId}/sessions/${sessionId}:detectIntent`;
         }
-        
+
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment || 'draft'}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;

@@ -4,6 +4,7 @@ export interface IDialogflowMessage {
     messages?: Array<string | IDialogflowQuickReplies | IDialogflowPayload |  IDialogflowImageCard>;
     isFallback: boolean;
     sessionId?: string;
+    parameters?: any;
 }
 
 export interface IDialogflowQuickReplies {
