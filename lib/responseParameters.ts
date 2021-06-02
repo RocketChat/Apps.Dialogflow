@@ -1,10 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { AppSetting, DefaultMessage } from '../config/Settings';
-import { ActionIds } from '../enum/ActionIds';
-import {  DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload} from '../enum/Dialogflow';
-import { Logs } from '../enum/Logs';
-import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
+import {  DialogflowRequestType, IDialogflowMessage} from '../enum/Dialogflow';
 import { getAppSettingValue } from '../lib/Settings';
 import { Dialogflow } from './Dialogflow';
 import { createDialogflowMessage, createMessage } from './Message';
