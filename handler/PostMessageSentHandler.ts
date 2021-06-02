@@ -88,6 +88,9 @@ export class PostMessageSentHandler {
         try {
             await botTypingListener(rid, this.modify.getNotifier().typing({ id: rid, username: DialogflowBotUsername }));
             response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, this.persistence, rid, text, DialogflowRequestType.MESSAGE));
+
+            console.log('response');
+            console.log(response);
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
@@ -104,7 +107,10 @@ export class PostMessageSentHandler {
             return;
         }
 
-        handlePayloadActions(this.read, this.modify, rid, visitorToken, response);
+        console.log('handlePayloadActions');
+        handlePayloadActions(this.read, this.modify, this.http, this.persistence, rid, visitorToken, response);
+
+        console.log('handlePayloadParameters');
 
         handleParameters(this.read, this.modify, this.persistence, this.http, rid, visitorToken, response);
 

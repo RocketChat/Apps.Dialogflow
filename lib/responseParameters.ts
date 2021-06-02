@@ -12,7 +12,6 @@ import { retrieveDataByAssociation } from './retrieveDataByAssociation';
 
 export const  handleParameters = async (read: IRead,  modify: IModify, persistence: IPersistence, http: IHttp, rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) => {
     const { parameters = [] } = dialogflowMessage;
-    console.log(parameters);
 
     if (parameters.custom_languagecode) {
 

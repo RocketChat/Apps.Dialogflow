@@ -113,7 +113,6 @@ class DialogflowClass {
     }
 
     public parseRequest(response: any): IDialogflowMessage {
-        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
@@ -184,10 +183,10 @@ class DialogflowClass {
     }
 
     public async parseCXRequest(read: IRead, response: any): Promise<IDialogflowMessage> {
-        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
+
         if (queryResult) {
             const { responseMessages, match: { matchType } } = queryResult;
 
@@ -200,30 +199,32 @@ class DialogflowClass {
             // customFields should be sent as the response of last message on client side
             const msgCustomFields: IDialogflowCustomFields = {};
 
-            responseMessages.forEach((message) => {
-                const { text, payload: { quickReplies = null, customFields = null, action = null, isFallback = false } = {} } = message;
-                if (text) {
-                    const { text: textMessageArray } = text;
-                    messages.push({ text: textMessageArray[0] });
-                }
-                if (quickReplies) {
-                    const { options, imagecards } = quickReplies;
-                    if (options || imagecards) {
-                        messages.push(quickReplies);
+            if (responseMessages) {
+                responseMessages.forEach((message) => {
+                    const { text, payload: { quickReplies = null, customFields = null, action = null, isFallback = false } = {} } = message;
+                    if (text) {
+                        const { text: textMessageArray } = text;
+                        messages.push({ text: textMessageArray[0] });
                     }
-                }
-                if (customFields) {
-                    msgCustomFields.disableInput = !!customFields.disableInput;
-                    msgCustomFields.disableInputMessage = customFields.disableInputMessage;
-                    msgCustomFields.displayTyping = customFields.displayTyping;
-                }
-                if (action) {
-                    messages.push({action});
-                }
-                if (isFallback) {
-                    parsedMessage.isFallback = isFallback;
-                }
-            });
+                    if (quickReplies) {
+                        const { options, imagecards } = quickReplies;
+                        if (options || imagecards) {
+                            messages.push(quickReplies);
+                        }
+                    }
+                    if (customFields) {
+                        msgCustomFields.disableInput = !!customFields.disableInput;
+                        msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                        msgCustomFields.displayTyping = customFields.displayTyping;
+                    }
+                    if (action) {
+                        messages.push({action});
+                    }
+                    if (isFallback) {
+                        parsedMessage.isFallback = isFallback;
+                    }
+                });
+            }  
 
             if (Object.keys(msgCustomFields).length > 0) {
                 if (messages.length > 0) {
