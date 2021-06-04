@@ -3,7 +3,7 @@ import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@ro
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
-import { removeBotTypingListener } from '../lib//BotTyping';
+import { removeBotTypingListener } from '../lib/BotTyping';
 import { getAppSettingValue } from '../lib/Settings';
 import { createMessage } from './Message';
 import { SessionMaintenanceOnceSchedule } from './sessionMaintenance/SessionMaintenanceOnceSchedule';
@@ -38,7 +38,8 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
-    await removeBotTypingListener(rid);
+    const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    await removeBotTypingListener(modify, rid, DialogflowBotUsername);
 
     const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
 
@@ -84,19 +85,20 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
 
-    await removeBotTypingListener(rid);
+    const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    await removeBotTypingListener(modify, rid, DialogflowBotUsername);
 
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage),
-        handoverFailure = {
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+        const handoverFailure = {
             error: offlineMessage,
             errorMessage: 'Unable to reach Liveagent bot, it may be offline or disabled.',
             dialogflow_SessionID: rid,
             visitorDetails: (({ id, token }) => ({ id, token }))(visitor),
-            targetDepartment: livechatTransferData.targetDepartment
-        }
+            targetDepartment: livechatTransferData.targetDepartment,
+        };
 
-        console.log('Failed to handover', JSON.stringify(handoverFailure));
+        console.error('Failed to handover', JSON.stringify(handoverFailure));
 
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 

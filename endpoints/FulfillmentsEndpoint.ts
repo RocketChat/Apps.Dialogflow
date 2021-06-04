@@ -51,11 +51,11 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
             if (customFields) {
                 const { disableInput, displayTyping } = customFields;
                 if (disableInput === true) {
+                    const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
                     if (displayTyping === true) {
-                        const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
                         await botTypingListener(modify, rid, DialogflowBotUsername);
                     } else {
-                        await removeBotTypingListener(rid);
+                        await removeBotTypingListener(modify, rid, DialogflowBotUsername);
                     }
                 }
             }
