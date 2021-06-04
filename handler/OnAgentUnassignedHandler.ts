@@ -1,12 +1,12 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
+import { Logs } from '../enum/Logs';
 import { removeBotTypingListener } from '../lib//BotTyping';
 import { createMessage, sendCloseChatButton } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
-import { Logs } from '../enum/Logs';
-import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
 export class OnAgentUnassignedHandler {
     constructor(private readonly app: IApp,
@@ -22,7 +22,7 @@ export class OnAgentUnassignedHandler {
         const { isChatBotFunctional: allowChatBotSession } = this.context.room.customFields as any;
         const {id: rid} = livechatRoom;
 
-        await removeBotTypingListener(rid);
+        await removeBotTypingListener(this.modify, rid, DialogflowBotUsername);
 
         if (!livechatRoom.servedBy) {
             return;
@@ -45,7 +45,8 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
-    await removeBotTypingListener(rid);
+    const DialogflowBotUsername: string = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
+    await removeBotTypingListener(modify, rid, DialogflowBotUsername);
 
     const closeChatMessage = await getAppSettingValue(read, AppSetting.DialogflowCloseChatMessage);
 
