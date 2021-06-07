@@ -3,7 +3,7 @@ export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
     DialogflowBotId = 'dialogflow_bot_id',
     DialogflowProjectId = 'dialogflow_project_id',
-    DialogflowVersion = "dialog_flow_version",
+    DialogflowVersion = 'dialog_flow_version',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
     DialogflowEnvironment = 'dialogflow_environment',

@@ -11,4 +11,4 @@ export const retrieveDataByAssociation = async (read: IRead,  assoc: RocketChatA
 
     return {};
 
-}
+};

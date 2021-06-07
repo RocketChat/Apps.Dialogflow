@@ -19,22 +19,21 @@ export const  handleParameters = async (read: IRead,  modify: IModify, persisten
 
         if (data && data.custom_languageCode) {
             if (data.custom_languageCode !== parameters.custom_languagecode) {
-                await persistence.updateByAssociation(assoc, {'custom_languageCode': parameters.custom_languagecode});
+                await persistence.updateByAssociation(assoc, {custom_languageCode: parameters.custom_languagecode});
                 sendChangeLanguageEvent(read, modify, persistence, rid, http, parameters.custom_languagecode);
             }
-        }
-        else {
-            await persistence.createWithAssociation({'custom_languageCode': parameters.custom_languagecode}, assoc);
+        } else {
+            await persistence.createWithAssociation({custom_languageCode: parameters.custom_languagecode}, assoc);
             sendChangeLanguageEvent(read, modify, persistence, rid, http, parameters.custom_languagecode);
         }
 
-    } 
-}
+    }
+};
 
 const sendChangeLanguageEvent = async (read: IRead, modify: IModify, persis: IPersistence, rid: string, http: IHttp, languageCode: string) => {
     try {
 
-        const event = { name: 'ChangeLanguage', languageCode: languageCode, parameters:  {} };
+        const event = { name: 'ChangeLanguage', languageCode, parameters:  {} };
         const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, persis, rid, event, DialogflowRequestType.EVENT);
 
         await createDialogflowMessage(rid, read, modify, response);
@@ -49,4 +48,4 @@ const sendChangeLanguageEvent = async (read: IRead, modify: IModify, persis: IPe
 
         return;
     }
-}
+};

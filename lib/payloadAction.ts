@@ -36,30 +36,34 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, http:
                     await closeChat(modify, read, rid);
                 } else if (actionName === ActionIds.SET_TIMEOUT) {
 
-                    setTimeout(async () => {
-                        try {
-                            const event = { name: params.eventName, languageCode: 'en', parameters: {} };
-                            const response: IDialogflowMessage = await Dialogflow.sendRequest(http,
-                                read,
-                                modify,
-                                persistence,
-                                rid,
-                                event,
-                                DialogflowRequestType.EVENT);
-                            await createDialogflowMessage(rid, read, modify, response);
-                        } catch (error) {
+                    const event = { name: params.eventName, languageCode: 'en', parameters: {} };
+                    const response: IDialogflowMessage = await Dialogflow.sendRequest(http,
+                        read,
+                        modify,
+                        persistence,
+                        rid,
+                        event,
+                        DialogflowRequestType.EVENT);
 
-                            const serviceUnavailable: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+                    const task = {
+                        id: 'event-scheduler',
+                        when: `${Number(params.time)} seconds`,
+                        data: {response, rid},
+                    };
 
-                            await createMessage(rid,
-                                                read,
-                                                modify,
-                                                { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+                    try {
+                        await modify.getScheduler().scheduleOnce(task);
+                    } catch (error) {
 
-                            return;
-                        }
+                        const serviceUnavailable: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
 
-                    }, Number(params.time));
+                        await createMessage(rid,
+                                            read,
+                                            modify,
+                                            { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+
+                        return;
+                    }
 
                 }
             }

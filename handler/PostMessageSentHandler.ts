@@ -18,11 +18,11 @@ import { handleTimeout } from '../lib/Timeout';
 
 export class PostMessageSentHandler {
     constructor(private readonly app: IApp,
-        private readonly message: ILivechatMessage,
-        private readonly read: IRead,
-        private readonly http: IHttp,
-        private readonly persistence: IPersistence,
-        private readonly modify: IModify) { }
+                private readonly message: ILivechatMessage,
+                private readonly read: IRead,
+                private readonly http: IHttp,
+                private readonly persistence: IPersistence,
+                private readonly modify: IModify) { }
 
     public async run() {
         const { text, editedAt, room, token, sender, customFields } = this.message;

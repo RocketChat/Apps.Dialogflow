@@ -18,5 +18,10 @@
         "IPostLivechatAgentUnassigned",
         "IPostLivechatRoomClosed",
         "IUIKitLivechatInteractionHandler"
+    ],
+    "permissions": [
+        {
+            "name": "scheduler"
+        }
     ]
 }
