@@ -26,7 +26,7 @@ class DialogflowClass {
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
         if (dialogFlowVersion === 'CX') {
-            
+
             const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${sessionId}`);
             const data = await retrieveDataByAssociation(read, assoc);
 
@@ -35,7 +35,6 @@ class DialogflowClass {
                 ...requestType === DialogflowRequestType.MESSAGE && { text: { text: request }},
                 languageCode: data.custom_languageCode || LanguageCode.EN,
             };
-
 
             const accessToken = await this.getAccessToken(read, modify, http, sessionId);
             if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
@@ -224,7 +223,7 @@ class DialogflowClass {
                         parsedMessage.isFallback = isFallback;
                     }
                 });
-            }  
+            }
 
             if (Object.keys(msgCustomFields).length > 0) {
                 if (messages.length > 0) {
@@ -269,7 +268,6 @@ class DialogflowClass {
         const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
         const environment = environments.length >= botId ? environments[botId - 1] : environments[0];
         const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
-
 
         if (dialogFlowVersion === 'CX') {
 

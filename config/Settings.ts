@@ -25,9 +25,9 @@ export enum AppSetting {
     DialogflowSessionMaintenanceInterval = 'dialogflow_session_maintenance_interval',
     DialogflowSessionMaintenanceEventName = 'dialogflow_session_maintenance_event_name',
     DialogflowLogLevel = 'log_level',
-    DialogflowAgentId = "dialogflow_cx_agent_id",
-    DialogflowRegion = "dialogflow_cx_region",
-    DialogflowCXFallbackEvents = 'dialogflow_cx_fallback_events'
+    DialogflowAgentId = 'dialogflow_cx_agent_id',
+    DialogflowRegion = 'dialogflow_cx_region',
+    DialogflowCXFallbackEvents = 'dialogflow_cx_fallback_events',
 }
 
 export enum DefaultMessage {

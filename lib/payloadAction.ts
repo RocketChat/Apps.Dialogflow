@@ -34,26 +34,30 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, http:
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
                 } else if (actionName === ActionIds.CLOSE_CHAT) {
                     await closeChat(modify, read, rid);
-                }
-                else if (actionName === ActionIds.SET_TIMEOUT) {
-                    let n = setTimeout(async () => {
+                } else if (actionName === ActionIds.SET_TIMEOUT) {
+
+                    setTimeout(async () => {
                         try {
                             const event = { name: params.eventName, languageCode: 'en', parameters: {} };
-                            const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, persistence, rid, event, DialogflowRequestType.EVENT);
+                            const response: IDialogflowMessage = await Dialogflow.sendRequest(http,
+                                read,
+                                modify,
+                                persistence,
+                                rid,
+                                event,
+                                DialogflowRequestType.EVENT);
                             await createDialogflowMessage(rid, read, modify, response);
-                        }
-                        catch (error) {
+                        } catch (error) {
 
                             const serviceUnavailable: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
-                    
+
                             await createMessage(rid,
                                                 read,
                                                 modify,
                                                 { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
-                    
+
                             return;
                         }
-                        
 
                     }, Number(params.time));
 
@@ -61,4 +65,4 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, http:
             }
         }
     }
-}
+};
