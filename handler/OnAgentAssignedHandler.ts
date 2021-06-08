@@ -54,7 +54,7 @@ export class OnAgentAssignedHandler {
 
         try {
             const event = { name: 'Welcome', languageCode: 'en', parameters: {...livechatData, roomId: rid, visitorToken} || {} };
-            const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, event, DialogflowRequestType.EVENT);
+            const response: IDialogflowMessage = await Dialogflow.sendRequest(this.http, this.read, this.modify, this.persis, rid, event, DialogflowRequestType.EVENT);
 
             await createDialogflowMessage(rid, this.read, this.modify, response);
           } catch (error) {

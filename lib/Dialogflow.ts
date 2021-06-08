@@ -1,4 +1,5 @@
 import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
@@ -7,6 +8,7 @@ import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
 import { base64urlEncode } from './Helper';
 import { createHttpRequest } from './Http';
+import { retrieveDataByAssociation } from './retrieveDataByAssociation';
 import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
@@ -15,26 +17,57 @@ class DialogflowClass {
     public async sendRequest(http: IHttp,
                              read: IRead,
                              modify: IModify,
+                             persistence: IPersistence,
                              sessionId: string,
                              request: IDialogflowEvent | string,
-                             requestType: DialogflowRequestType): Promise<IDialogflowMessage> {
+                             requestType: DialogflowRequestType): Promise<any> {
+        const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
+
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
-        const queryInput = {
-            ...requestType === DialogflowRequestType.EVENT && { event: request },
-            ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
-        };
+        if (dialogFlowVersion === 'CX') {
 
-        const httpRequestContent: IHttpRequest = createHttpRequest(
-            { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON },
-            { queryInput },
-        );
+            const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${sessionId}`);
+            const data = await retrieveDataByAssociation(read, assoc);
 
-        try {
-            const response = await http.post(serverURL, httpRequestContent);
-            return this.parseRequest(response.data);
-        } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            const queryInput = {
+                ...requestType === DialogflowRequestType.EVENT && { event: { event: typeof request === 'string' ? request : request.name} },
+                ...requestType === DialogflowRequestType.MESSAGE && { text: { text: request }},
+                languageCode: data.custom_languageCode || LanguageCode.EN,
+            };
+
+            const accessToken = await this.getAccessToken(read, modify, http, sessionId);
+            if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
+
+            const httpRequestContent: IHttpRequest = createHttpRequest(
+                { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON, 'Authorization': 'Bearer ' + accessToken },
+                { queryInput },
+            );
+
+            try {
+                const response = await http.post(serverURL, httpRequestContent);
+                return await this.parseCXRequest(read, response.data);
+            } catch (error) {
+                throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            }
+        } else {
+
+            const queryInput = {
+                ...requestType === DialogflowRequestType.EVENT && { event: request },
+                ...requestType === DialogflowRequestType.MESSAGE && { text: { languageCode: LanguageCode.EN, text: request } },
+            };
+
+            const httpRequestContent: IHttpRequest = createHttpRequest(
+                { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON},
+                { queryInput },
+            );
+
+            try {
+                const response = await http.post(serverURL, httpRequestContent);
+                return this.parseRequest(response.data);
+            } catch (error) {
+                throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            }
         }
     }
 
@@ -148,16 +181,104 @@ class DialogflowClass {
         }
     }
 
+    public async parseCXRequest(read: IRead, response: any): Promise<IDialogflowMessage> {
+        if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
+
+        const { session, queryResult } = response;
+
+        if (queryResult) {
+            const { responseMessages, match: { matchType } } = queryResult;
+
+            // Check array of event names from app settings for fallbacks
+            const parsedMessage: IDialogflowMessage = {
+                isFallback: false,
+            };
+
+            const messages: Array<string | IDialogflowQuickReplies | IDialogflowPayload> = [];
+            // customFields should be sent as the response of last message on client side
+            const msgCustomFields: IDialogflowCustomFields = {};
+
+            if (responseMessages) {
+                responseMessages.forEach((message) => {
+                    const { text, payload: { quickReplies = null, customFields = null, action = null, isFallback = false } = {} } = message;
+                    if (text) {
+                        const { text: textMessageArray } = text;
+                        messages.push({ text: textMessageArray[0] });
+                    }
+                    if (quickReplies) {
+                        const { options, imagecards } = quickReplies;
+                        if (options || imagecards) {
+                            messages.push(quickReplies);
+                        }
+                    }
+                    if (customFields) {
+                        msgCustomFields.disableInput = !!customFields.disableInput;
+                        msgCustomFields.disableInputMessage = customFields.disableInputMessage;
+                        msgCustomFields.displayTyping = customFields.displayTyping;
+                    }
+                    if (action) {
+                        messages.push({action});
+                    }
+                    if (isFallback) {
+                        parsedMessage.isFallback = isFallback;
+                    }
+                });
+            }
+
+            if (Object.keys(msgCustomFields).length > 0) {
+                if (messages.length > 0) {
+                    let lastObj = messages[messages.length - 1];
+                    lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
+                    messages[messages.length - 1] = lastObj;
+                } else {
+                    messages.push({ customFields: msgCustomFields });
+                }
+            }
+
+            if (messages.length > 0) {
+                parsedMessage.messages = messages;
+            }
+
+            if (session) {
+                // "session" format -> projects/project-id/agent/sessions/session-id
+                const splittedText: Array<string> = session.split('/');
+                const sessionId: string = splittedText[splittedText.length - 1];
+                if (sessionId) {
+                    parsedMessage.sessionId = sessionId;
+                }
+            }
+
+            parsedMessage.parameters = queryResult.parameters;
+
+            return parsedMessage;
+        } else {
+            // some error occurred. Dialogflow's response has a error field containing more info abt error
+            throw Error(`An Error occurred while connecting to Dialogflow's REST API\
+            Error Details:-
+                message:- ${response.error.message}\
+                status:- ${response.error.message}\
+            Try checking the google credentials in App Setting and your internet connection`);
+        }
+    }
+
     private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
         const botId = await getAppSettingValue(read, AppSetting.DialogflowBotId);
         const projectIds = (await getAppSettingValue(read, AppSetting.DialogflowProjectId)).split(',');
         const projectId = projectIds.length >= botId ? projectIds[botId - 1] : projectIds[0];
         const environments = (await getAppSettingValue(read, AppSetting.DialogflowEnvironment)).split(',');
         const environment = environments.length >= botId ? environments[botId - 1] : environments[0];
+        const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
+
+        if (dialogFlowVersion === 'CX') {
+
+            const regionId = await getAppSettingValue(read, AppSetting.DialogflowRegion);
+            const agentId = await getAppSettingValue(read, AppSetting.DialogflowAgentId);
+
+            return `https://${regionId}-dialogflow.googleapis.com/v3/projects/${projectId}/locations/${regionId}/agents/${agentId}/sessions/${sessionId}:detectIntent`;
+        }
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
-
         return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment || 'draft'}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 

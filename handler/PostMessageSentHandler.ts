@@ -10,6 +10,7 @@ import { botTypingListener, removeBotTypingListener } from '../lib//BotTyping';
 import { Dialogflow } from '../lib/Dialogflow';
 import { createDialogflowMessage, createMessage } from '../lib/Message';
 import { handlePayloadActions } from '../lib/payloadAction';
+import { handleParameters } from '../lib/responseParameters';
 import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntentAndSendResponse, resetFallbackIntent } from '../lib/SynchronousHandover';
@@ -17,11 +18,11 @@ import { handleTimeout } from '../lib/Timeout';
 
 export class PostMessageSentHandler {
     constructor(private readonly app: IApp,
-        private readonly message: ILivechatMessage,
-        private readonly read: IRead,
-        private readonly http: IHttp,
-        private readonly persistence: IPersistence,
-        private readonly modify: IModify) { }
+                private readonly message: ILivechatMessage,
+                private readonly read: IRead,
+                private readonly http: IHttp,
+                private readonly persistence: IPersistence,
+                private readonly modify: IModify) { }
 
     public async run() {
         const { text, editedAt, room, token, sender, customFields } = this.message;
@@ -86,7 +87,7 @@ export class PostMessageSentHandler {
 
         try {
             await botTypingListener(rid, this.modify.getNotifier().typing({ id: rid, username: DialogflowBotUsername }));
-            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
+            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, this.persistence, rid, text, DialogflowRequestType.MESSAGE));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
@@ -103,7 +104,9 @@ export class PostMessageSentHandler {
             return;
         }
 
-        handlePayloadActions(this.read, this.modify, rid, visitorToken, response);
+        handlePayloadActions(this.read, this.modify, this.http, this.persistence, rid, visitorToken, response);
+
+        handleParameters(this.read, this.modify, this.persistence, this.http, rid, visitorToken, response);
 
         const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
@@ -147,7 +150,7 @@ export class PostMessageSentHandler {
         if (DialogflowEnableChatClosedByVisitorEvent) {
             try {
                 let res: IDialogflowMessage;
-                res = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, {
+                res = (await Dialogflow.sendRequest(this.http, this.read, this.modify, this.persistence, rid, {
                     name: DialogflowChatClosedByVisitorEventName,
                     languageCode: LanguageCode.EN,
                 }, DialogflowRequestType.EVENT));

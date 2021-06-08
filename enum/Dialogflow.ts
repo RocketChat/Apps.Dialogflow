@@ -4,6 +4,7 @@ export interface IDialogflowMessage {
     messages?: Array<string | IDialogflowQuickReplies | IDialogflowPayload |  IDialogflowImageCard>;
     isFallback: boolean;
     sessionId?: string;
+    parameters?: any;
 }
 
 export interface IDialogflowQuickReplies {
@@ -78,6 +79,7 @@ export enum Base64 {
 
 export enum LanguageCode {
     EN = 'en',
+    BR = 'pt-BR',
 }
 
 export enum DialogflowRequestType {
@@ -87,5 +89,5 @@ export enum DialogflowRequestType {
 
 export enum Message {
     CLOSED_BY_VISITOR = 'Closed by visitor',
-    CUSTOMER_IDEL_TIMEOUT = 'customer_idle_timeout'
+    CUSTOMER_IDEL_TIMEOUT = 'customer_idle_timeout',
 }

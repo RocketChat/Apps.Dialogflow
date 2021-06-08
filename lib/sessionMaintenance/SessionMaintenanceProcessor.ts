@@ -39,7 +39,7 @@ export class SessionMaintenanceProcessor implements IProcessor {
                 name: sessionMaintenanceEventName,
                 languageCode: LanguageCode.EN,
             };
-            await Dialogflow.sendRequest(http, read, modify, jobContext.sessionId, eventData, DialogflowRequestType.EVENT);
+            await Dialogflow.sendRequest(http, read, modify, persis, jobContext.sessionId, eventData, DialogflowRequestType.EVENT);
         } catch (error) {
             // console.log(error);
         }
