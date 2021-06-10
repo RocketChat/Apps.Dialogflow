@@ -87,14 +87,14 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
     await removeBotTypingListener(rid);
 
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage),
-        handoverFailure = {
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+        const handoverFailure = {
             error: offlineMessage,
             errorMessage: 'Unable to reach Liveagent bot, it may be offline or disabled.',
             dialogflow_SessionID: rid,
             visitorDetails: (({ id, token }) => ({ id, token }))(visitor),
-            targetDepartment: livechatTransferData.targetDepartment
-        }
+            targetDepartment: livechatTransferData.targetDepartment,
+        };
 
         console.log('Failed to handover', JSON.stringify(handoverFailure));
 

@@ -1,9 +1,11 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting } from '../config/Settings';
 import { getAppSettingValue } from '../lib/Settings';
+import { retrieveDataByAssociation } from './retrieveDataByAssociation';
 
 export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify ) => {
 
@@ -56,6 +58,7 @@ export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, h
 			});
 			modify.getExtender().finish(await msgExtender);
 		} else {
+
 			// Guest sent message
 
 			if (!message.id) {
@@ -70,6 +73,36 @@ export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, h
 				idleTimeoutMessage: timeoutWarningMessage,
 			});
 			modify.getExtender().finish(await msgExtender);
+
+			await scheduleTimeOut(message, read, modify, persistence);
+
 		}
+	}
+};
+
+async function scheduleTimeOut(message: IMessage, read: IRead, modify: IModify, persistence: IPersistence) {
+	const idleTimeoutTimeoutTime: string = await getAppSettingValue(read, AppSetting.DialogflowCustomerTimeoutTime);
+	const rid = message.room.id;
+
+	updateIdleSessionScheduleStatus(read, modify, persistence, rid);
+
+	const task = {
+		id: 'idle-session-timeout',
+		when: `${idleTimeoutTimeoutTime} seconds`,
+		data: {rid},
+	};
+	await modify.getScheduler().scheduleOnce(task);
+}
+
+export const updateIdleSessionScheduleStatus = async (read: IRead, modify: IModify, persistence: IPersistence, rid: string) => {
+	const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
+	const data = await retrieveDataByAssociation(read, assoc);
+
+	if (data && data.idleSessionScheduleStarted) {
+		await persistence.updateByAssociation(assoc, { idleSessionScheduleStarted: true });
+		await modify.getScheduler().cancelJob('idle-session-timeout');
+
+	} else {
+		await persistence.createWithAssociation({ idleSessionScheduleStarted: true }, assoc);
 	}
 };

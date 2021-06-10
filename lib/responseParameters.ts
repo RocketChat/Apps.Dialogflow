@@ -13,8 +13,6 @@ export const  handleParameters = async (read: IRead,  modify: IModify, persisten
     if (parameters.custom_languagecode) {
 
         const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
-        const association = await read.getPersistenceReader().readByAssociation(assoc);
-
         const data = await retrieveDataByAssociation(read, assoc);
 
         if (data && data.custom_languageCode) {

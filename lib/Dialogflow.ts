@@ -1,4 +1,5 @@
 import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat/ILivechatRoom';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
@@ -23,6 +24,8 @@ class DialogflowClass {
                              requestType: DialogflowRequestType): Promise<any> {
         const dialogFlowVersion = await getAppSettingValue(read, AppSetting.DialogflowVersion);
 
+        const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
 
         if (dialogFlowVersion === 'CX') {
@@ -36,12 +39,18 @@ class DialogflowClass {
                 languageCode: data.custom_languageCode || LanguageCode.EN,
             };
 
+            const queryParams = {
+                timeZone: 'America/Los_Angeles', parameters:  {
+                    username: room.visitor.username,
+                },
+            };
+
             const accessToken = await this.getAccessToken(read, modify, http, sessionId);
             if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
             const httpRequestContent: IHttpRequest = createHttpRequest(
                 { 'Content-Type': Headers.CONTENT_TYPE_JSON, 'Accept': Headers.ACCEPT_JSON, 'Authorization': 'Bearer ' + accessToken },
-                { queryInput },
+                { queryInput, queryParams },
             );
 
             try {
@@ -182,6 +191,7 @@ class DialogflowClass {
     }
 
     public async parseCXRequest(read: IRead, response: any): Promise<IDialogflowMessage> {
+        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;
@@ -215,6 +225,7 @@ class DialogflowClass {
                         msgCustomFields.disableInput = !!customFields.disableInput;
                         msgCustomFields.disableInputMessage = customFields.disableInputMessage;
                         msgCustomFields.displayTyping = customFields.displayTyping;
+                        msgCustomFields.imageCardURL = customFields.imageCardURL;
                     }
                     if (action) {
                         messages.push({action});

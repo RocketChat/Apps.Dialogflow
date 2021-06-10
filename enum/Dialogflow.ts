@@ -22,6 +22,7 @@ export interface IDialogflowImageCard {
 }
 
 export interface IDialogflowCustomFields {
+    imageCardURL?: any;
     disableInput?: boolean;
     disableInputMessage?: string;
     displayTyping?: boolean;

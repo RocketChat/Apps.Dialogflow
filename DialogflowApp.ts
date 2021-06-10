@@ -25,7 +25,7 @@ import { OnAgentUnassignedHandler } from './handler/OnAgentUnassignedHandler';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 import { EventScheduler } from './lib/EventTimeoutProcessor';
-
+import { IdleSessionTimeoutProcessor } from './lib/IdleSessionTimeoutProcessor';
 import { SessionMaintenanceProcessor } from './lib/sessionMaintenance/SessionMaintenanceProcessor';
 
 export class DialogflowApp extends App implements IPostMessageSent, IPostLivechatAgentAssigned, IPostLivechatAgentUnassigned, IPostLivechatRoomClosed, IUIKitLivechatInteractionHandler {
@@ -89,8 +89,11 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
             ],
         });
 
-        await configuration.scheduler.registerProcessors([new SessionMaintenanceProcessor('session-maintenance'),
-                                                            new EventScheduler('event-scheduler')]);
+        await configuration.scheduler.registerProcessors([
+                                                            new SessionMaintenanceProcessor('session-maintenance'),
+                                                            new EventScheduler('event-scheduler'),
+                                                            new IdleSessionTimeoutProcessor('idle-session-timeout'),
+                                                        ]);
 
         await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));
     }
