@@ -40,10 +40,10 @@ export class ExecuteLivechatBlockActionHandler {
                 case ActionIds.PERFORM_HANDOVER:
                     const targetDepartment: string = value || await getAppSettingValue(this.read, AppSetting.FallbackTargetDepartment);
                     if (!targetDepartment) {
-                        await createMessage(rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
+                        await createMessage(this.app, rid, this.read, this.modify, { text: DefaultMessage.DEFAULT_DialogflowRequestFailedMessage });
                         break;
                     }
-                    await performHandover(this.modify, this.read, rid, visitor.token, targetDepartment);
+                    await performHandover(this.app, this.modify, this.read, rid, visitor.token, targetDepartment);
                     break;
 
                 case ActionIds.CLOSE_CHAT:
@@ -51,7 +51,7 @@ export class ExecuteLivechatBlockActionHandler {
                     break;
 
                 default:
-                    await createLivechatMessage(rid, this.read, this.modify, { text: value }, visitor);
+                    await createLivechatMessage(this.app, rid, this.read, this.modify, { text: value }, visitor);
                     break;
             }
 

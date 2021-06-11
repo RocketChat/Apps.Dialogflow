@@ -35,6 +35,6 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
         if (!message) { throw new Error(Logs.INVALID_REQUEST_CONTENT); }
         if (!message.sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
 
-        await createDialogflowMessage(message.sessionId, read, modify, message);
+        await createDialogflowMessage(this.app, message.sessionId, read, modify, message);
     }
 }
