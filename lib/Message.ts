@@ -1,7 +1,7 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, IActionsBlock, IBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
@@ -37,8 +37,8 @@ export const createDialogflowMessage = async (app: IApp, rid: string, read: IRea
 
             const blocks = modify.getCreator().getBlockBuilder();
 
-            blocks.addSectionBlock({ 
-                text: blocks.newMarkdownTextObject(text)
+            blocks.addSectionBlock({
+                text: blocks.newMarkdownTextObject(text),
             });
 
             blocks.addActionsBlock({
@@ -139,6 +139,14 @@ export const createLivechatMessage = async (app: IApp, rid: string, read: IRead,
 
 export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msgId: string): Promise<void> => {
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
-    msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
+
+    const withoutActionBlocks: Array<IBlock> = msgBuilder.getBlocks().filter(
+                                                (block) => (!(
+                                                                block.type === BlockType.ACTIONS &&
+                                                                (block as IActionsBlock).elements.some((element) => (element.type === BlockElementType.BUTTON))
+                                                            )
+                                                        ));
+
+    msgBuilder.setEditor(appUser).setBlocks(withoutActionBlocks);
     return modify.getUpdater().finish(msgBuilder);
 };
