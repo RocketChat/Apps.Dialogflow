@@ -1,6 +1,7 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { BlockElementType, BlockType, IActionsBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
+import { BlockElementType, BlockType, IActionsBlock, IBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
@@ -9,7 +10,7 @@ import { Logs } from '../enum/Logs';
 import { uuid } from './Helper';
 import { getAppSettingValue } from './Settings';
 
-export const createDialogflowMessage = async (rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
+export const createDialogflowMessage = async (app: IApp, rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
     const { messages = [] } = dialogflowMessage;
 
     for (const message of messages) {
@@ -34,45 +35,52 @@ export const createDialogflowMessage = async (rid: string, read: IRead,  modify:
                     return buttonElement;
             });
 
-            const actionsBlock: IActionsBlock = { type: BlockType.ACTIONS, elements };
+            const blocks = modify.getCreator().getBlockBuilder();
 
-            await createMessage(rid, read, modify, { text });
-            await createMessage(rid, read, modify, { actionsBlock });
+            blocks.addSectionBlock({
+                text: blocks.newMarkdownTextObject(text),
+            });
+
+            blocks.addActionsBlock({
+                elements,
+            });
+
+            await createMessage(app, rid, read, modify, { blocks });
         } else {
             // message is instanceof string
             if ((message as string).trim().length > 0) {
-                await createMessage(rid, read, modify, { text: message });
+                await createMessage(app, rid, read, modify, { text: message });
             }
         }
     }
 };
 
-export const createMessage = async (rid: string, read: IRead,  modify: IModify, message: any ): Promise<any> => {
+export const createMessage = async (app: IApp, rid: string, read: IRead,  modify: IModify, message: any ): Promise<any> => {
     if (!message) {
         return;
     }
 
     const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
     if (!botUserName) {
-        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
+        app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
         return;
     }
 
     const sender = await read.getUserReader().getByUsername(botUserName);
     if (!sender) {
-        this.app.getLogger().error(Logs.INVALID_BOT_USERNAME_SETTING);
+        app.getLogger().error(Logs.INVALID_BOT_USERNAME_SETTING);
         return;
     }
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+        app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
         return;
     }
 
     const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
 
-    const { text, actionsBlock, attachment } = message;
+    const { text, blocks, attachment } = message;
 
     if (text) {
         msg.setText(text);
@@ -82,9 +90,8 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
         msg.addAttachment(attachment);
     }
 
-    if (actionsBlock) {
-        const { elements } = actionsBlock as IActionsBlock;
-        msg.addBlocks(modify.getCreator().getBlockBuilder().addActionsBlock({ elements }));
+    if (blocks) {
+        msg.addBlocks(blocks);
     }
 
     return new Promise(async (resolve) => {
@@ -94,20 +101,20 @@ export const createMessage = async (rid: string, read: IRead,  modify: IModify, 
     });
 };
 
-export const createLivechatMessage = async (rid: string, read: IRead,  modify: IModify, message: any, visitor: IVisitor ): Promise<any> => {
+export const createLivechatMessage = async (app: IApp, rid: string, read: IRead,  modify: IModify, message: any, visitor: IVisitor ): Promise<any> => {
     if (!message) {
         return;
     }
 
     const botUserName = await getAppSettingValue(read, AppSetting.DialogflowBotUsername);
     if (!botUserName) {
-        this.app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
+        app.getLogger().error(Logs.EMPTY_BOT_USERNAME_SETTING);
         return;
     }
 
     const room = await read.getRoomReader().getById(rid);
     if (!room) {
-        this.app.getLogger().error(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
+        app.getLogger().error(`${ Logs.INVALID_ROOM_ID } ${ rid }`);
         return;
     }
 
@@ -132,6 +139,14 @@ export const createLivechatMessage = async (rid: string, read: IRead,  modify: I
 
 export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msgId: string): Promise<void> => {
     const msgBuilder = await modify.getUpdater().message(msgId, appUser);
-    msgBuilder.setEditor(appUser).setBlocks(modify.getCreator().getBlockBuilder().getBlocks());
+
+    const withoutActionBlocks: Array<IBlock> = msgBuilder.getBlocks().filter(
+                                                (block) => (!(
+                                                                block.type === BlockType.ACTIONS &&
+                                                                (block as IActionsBlock).elements.some((element) => (element.type === BlockElementType.BUTTON))
+                                                            )
+                                                        ));
+
+    msgBuilder.setEditor(appUser).setBlocks(withoutActionBlocks);
     return modify.getUpdater().finish(msgBuilder);
 };

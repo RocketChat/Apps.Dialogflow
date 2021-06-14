@@ -54,7 +54,8 @@ export class PostMessageSentHandler {
 
             const serviceUnavailable: string = await getAppSettingValue(this.read, AppSetting.DialogflowServiceUnavailableMessage);
 
-            await createMessage(rid,
+            await createMessage(this.app,
+                                rid,
                                 this.read,
                                 this.modify,
                                 { text: serviceUnavailable ? serviceUnavailable : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
@@ -62,12 +63,12 @@ export class PostMessageSentHandler {
             return;
         }
 
-        await createDialogflowMessage(rid, this.read, this.modify, response);
+        await createDialogflowMessage(this.app, rid, this.read, this.modify, response);
 
         // synchronous handover check
         const { isFallback } = response;
         if (isFallback) {
-            return incFallbackIntent(this.read, this.modify, rid);
+            return incFallbackIntent(this.app, this.read, this.modify, rid);
         }
         return resetFallbackIntent(this.read, this.modify, rid);
     }
