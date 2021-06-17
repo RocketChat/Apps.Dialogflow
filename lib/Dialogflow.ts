@@ -191,7 +191,6 @@ class DialogflowClass {
     }
 
     public async parseCXRequest(read: IRead, response: any): Promise<IDialogflowMessage> {
-        console.log(response);
         if (!response) { throw new Error(Logs.INVALID_RESPONSE_FROM_DIALOGFLOW_CONTENT_UNDEFINED); }
 
         const { session, queryResult } = response;

@@ -83,8 +83,14 @@ export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, h
 async function scheduleTimeOut(message: IMessage, read: IRead, modify: IModify, persistence: IPersistence) {
 	const idleTimeoutTimeoutTime: string = await getAppSettingValue(read, AppSetting.DialogflowCustomerTimeoutTime);
 	const rid = message.room.id;
+	const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
 
-	updateIdleSessionScheduleStatus(read, modify, persistence, rid);
+	if (updateIdleSessionScheduleStatus(read, modify, persistence, rid)) {
+		await modify.getScheduler().cancelJob('idle-session-timeout');
+	} else {
+		await persistence.createWithAssociation({ idleSessionScheduleStarted: true }, assoc);
+
+	}
 
 	const task = {
 		id: 'idle-session-timeout',
@@ -99,10 +105,8 @@ export const updateIdleSessionScheduleStatus = async (read: IRead, modify: IModi
 	const data = await retrieveDataByAssociation(read, assoc);
 
 	if (data && data.idleSessionScheduleStarted) {
-		await persistence.updateByAssociation(assoc, { idleSessionScheduleStarted: true });
-		await modify.getScheduler().cancelJob('idle-session-timeout');
+		return true;
 
-	} else {
-		await persistence.createWithAssociation({ idleSessionScheduleStarted: true }, assoc);
 	}
+	return false;
 };

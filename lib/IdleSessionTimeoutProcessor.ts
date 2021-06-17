@@ -1,11 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat/ILivechatRoom';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IJobContext, IProcessor } from '@rocket.chat/apps-engine/definition/scheduler';
-import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
-import { removeBotTypingListener } from './BotTyping';
-import { Dialogflow } from './Dialogflow';
-import { createDialogflowMessage } from './Message';
-import { handlePayloadActions } from './payloadAction';
+import { closeChat } from './Room';
 import { resetFallbackIntent } from './SynchronousHandover';
 
 export class IdleSessionTimeoutProcessor implements IProcessor {
@@ -17,25 +13,12 @@ export class IdleSessionTimeoutProcessor implements IProcessor {
 
     public async processor(jobContext: IJobContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
 
-        const event = { name: 'Close_Session', languageCode: 'en', parameters: {} };
-        const response: IDialogflowMessage = await Dialogflow.sendRequest(http,
-            read,
-            modify,
-            persis,
-            jobContext.rid,
-            event,
-            DialogflowRequestType.EVENT);
+        const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${jobContext.rid}`);
 
-        const createResponseMessage = async () => await createDialogflowMessage(jobContext.rid, read, modify, response);
+        await modify.getScheduler().cancelJob('idle-session-timeout');
+        await persis.updateByAssociation(assoc, { idleSessionScheduleStarted: false });
 
-        await createResponseMessage();
-
-        await removeBotTypingListener(jobContext.rid);
-
-        const room = await read.getRoomReader().getById(jobContext.rid);
-        const { visitor: { token: visitorToken } } = room as ILivechatRoom;
-
-        handlePayloadActions(read, modify, http, persis, jobContext.rid, visitorToken, response);
+        await closeChat(modify, read, jobContext.rid, persis);
 
         return resetFallbackIntent(read, modify, jobContext.rid);
     }
