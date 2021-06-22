@@ -13,11 +13,6 @@ export class IdleSessionTimeoutProcessor implements IProcessor {
 
     public async processor(jobContext: IJobContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
 
-        const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${jobContext.rid}`);
-
-        await modify.getScheduler().cancelJob('idle-session-timeout');
-        await persis.updateByAssociation(assoc, { idleSessionScheduleStarted: false });
-
         await closeChat(modify, read, jobContext.rid, persis);
 
         return resetFallbackIntent(read, modify, jobContext.rid);

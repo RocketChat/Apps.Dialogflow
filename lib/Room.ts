@@ -1,5 +1,6 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';
@@ -36,9 +37,12 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
 
 export const closeChat = async (modify: IModify, read: IRead, rid: string, persistence?: IPersistence) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
-    if (!room || !persistence) { throw new Error(Logs.INVALID_ROOM_ID); }
+    if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
-    if (updateIdleSessionScheduleStatus(read, modify, persistence, rid)) {
+    if (persistence && updateIdleSessionScheduleStatus(read, modify, persistence, rid)) {
+        const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
+
+        await persistence.updateByAssociation(assoc, { idleSessionScheduleStarted: false });
         await modify.getScheduler().cancelJob('idle-session-timeout');
     }
 

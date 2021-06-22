@@ -45,7 +45,7 @@ export class PostMessageSentHandler {
                 return;
             }
             await this.handleClosedByVisitor(rid);
-            await closeChat(this.modify, this.read, rid);
+            await closeChat(this.modify, this.read, rid, this.persistence);
             return;
         }
 

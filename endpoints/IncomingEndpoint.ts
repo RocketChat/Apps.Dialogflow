@@ -37,7 +37,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
         switch (action) {
             case EndpointActionNames.CLOSE_CHAT:
-                await closeChat(modify, read, sessionId);
+                await closeChat(modify, read, sessionId, persistence);
                 break;
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;

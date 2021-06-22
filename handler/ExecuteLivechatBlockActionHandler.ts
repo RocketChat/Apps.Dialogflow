@@ -47,7 +47,7 @@ export class ExecuteLivechatBlockActionHandler {
                     break;
 
                 case ActionIds.CLOSE_CHAT:
-                    await closeChat(this.modify, this.read, rid);
+                    await closeChat(this.modify, this.read, rid, this.persistence);
                     break;
 
                 default:
