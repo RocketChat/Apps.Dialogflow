@@ -92,7 +92,6 @@ export class DialogflowApp extends App implements IPostMessageSent, IPostLivecha
         await configuration.scheduler.registerProcessors([
                                                             new SessionMaintenanceProcessor('session-maintenance'),
                                                             new EventScheduler('event-scheduler'),
-                                                            new IdleSessionTimeoutProcessor('idle-session-timeout'),
                                                         ]);
 
         await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));

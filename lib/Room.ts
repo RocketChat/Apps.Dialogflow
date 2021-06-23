@@ -8,7 +8,6 @@ import { removeBotTypingListener } from '../lib//BotTyping';
 import { getAppSettingValue } from '../lib/Settings';
 import { createMessage } from './Message';
 import { SessionMaintenanceOnceSchedule } from './sessionMaintenance/SessionMaintenanceOnceSchedule';
-import { updateIdleSessionScheduleStatus } from './Timeout';
 
 export const updateRoomCustomFields = async (rid: string, data: any, read: IRead,  modify: IModify): Promise<any> => {
     if (!rid) {
@@ -38,13 +37,6 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
 export const closeChat = async (modify: IModify, read: IRead, rid: string, persistence?: IPersistence) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
-
-    if (persistence && updateIdleSessionScheduleStatus(read, modify, persistence, rid)) {
-        const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
-
-        await persistence.updateByAssociation(assoc, { idleSessionScheduleStarted: false });
-        await modify.getScheduler().cancelJob('idle-session-timeout');
-    }
 
     await removeBotTypingListener(rid);
 

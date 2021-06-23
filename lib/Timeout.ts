@@ -74,37 +74,6 @@ export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, h
             });
             modify.getExtender().finish(await msgExtender);
 
-            console.log('schedule timeout');
-
-            await scheduleTimeOut(message, read, modify, persistence);
-
         }
     }
-};
-
-async function scheduleTimeOut(message: IMessage, read: IRead, modify: IModify, persistence: IPersistence) {
-    const idleTimeoutTimeoutTime: string = await getAppSettingValue(read, AppSetting.DialogflowCustomerTimeoutTime);
-    const rid = message.room.id;
-    const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
-
-    if (updateIdleSessionScheduleStatus(read, modify, persistence, rid)) {
-            await modify.getScheduler().cancelJob('idle-session-timeout');
-    } else {
-            await persistence.createWithAssociation({ idleSessionScheduleStarted: true }, assoc);
-
-    }
-
-    const task = {
-        id: 'idle-session-timeout',
-        when: `${idleTimeoutTimeoutTime} seconds`,
-        data: {rid},
-    };
-    await modify.getScheduler().scheduleOnce(task);
-}
-
-export const updateIdleSessionScheduleStatus = async (read: IRead, modify: IModify, persistence: IPersistence, rid: string) => {
-    const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
-    const data = await retrieveDataByAssociation(read, assoc);
-
-    return data && data.idleSessionScheduleStarted === true;
 };

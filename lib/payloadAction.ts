@@ -6,7 +6,6 @@ import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room'
 import { getAppSettingValue } from '../lib/Settings';
 import { Dialogflow } from './Dialogflow';
 import { createMessage } from './Message';
-import { updateIdleSessionScheduleStatus } from './Timeout';
 
 export const  handlePayloadActions = async (read: IRead,  modify: IModify, http: IHttp, persistence: IPersistence, rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) => {
     const { messages = [] } = dialogflowMessage;
