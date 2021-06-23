@@ -103,7 +103,7 @@ export class PostMessageSentHandler {
             return;
         }
 
-        handlePayloadActions(this.read, this.modify, rid, visitorToken, response);
+        handlePayloadActions(this.read, this.modify, this.http, rid, visitorToken, response);
 
         const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
