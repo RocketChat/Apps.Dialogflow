@@ -1,6 +1,5 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { Logs } from '../enum/Logs';

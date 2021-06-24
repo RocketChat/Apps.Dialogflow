@@ -1,11 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting } from '../config/Settings';
 import { getAppSettingValue } from '../lib/Settings';
-import { retrieveDataByAssociation } from './retrieveDataByAssociation';
 
 export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify ) => {
 
