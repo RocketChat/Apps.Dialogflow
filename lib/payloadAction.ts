@@ -1,5 +1,4 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
-import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { AppSetting, DefaultMessage } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import {  DialogflowRequestType, IDialogflowAction, IDialogflowMessage, IDialogflowPayload} from '../enum/Dialogflow';
@@ -7,7 +6,6 @@ import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room'
 import { getAppSettingValue } from '../lib/Settings';
 import { Dialogflow } from './Dialogflow';
 import { createMessage } from './Message';
-import { updateIdleSessionScheduleStatus } from './Timeout';
 
 export const  handlePayloadActions = async (read: IRead,  modify: IModify, http: IHttp, persistence: IPersistence, rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) => {
     const { messages = [] } = dialogflowMessage;
@@ -35,13 +33,7 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, http:
                     }
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
                 } else if (actionName === ActionIds.CLOSE_CHAT) {
-
-                    await updateIdleSessionScheduleStatus(read, modify, persistence, rid);
-
-                    const assoc = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `SFLAIA-${rid}`);
-                    await persistence.updateByAssociation(assoc, { idleSessionScheduleStarted: false });
-
-                    await closeChat(modify, read, rid);
+                    await closeChat(modify, read, rid, persistence);
                 } else if (actionName === ActionIds.SET_TIMEOUT) {
 
                     const event = { name: params.eventName, languageCode: 'en', parameters: {} };

@@ -1,12 +1,12 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatEventContext, ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
+import { Logs } from '../enum/Logs';
 import { removeBotTypingListener } from '../lib//BotTyping';
 import { createMessage, sendCloseChatButton } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
-import { Logs } from '../enum/Logs';
-import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 
 export class OnAgentUnassignedHandler {
     constructor(private readonly app: IApp,
