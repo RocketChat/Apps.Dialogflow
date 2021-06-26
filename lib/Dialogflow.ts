@@ -224,7 +224,7 @@ class DialogflowClass {
                         msgCustomFields.disableInput = !!customFields.disableInput;
                         msgCustomFields.disableInputMessage = customFields.disableInputMessage;
                         msgCustomFields.displayTyping = customFields.displayTyping;
-                        msgCustomFields.imageCardURL = customFields.imageCardURL;
+                        msgCustomFields.mediaCardURL = customFields.mediaCardURL;
                     }
                     if (action) {
                         messages.push({action});
