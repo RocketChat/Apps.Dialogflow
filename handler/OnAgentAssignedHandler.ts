@@ -26,8 +26,8 @@ export class OnAgentAssignedHandler {
         const { welcomeEventSent = false } = customFields;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
-        const { value: sendWelcomeEvent } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowWelcomeIntentOnStart);
-        const { value: sendWelcomeMessage } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowEnableWelcomeMessage);
+        const sendWelcomeEvent = await getAppSettingValue(this.read, AppSetting.DialogflowWelcomeIntentOnStart);
+        const sendWelcomeMessage = await getAppSettingValue(this.read, AppSetting.DialogflowEnableWelcomeMessage);
 
         if (!type || type !== RoomType.LIVE_CHAT) {
             return;

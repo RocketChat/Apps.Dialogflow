@@ -1,15 +1,9 @@
-const rooms = {};
+import { IModify } from '@rocket.chat/apps-engine/definition/accessors';
 
-export async function botTypingListener(rid: string, callback: any) {
-    if (rooms[rid]) {
-        return;
-    }
-    rooms[rid] = callback;
+export async function botTypingListener(modify: IModify, rid: string, username: string ) {
+    await modify.getNotifier().typing({ id: rid, username });
 }
 
-export async function removeBotTypingListener(rid: string) {
-    if (rooms[rid]) {
-        (await rooms[rid])();
-        delete rooms[rid];
-    }
+export async function removeBotTypingListener(modify: IModify, rid: string, username: string) {
+    await modify.getNotifier().stopTyping({ id: rid, username });
 }
