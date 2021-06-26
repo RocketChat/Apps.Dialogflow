@@ -55,7 +55,7 @@ export class ExecuteLivechatBlockActionHandler {
                     break;
             }
 
-            const { value: hideQuickRepliesSetting } = await this.read.getEnvironmentReader().getSettings().getById(AppSetting.DialogflowHideQuickReplies);
+            const hideQuickRepliesSetting = await getAppSettingValue(this.read, AppSetting.DialogflowHideQuickReplies);
             if (hideQuickRepliesSetting) {
                 await deleteAllActionBlocks(this.modify, appUser, id);
             }
