@@ -88,3 +88,80 @@ Dialogflow CX by default starts with a  `sys.no-match.default` event. The event 
   "isFallback": true
 }``. The function parsing CX responses in Apps.Dialogflow will search for a parameter `isFallback` in the payloads array instead of searching the full response object. 
 
+### Image/PDF URL cards:
+
+Custom payload in route fulfillment:
+```
+{
+  "customFields": {
+    "imageCardURL": [
+      "http://www.africau.edu/images/default/sample.pdf"
+    ]
+  }
+}
+```
+Result:
+![201251360_3819555124840666_1501453198199186802_n](https://user-images.githubusercontent.com/18405180/122418131-ad9f3880-cf92-11eb-8a0c-48fb49a0199b.png)
+
+### Link Cards
+
+Plain text in Route Fulfillment:
+
+> Your link is: https://www.twilio.com/docs/whatsapp
+
+Result:
+![image](https://user-images.githubusercontent.com/18405180/122419116-5d74a600-cf93-11eb-846e-6b18285d12d5.png)
+
+### Delayed Events
+
+Custom payload in route fulfillment:
+```
+{
+  "action": {
+    "name": "df_set_timeout",
+    "params": {
+      "time": "7",
+      "eventName": "Delay_Event"
+    }
+  }
+}
+```
+
+
+| Parameter | Description                                 |
+|-----------|---------------------------------------------|
+| time      | Delay time in seconds                       |
+| eventName | Name of Event to be activated after timeout |
+
+### Changing Language (English, Portuguese)
+
+Request by Guest:
+
+> Portugues
+
+or
+
+> English 
+
+For the language changing functionality:
+- Create an entity with the name @custom_languageCode with the following setup:
+![image](https://user-images.githubusercontent.com/18405180/123317662-f036b700-d536-11eb-80d0-ddb07074006e.png)
+- Create a CX intent that extracts and sets the value of @custom_languageCode.
+![image](https://user-images.githubusercontent.com/18405180/123318599-0db85080-d538-11eb-9f75-b1174b37086f.png)
+The parameter value of @custom_languageCode will be sent back to the App in every future fulfillment and set the language of all future requests.
+
+### Guest WhatsApp number:
+
+The guest's WhatsApp number is automatically stored in the Agent's session parameter **"username"** at the beginning of the session. Can be called using **"$session.params.username"**
+
+### Close Chat
+
+Custom payload in route fulfillment:
+```
+{
+  "action": {
+    "name": "df_close_chat"
+  }
+}
+```
+
