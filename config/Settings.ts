@@ -1,4 +1,4 @@
-import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/settings';
+import { ISetting, ISettingSelectValue, SettingType } from '@rocket.chat/apps-engine/definition/settings';
 
 export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
@@ -11,6 +11,7 @@ export enum AppSetting {
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
+    DialogflowDefaultLanguage = 'dialogflow_default_language',
 }
 
 export enum DefaultMessage {
@@ -19,6 +20,36 @@ export enum DefaultMessage {
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
 }
+
+export const LanguageCode: Array<ISettingSelectValue> = [
+    { key: 'zh-CN', i18nLabel: 'Chinese - Simplified' },
+    { key: 'da', i18nLabel: 'Danish' },
+    { key: 'nl', i18nLabel: 'Dutch' },
+    { key: 'en', i18nLabel: 'English' },
+    { key: 'en-AU', i18nLabel: 'English - Australia' },
+    { key: 'en-CA', i18nLabel: 'English - Canada' },
+    { key: 'en-GB', i18nLabel: 'English - Great Britain' },
+    { key: 'en-IN', i18nLabel: 'English - India' },
+    { key: 'en-US', i18nLabel: 'English - US' },
+    { key: 'fr-CA', i18nLabel: 'French - Canada' },
+    { key: 'fr-FR', i18nLabel: 'French - France' },
+    { key: 'de', i18nLabel: 'German' },
+    { key: 'hi', i18nLabel: 'Hindi' },
+    { key: 'id', i18nLabel: 'Indonesian' },
+    { key: 'it', i18nLabel: 'Italian' },
+    { key: 'ja', i18nLabel: 'Japanese' },
+    { key: 'ko', i18nLabel: 'Korean' },
+    { key: 'no', i18nLabel: 'Norwegian' },
+    { key: 'pl', i18nLabel: 'Polish' },
+    { key: 'pt-BR', i18nLabel: 'Portuguese - Brazil' },
+    { key: 'pt', i18nLabel: 'Portuguese - Portugal' },
+    { key: 'ru', i18nLabel: 'Russian' },
+    { key: 'es', i18nLabel: 'Spanish' },
+    { key: 'es-ES', i18nLabel: 'Spanish - Spain' },
+    { key: 'sv', i18nLabel: 'Swedish' },
+    { key: 'tr', i18nLabel: 'Turkish' },
+    { key: 'uk', i18nLabel: 'Ukrainian' },
+];
 
 export const settings: Array<ISetting> = [
     {
@@ -71,6 +102,16 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'target_department_for_handover',
         i18nDescription: 'target_department_for_handover_description',
         required: false,
+    },
+    {
+        id: AppSetting.DialogflowDefaultLanguage,
+        public: true,
+        type: SettingType.SELECT,
+        values: LanguageCode,
+        packageValue: 'en',
+        value: 'en',
+        i18nLabel: 'dialogflow_default_language',
+        required: true,
     },
     {
         id: AppSetting.DialogflowHandoverMessage,
