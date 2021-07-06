@@ -35,6 +35,9 @@ export class IncomingEndpoint extends ApiEndpoint {
 
         const { action, sessionId } = endpointContent;
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
+
+        logIncomingEndpointPayload(endpointContent);
+
         switch (action) {
             case EndpointActionNames.CLOSE_CHAT:
                 await closeChat(modify, read, sessionId);
@@ -56,7 +59,6 @@ export class IncomingEndpoint extends ApiEndpoint {
                     if (!livechatRoom) { throw new Error(); }
                     const { visitor: { token: vToken } } = livechatRoom;
                     await createDialogflowMessage(sessionId, read, modify, response);
-                    this.app.getLogger().log(response)
                     await handlePayloadActions(read, modify, sessionId, vToken, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
@@ -73,3 +75,10 @@ export class IncomingEndpoint extends ApiEndpoint {
         }
     }
 }
+
+const logIncomingEndpointPayload = (endpointContent: IActionsEndpointContent) => {
+    if (endpointContent.action === EndpointActionNames.SEND_MESSAGE) {
+        return;
+    }
+    console.debug('Dialogflow Incoming Endpoint: ', JSON.stringify(endpointContent || {}));
+};

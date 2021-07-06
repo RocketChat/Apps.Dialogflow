@@ -12,6 +12,9 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
         if (action) {
             const { name: actionName, params } = action as IDialogflowAction;
             const targetDepartment: string = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
+
+            logActionPayload(rid, action);
+
             if (actionName) {
                 if (actionName === ActionIds.PERFORM_HANDOVER) {
                     if (params) {
@@ -36,4 +39,12 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
             }
         }
     }
-}
+};
+
+const logActionPayload = (rid: string, action: IDialogflowAction) => {
+    const logData = {dialogflowSessionID: rid, action: {...action}};
+    if (logData.action.params) {
+        logData.action.params.customDetail = '';
+    }
+    console.debug('Dialogflow Action: ', JSON.stringify(logData));
+};
