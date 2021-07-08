@@ -1,11 +1,13 @@
-import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IHttp, IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import {  IDialogflowAction, IDialogflowMessage, IDialogflowPayload} from '../enum/Dialogflow';
 import { closeChat, performHandover, updateRoomCustomFields } from '../lib/Room';
+import { sendWelcomeEventToDialogFlow } from '../lib/sendWelcomeEvent';
 import { getAppSettingValue } from '../lib/Settings';
 
-export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) => {
+export const  handlePayloadActions = async (read: IRead,  modify: IModify, http: IHttp, rid: string, visitorToken: string, dialogflowMessage: IDialogflowMessage) => {
     const { messages = [] } = dialogflowMessage;
     for (const message of messages) {
         const { action = null } = message as IDialogflowPayload;
@@ -35,6 +37,11 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, rid: 
                     await performHandover(modify, read, rid, visitorToken, targetDepartment);
                 } else if (actionName === ActionIds.CLOSE_CHAT) {
                     await closeChat(modify, read, rid);
+                } else if (actionName === ActionIds.NEW_WELCOME_EVENT) {
+                    const livechatRoom = await read.getRoomReader().getById(rid) as ILivechatRoom;
+                    if (!livechatRoom) { throw new Error(); }
+                    const { visitor: { livechatData } } = livechatRoom;
+                    await sendWelcomeEventToDialogFlow(read, modify, http, rid, visitorToken, livechatData);
                 }
             }
         }

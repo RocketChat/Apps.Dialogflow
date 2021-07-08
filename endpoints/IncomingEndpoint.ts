@@ -59,7 +59,7 @@ export class IncomingEndpoint extends ApiEndpoint {
                     if (!livechatRoom) { throw new Error(); }
                     const { visitor: { token: vToken } } = livechatRoom;
                     await createDialogflowMessage(sessionId, read, modify, response);
-                    await handlePayloadActions(read, modify, sessionId, vToken, response);
+                    await handlePayloadActions(read, modify, http, sessionId, vToken, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                     throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
