@@ -104,10 +104,6 @@ export class PostMessageSentHandler {
             return;
         }
 
-        handlePayloadActions(this.read, this.modify, this.http, this.persistence, rid, visitorToken, response);
-
-        handleParameters(this.read, this.modify, this.persistence, this.http, rid, visitorToken, response);
-
         const createResponseMessage = async () => await createDialogflowMessage(rid, this.read, this.modify, response);
 
         // synchronous handover check
@@ -118,6 +114,8 @@ export class PostMessageSentHandler {
         }
 
         await createResponseMessage();
+        await handlePayloadActions(this.read, this.modify, this.http, this.persistence, rid, visitorToken, response);
+        await handleParameters(this.read, this.modify, this.persistence, this.http, rid, visitorToken, response);
         await this.handleBotTyping(rid, response);
 
         return resetFallbackIntent(this.read, this.modify, rid);
