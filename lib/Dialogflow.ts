@@ -240,11 +240,19 @@ class DialogflowClass {
             }
 
             if (Object.keys(msgCustomFields).length > 0) {
-                if (messages.length > 0 && messages[messages.length - 1].hasOwnProperty('text')) {
-                    let lastObj = messages[messages.length - 1];
-                    lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
-                    messages[messages.length - 1] = lastObj;
-                } else {
+
+                for (let i = messages.length - 1; i >= 0; i--) {
+                    if (messages[i].hasOwnProperty('text')) {
+                        let lastObj = messages[i];
+                        lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
+                        messages[i] = lastObj;
+                        break;
+                    }
+                    if (i === 0) {
+                        messages.push({ customFields: msgCustomFields });
+                    }
+                }
+                if (messages.length === 0) {
                     messages.push({ customFields: msgCustomFields });
                 }
             }
