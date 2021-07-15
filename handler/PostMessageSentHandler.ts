@@ -75,14 +75,15 @@ export class PostMessageSentHandler {
             return;
         }
 
-        await handleTimeout(this.app, this.message, this.read, this.http, this.persistence, this.modify);
+        const { visitor } = room as ILivechatRoom;
+        const { token: visitorToken } = visitor;
+        await handleTimeout(this.app, this.message, this.read, this.http, this.persistence, this.modify, visitor);
 
-        if (sender.username === DialogflowBotUsername) {
+        if (sender.username === DialogflowBotUsername || sender.username !== visitor.username) {
             return;
         }
 
         let response: IDialogflowMessage;
-        const { visitor: { token: visitorToken } } = room as ILivechatRoom;
 
         try {
             await botTypingListener(this.modify, rid, DialogflowBotUsername);
