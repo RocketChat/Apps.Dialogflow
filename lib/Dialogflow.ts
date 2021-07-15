@@ -224,7 +224,11 @@ class DialogflowClass {
                         msgCustomFields.disableInput = !!customFields.disableInput;
                         msgCustomFields.disableInputMessage = customFields.disableInputMessage;
                         msgCustomFields.displayTyping = customFields.displayTyping;
-                        msgCustomFields.mediaCardURL = customFields.mediaCardURL;
+                    }
+
+                    if (customFields && customFields.mediaCardURL) {
+                        const { mediaCardURL } = customFields;
+                        messages.push({ customFields: { mediaCardURL } });
                     }
                     if (action) {
                         messages.push({action});
@@ -236,7 +240,7 @@ class DialogflowClass {
             }
 
             if (Object.keys(msgCustomFields).length > 0) {
-                if (messages.length > 0) {
+                if (messages.length > 0 && messages[messages.length - 1].hasOwnProperty('text')) {
                     let lastObj = messages[messages.length - 1];
                     lastObj = Object.assign(lastObj, { customFields: msgCustomFields });
                     messages[messages.length - 1] = lastObj;
