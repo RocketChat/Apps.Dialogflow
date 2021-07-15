@@ -1,11 +1,12 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
+import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IMessage } from '@rocket.chat/apps-engine/definition/messages';
 import { RoomType } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting } from '../config/Settings';
 import { getAppSettingValue } from '../lib/Settings';
 
-export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify ) => {
+export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify, visitor: IVisitor ) => {
 
 	if (message.room.type !== RoomType.LIVE_CHAT || (message.customFields && message.customFields.idleTimeoutConfig)) {
 		return;
@@ -55,7 +56,7 @@ export const handleTimeout = async (app: IApp, message: IMessage, read: IRead, h
 				idleTimeoutMessage: timeoutWarningMessage,
 			});
 			modify.getExtender().finish(await msgExtender);
-		} else {
+		} else if (message.sender.username === visitor.username) {
 			// Guest sent message
 
 			if (!message.id) {
