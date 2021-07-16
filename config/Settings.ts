@@ -195,7 +195,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowEnableCustomerTimeout,
         public: true,
         type: SettingType.BOOLEAN,
-        packageValue: true,
+        packageValue: false,
         i18nLabel: 'dialogflow_enable_customer_timeout',
         i18nDescription: 'dialogflow_enable_customer_timeout_description',
         required: true,
