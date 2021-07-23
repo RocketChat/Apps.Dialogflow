@@ -1,4 +1,5 @@
 import { IHttp, IHttpRequest, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { createSign } from 'crypto';
 import { AppSetting } from '../config/Settings';
@@ -19,6 +20,12 @@ class DialogflowClass {
                              request: IDialogflowEvent | string,
                              requestType: DialogflowRequestType): Promise<IDialogflowMessage> {
         const serverURL = await this.getServerURL(read, modify, http, sessionId);
+
+        const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
+
+        if (room.customFields && room.customFields.isHandedOverFromDialogFlow) {
+            return {isFallback: false};
+        }
 
         const queryInput = {
             ...requestType === DialogflowRequestType.EVENT && { event: request },
