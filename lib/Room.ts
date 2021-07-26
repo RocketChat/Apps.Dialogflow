@@ -1,4 +1,4 @@
-import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
@@ -33,8 +33,7 @@ export const updateRoomCustomFields = async (rid: string, data: any, read: IRead
     }
 };
 
-export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
-    await modify.getScheduler().cancelJobByDataQuery({ sessionId: rid });
+export const closeChat = async (modify: IModify, read: IRead, rid: string, persistence?: IPersistence) => {
     const room: IRoom = (await read.getRoomReader().getById(rid)) as IRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 

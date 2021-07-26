@@ -23,7 +23,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, http, request.content);
+            await this.processRequest(read, modify, persis, http, request.content);
             return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
         } catch (error) {
             this.app.getLogger().error(Logs.ENDPOINT_REQUEST_PROCESSING_ERROR, error);
@@ -31,16 +31,13 @@ export class IncomingEndpoint extends ApiEndpoint {
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, http: IHttp, endpointContent: IActionsEndpointContent) {
+    private async processRequest(read: IRead, modify: IModify, persistence: IPersistence, http: IHttp, endpointContent: IActionsEndpointContent) {
 
         const { action, sessionId } = endpointContent;
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
-
-        logIncomingEndpointPayload(endpointContent);
-
         switch (action) {
             case EndpointActionNames.CLOSE_CHAT:
-                await closeChat(modify, read, sessionId);
+                await closeChat(modify, read, sessionId, persistence);
                 break;
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;
@@ -54,12 +51,13 @@ export class IncomingEndpoint extends ApiEndpoint {
                 if (!event) { throw new Error(Logs.INVALID_EVENT_DATA); }
 
                 try {
-                    const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, sessionId, event, DialogflowRequestType.EVENT);
+                    const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, persistence, sessionId, event, DialogflowRequestType.EVENT);
                     const livechatRoom = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
                     if (!livechatRoom) { throw new Error(); }
                     const { visitor: { token: vToken } } = livechatRoom;
                     await createDialogflowMessage(sessionId, read, modify, response);
-                    await handlePayloadActions(read, modify, http, sessionId, vToken, response);
+                    this.app.getLogger().log(response);
+                    await handlePayloadActions(read, modify, http, persistence, sessionId, vToken, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                     throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
@@ -75,10 +73,3 @@ export class IncomingEndpoint extends ApiEndpoint {
         }
     }
 }
-
-const logIncomingEndpointPayload = (endpointContent: IActionsEndpointContent) => {
-    if (endpointContent.action === EndpointActionNames.SEND_MESSAGE) {
-        return;
-    }
-    console.debug('Dialogflow Incoming Endpoint: ', JSON.stringify(endpointContent || {}));
-};
