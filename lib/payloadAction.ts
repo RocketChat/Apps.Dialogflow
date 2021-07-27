@@ -49,7 +49,7 @@ export const  handlePayloadActions = async (read: IRead,  modify: IModify, http:
 };
 
 const logActionPayload = (rid: string, action: IDialogflowAction) => {
-    const logData = {dialogflowSessionID: rid, action: {...action}};
+    const logData = {dialogflowSessionID: rid, action: JSON.parse(JSON.stringify(action))};
     if (logData.action.params) {
         logData.action.params.customDetail = '';
     }
