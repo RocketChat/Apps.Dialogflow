@@ -11,6 +11,9 @@ export enum AppSetting {
     DialogflowServiceUnavailableMessage = 'dialogflow_service_unavailable_message',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
+    DialogflowEnableWelcomeMessage = 'dialogflow_enable_welcome_message',
+    DialogflowWelcomeMessage = 'dialogflow_welcome_message',
+    DialogflowWelcomeIntentOnStart = 'dialogflow_welcome_intent_on_start',
 }
 
 export enum DefaultMessage {
@@ -18,6 +21,7 @@ export enum DefaultMessage {
     DEFAULT_DialogflowRequestFailedMessage = 'Sorry, something went wrong.',
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
+    DEFAULT_DialogflowWelcomeMessage = 'Thanks for connecting',
 }
 
 export const settings: Array<ISetting> = [
@@ -107,6 +111,33 @@ export const settings: Array<ISetting> = [
         value: true,
         i18nLabel: 'dialogflow_hide_quick_replies',
         i18nDescription: 'dialogflow_hide_quick_replies_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowEnableWelcomeMessage,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        i18nLabel: 'dialogflow_enable_welcome_message',
+        i18nDescription: 'dialogflow_enable_welcome_message_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowWelcomeMessage,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: DefaultMessage.DEFAULT_DialogflowWelcomeMessage,
+        i18nLabel: 'dialogflow_welcome_message',
+        i18nDescription: 'dialogflow_welcome_message_description',
+        required: false,
+    },
+    {
+        id: AppSetting.DialogflowWelcomeIntentOnStart,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        i18nLabel: 'dialogflow_welcome_intent_on_start',
+        i18nDescription: 'dialogflow_welcome_intent_on_start_description',
         required: true,
     },
 ];

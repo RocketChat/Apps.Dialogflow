@@ -14,5 +14,11 @@
     "dialogflow_close_chat_message": "Close Chat Message",
     "dialogflow_close_chat_message_description": "This message will be sent automatically when a chat is closed",
     "dialogflow_hide_quick_replies": "Hide Quick Replies",
-    "dialogflow_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them"
+    "dialogflow_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them",
+    "dialogflow_enable_welcome_message": "Enable Custom Welcome Message",
+    "dialogflow_enable_welcome_message_description": "If enabled, then a custom welcome message will be sent when bot is assigned to any visitor",
+    "dialogflow_welcome_message": "Dialogflow Message to send on start",
+    "dialogflow_welcome_message_description": "Custom welcome message to send to visitor",
+    "dialogflow_welcome_intent_on_start": "Send Welcome Intent",
+    "dialogflow_welcome_intent_on_start_description": "If enabled, then a welcome event will be sent when bot is assigned to any visitor"
 }
