@@ -105,3 +105,10 @@ const sendChangeLanguageEvent = async (read: IRead, modify: IModify, persis: IPe
         return;
     }
 };
+
+const logActionPayload = (rid: string, action: IDialogflowAction) => {
+    const logData = {dialogflowSessionID: rid, action: JSON.parse(JSON.stringify(action))};
+    if (logData.action.params) {
+        logData.action.params.customDetail = '';
+    }
+};
