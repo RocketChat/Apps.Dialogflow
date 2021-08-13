@@ -54,7 +54,7 @@ export class IncomingEndpoint extends ApiEndpoint {
 
                 try {
                     const response: IDialogflowMessage = await Dialogflow.sendRequest(http, read, modify, sessionId, event, DialogflowRequestType.EVENT);
-                    await createDialogflowMessage(sessionId, read, modify, response);
+                    await createDialogflowMessage(this.app, sessionId, read, modify, response);
                 } catch (error) {
                     this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
                     throw new Error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
@@ -63,7 +63,7 @@ export class IncomingEndpoint extends ApiEndpoint {
             case EndpointActionNames.SEND_MESSAGE:
                 const { actionData: { messages = null } = {} } = endpointContent;
                 if (!messages) { throw new Error(Logs.INVALID_MESSAGES); }
-                await createDialogflowMessage(sessionId, read, modify, { messages, isFallback: false });
+                await createDialogflowMessage(this.app, sessionId, read, modify, { messages, isFallback: false });
                 break;
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);

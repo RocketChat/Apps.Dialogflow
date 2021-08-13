@@ -1,11 +1,12 @@
 import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { ILivechatRoom } from '@rocket.chat/apps-engine/definition/livechat';
 import { AppSetting } from '../config/Settings';
 import { Logs } from '../enum/Logs';
 import { performHandover, updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
 
-export const incFallbackIntent = async (read: IRead, modify: IModify, sessionId: string) => {
+export const incFallbackIntent = async (app: IApp, read: IRead, modify: IModify, sessionId: string) => {
     const fallbackThreshold = (await getAppSettingValue(read, AppSetting.DialogflowFallbackResponsesLimit)) as number;
 
     if (!fallbackThreshold || (fallbackThreshold && fallbackThreshold === 0)) { return; }
@@ -26,7 +27,7 @@ export const incFallbackIntent = async (read: IRead, modify: IModify, sessionId:
         const targetDepartmentName: string | undefined = await getAppSettingValue(read, AppSetting.FallbackTargetDepartment);
 
         // Session Id from Dialogflow will be the same as Room id
-        await performHandover(modify, read, sessionId, visitorToken, targetDepartmentName);
+        await performHandover(app, modify, read, sessionId, visitorToken, targetDepartmentName);
     }
 };
 

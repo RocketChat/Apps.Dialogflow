@@ -1,4 +1,5 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IDepartment, ILivechatRoom, ILivechatTransferData, IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { AppSetting, DefaultMessage } from '../config/Settings';
@@ -43,9 +44,8 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
 };
 
 export const performHandover = async (modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string): Promise<boolean> => {
-
     const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
-    await createMessage(rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
+    await createMessage(app, rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
 
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
@@ -70,7 +70,6 @@ export const performHandover = async (modify: IModify, read: IRead, rid: string,
         });
     if (!result) {
         const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverFailedMessage);
-
         await createMessage(rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowHandoverFailedMessage });
 
         return false;
