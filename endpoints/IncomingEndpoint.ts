@@ -22,16 +22,19 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, http, request.content);
-            return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
+            const { statusCode = HttpStatusCode.OK, result } = await this.processRequest(read, modify, http, request.content);
+            return createHttpResponse(statusCode, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result });
         } catch (error) {
             this.app.getLogger().error(Logs.ENDPOINT_REQUEST_PROCESSING_ERROR, error);
             return createHttpResponse(HttpStatusCode.INTERNAL_SERVER_ERROR, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { error: error.message });
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, http: IHttp, endpointContent: IActionsEndpointContent) {
-
+    private async processRequest(read: IRead,
+                                 modify: IModify,
+                                 http: IHttp,
+                                 endpointContent: IActionsEndpointContent,
+    ): Promise<{ statusCode: HttpStatusCode, result?: string }> {
         const { action, sessionId } = endpointContent;
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
         switch (action) {
@@ -43,9 +46,9 @@ export class IncomingEndpoint extends ApiEndpoint {
                 const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
                 if (!room) { throw new Error(); }
                 const { visitor: { token: visitorToken } } = room;
-                const result = await performHandover(modify, read, sessionId, visitorToken, targetDepartment);
+                const result = await performHandover(this.app, modify, read, sessionId, visitorToken, targetDepartment);
                 if (!result) {
-                    throw new Error(Logs.NO_AGENTS_ONLINE);
+                    return { statusCode: HttpStatusCode.CONFLICT, result: Logs.NO_AGENTS_ONLINE };
                 }
                 break;
             case EndpointActionNames.TRIGGER_EVENT:
@@ -68,5 +71,7 @@ export class IncomingEndpoint extends ApiEndpoint {
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);
         }
+
+        return { statusCode: HttpStatusCode.OK, result: Response.SUCCESS };
     }
 }
