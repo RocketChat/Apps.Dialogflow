@@ -18,7 +18,6 @@ export enum DefaultMessage {
     DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
     DEFAULT_DialogflowRequestFailedMessage = 'Sorry, something went wrong.',
     DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
-    DEFAULT_DialogflowHandoverFailedMessage = 'Sorry couldn\'t find any agent online at this moment.',
     DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
 }
 

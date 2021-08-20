@@ -22,7 +22,7 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            const { statusCode = HttpStatusCode.OK, data } = await this.processRequest(read, modify, http, request.content) || {};
+            const { statusCode = HttpStatusCode.OK, data = null } = await this.processRequest(read, modify, http, request.content);
             return createHttpResponse(statusCode, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { ...data ? { ...data } : { result: Response.SUCCESS } });
         } catch (error) {
             this.app.getLogger().error(Logs.ENDPOINT_REQUEST_PROCESSING_ERROR, error);
@@ -44,7 +44,7 @@ export class IncomingEndpoint extends ApiEndpoint {
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;
                 const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
-                if (!room) { throw new Error(); }
+                if (!room || !room.isOpen) { throw new Error('Error! Invalid session Id. No active room found with the given session id'); }
                 const { visitor: { token: visitorToken } } = room;
                 const result = await performHandover(this.app, modify, read, sessionId, visitorToken, targetDepartment);
                 if (!result) {
