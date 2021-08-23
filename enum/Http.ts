@@ -6,4 +6,5 @@ export enum Headers {
 
 export enum Response {
     SUCCESS = 'Your request was processed successfully',
+    NO_AGENTS_ONLINE = 'Handover failed! No agents online',
 }

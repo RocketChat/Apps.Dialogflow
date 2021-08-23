@@ -22,16 +22,19 @@ export class IncomingEndpoint extends ApiEndpoint {
         this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
         try {
-            await this.processRequest(read, modify, http, request.content);
-            return createHttpResponse(HttpStatusCode.OK, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { result: Response.SUCCESS });
+            const { statusCode = HttpStatusCode.OK, data = null } = await this.processRequest(read, modify, http, request.content);
+            return createHttpResponse(statusCode, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { ...data ? { ...data } : { result: Response.SUCCESS } });
         } catch (error) {
             this.app.getLogger().error(Logs.ENDPOINT_REQUEST_PROCESSING_ERROR, error);
             return createHttpResponse(HttpStatusCode.INTERNAL_SERVER_ERROR, { 'Content-Type': Headers.CONTENT_TYPE_JSON }, { error: error.message });
         }
     }
 
-    private async processRequest(read: IRead, modify: IModify, http: IHttp, endpointContent: IActionsEndpointContent) {
-
+    private async processRequest(read: IRead,
+                                 modify: IModify,
+                                 http: IHttp,
+                                 endpointContent: IActionsEndpointContent,
+    ): Promise<{ statusCode: HttpStatusCode, data?: { result?: string; error?: string } }> {
         const { action, sessionId } = endpointContent;
         if (!sessionId) { throw new Error(Logs.INVALID_SESSION_ID); }
         switch (action) {
@@ -41,9 +44,12 @@ export class IncomingEndpoint extends ApiEndpoint {
             case EndpointActionNames.HANDOVER:
                 const { actionData: { targetDepartment = '' } = {} } = endpointContent;
                 const room = await read.getRoomReader().getById(sessionId) as ILivechatRoom;
-                if (!room) { throw new Error(); }
+                if (!room || !room.isOpen) { throw new Error('Error! Invalid session Id. No active room found with the given session id'); }
                 const { visitor: { token: visitorToken } } = room;
-                await performHandover(this.app, modify, read, sessionId, visitorToken, targetDepartment);
+                const result = await performHandover(this.app, modify, read, sessionId, visitorToken, targetDepartment);
+                if (!result) {
+                    return { statusCode: HttpStatusCode.CONFLICT, data: { error: Response.NO_AGENTS_ONLINE }};
+                }
                 break;
             case EndpointActionNames.TRIGGER_EVENT:
                 const { actionData: { event = null } = {} } = endpointContent;
@@ -65,5 +71,7 @@ export class IncomingEndpoint extends ApiEndpoint {
             default:
                 throw new Error(Logs.INVALID_ENDPOINT_ACTION);
         }
+
+        return { statusCode: HttpStatusCode.OK, data: { result: Response.SUCCESS }};
     }
 }

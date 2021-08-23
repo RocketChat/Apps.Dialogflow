@@ -43,11 +43,7 @@ export const closeChat = async (modify: IModify, read: IRead, rid: string) => {
     if (!result) { throw new Error(Logs.CLOSE_CHAT_REQUEST_FAILED_ERROR); }
 };
 
-export const performHandover = async (app: IApp, modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string) => {
-
-    const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
-    await createMessage(app, rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
-
+export const performHandover = async (app: IApp, modify: IModify, read: IRead, rid: string, visitorToken: string, targetDepartmentName?: string): Promise<boolean> => {
     const room: ILivechatRoom = (await read.getRoomReader().getById(rid)) as ILivechatRoom;
     if (!room) { throw new Error(Logs.INVALID_ROOM_ID); }
 
@@ -65,13 +61,30 @@ export const performHandover = async (app: IApp, modify: IModify, read: IRead, r
         livechatTransferData.targetDepartment = targetDepartment.id;
     }
 
+    // check if any agent is online in the department where we're transferring this chat
+    const serviceOnline = await read.getLivechatReader().isOnlineAsync(livechatTransferData.targetDepartment);
+    if (!serviceOnline) {
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverFailedMessage);
+        if (offlineMessage && offlineMessage.trim()) {
+            await createMessage(app, rid, read, modify, { text: offlineMessage });
+        }
+        return false;
+    }
+
+    const handoverMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverMessage);
+    await createMessage(app, rid, read, modify, { text: handoverMessage ? handoverMessage : DefaultMessage.DEFAULT_DialogflowHandoverMessage });
+
     const result = await modify.getUpdater().getLivechatUpdater().transferVisitor(visitor, livechatTransferData)
         .catch((error) => {
             throw new Error(`${Logs.HANDOVER_REQUEST_FAILED_ERROR} ${error}`);
         });
     if (!result) {
-        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowServiceUnavailableMessage);
+        const offlineMessage: string = await getAppSettingValue(read, AppSetting.DialogflowHandoverFailedMessage);
+        if (offlineMessage && offlineMessage.trim()) {
+            await createMessage(app, rid, read, modify, { text: offlineMessage });
+        }
 
-        await createMessage(app, rid, read, modify, { text: offlineMessage ? offlineMessage : DefaultMessage.DEFAULT_DialogflowServiceUnavailableMessage });
+        return false;
     }
+    return true;
 };
