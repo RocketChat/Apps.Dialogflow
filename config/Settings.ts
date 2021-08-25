@@ -12,6 +12,7 @@ export enum AppSetting {
     DialogflowHandoverFailedMessage = 'dialogflow_no_agents_online_for_handover',
     DialogflowCloseChatMessage = 'dialogflow_close_chat_message',
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
+    DialogflowAllowDirectMessage = 'dialogflow_allow_direct_message',
 }
 
 export enum DefaultMessage {
@@ -117,6 +118,16 @@ export const settings: Array<ISetting> = [
         value: true,
         i18nLabel: 'dialogflow_hide_quick_replies',
         i18nDescription: 'dialogflow_hide_quick_replies_description',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowAllowDirectMessage,
+        public: true,
+        type: SettingType.BOOLEAN,
+        packageValue: true,
+        value: true,
+        i18nLabel: 'dialogflow_allow_direct_message',
+        i18nDescription: 'dialogflow_allow_direct_message_description',
         required: true,
     },
 ];

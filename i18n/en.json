@@ -16,5 +16,7 @@
     "dialogflow_hide_quick_replies": "Hide Quick Replies",
     "dialogflow_hide_quick_replies_description": "If enabled, then all quick-replies will hide when a visitor clicks on any one of them",
     "dialogflow_handover_failed_message": "Handover Failed Message",
-    "dialogflow_handover_failed_message_description": "The Bot will send this message to Visitor if the handover failed because no agents were online"
+    "dialogflow_handover_failed_message_description": "The Bot will send this message to Visitor if the handover failed because no agents were online",
+    "dialogflow_allow_direct_message": "Enable support for Direct Messages",
+    "dialogflow_allow_direct_message_description": "If enabled, then the Dialogflow bot will also answer any direct messages to the Bot (defined in 'Bot Username' setting) "
 }
