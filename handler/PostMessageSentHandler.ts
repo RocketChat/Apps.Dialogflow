@@ -22,8 +22,6 @@ export class PostMessageSentHandler {
         const { text, editedAt, room, token, sender } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
-        console.log('---room', room);
-
         const { id: rid, type, servedBy, isOpen, userIds } = livechatRoom;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);

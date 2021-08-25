@@ -14,15 +14,16 @@ import { ILivechatMessage } from '@rocket.chat/apps-engine/definition/livechat';
 import { IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
-import { IUIKitLivechatInteractionHandler, IUIKitResponse, UIKitLivechatBlockInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
+import { IUIKitInteractionHandler, IUIKitLivechatInteractionHandler, IUIKitResponse, UIKitBlockInteractionContext, UIKitLivechatBlockInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 import { settings } from './config/Settings';
 import { FulfillmentsEndpoint } from './endpoints/FulfillmentsEndpoint';
 import { IncomingEndpoint } from './endpoints/IncomingEndpoint';
+import { ExecuteBlockActionHandler } from './handler/ExecuteBlockActionHandler';
 import { ExecuteLivechatBlockActionHandler } from './handler/ExecuteLivechatBlockActionHandler';
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
-export class DialogflowApp extends App implements IPostMessageSent, IUIKitLivechatInteractionHandler {
+export class DialogflowApp extends App implements IPostMessageSent, IUIKitLivechatInteractionHandler, IUIKitInteractionHandler {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
@@ -33,6 +34,15 @@ export class DialogflowApp extends App implements IPostMessageSent, IUIKitLivech
                                                    persistence: IPersistence,
                                                    modify: IModify): Promise<IUIKitResponse> {
         const handler = new ExecuteLivechatBlockActionHandler(this, context, read, http, persistence, modify);
+        return await handler.run();
+    }
+
+    public async executeBlockActionHandler(context: UIKitBlockInteractionContext,
+                                           read: IRead,
+                                           http: IHttp,
+                                           persistence: IPersistence,
+                                           modify: IModify): Promise<IUIKitResponse> {
+        const handler = new ExecuteBlockActionHandler(this, context, read, http, persistence, modify);
         return await handler.run();
     }
 
