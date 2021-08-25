@@ -39,12 +39,12 @@ These buttons perform a specific action in the app. You can add them by simply p
 
 - Parameters:
 
-|    Param Name    |  Dependency  | Param Type |           Acceptable Value          |
-|:----------------:|:------------:|:----------:|:-----------------------------------:|
-|    `actionId`    | **Required** |   String   |        `df_perform_handover`        |
-|      `text`      | **Required** |   String   |               **Any**               |
-|   `buttonStyle`  | **Optional** |   String   |        `primary` or `danger`        |
-| `departmentName` | **Optional** |   String   | **Any Omnichannel department name** |
+|      Param Name       |  Dependency  | Param Type |           Acceptable Value          |
+|:---------------------:|:------------:|:----------:|:-----------------------------------:|
+|       `actionId`      | **Required** |   String   |        `df_perform_handover`        |
+|         `text`        | **Required** |   String   |               **Any**               |
+|     `buttonStyle`     | **Optional** |   String   |        `primary` or `danger`        |
+| `data.departmentName` | **Optional** |   Object   | **Any Omnichannel department name** |
 
 - Example Structure:
 
@@ -53,7 +53,9 @@ These buttons perform a specific action in the app. You can add them by simply p
    "text": "Perform Handover",
    "buttonStyle": "primary",
    "actionId": "df_perform_handover",
-   "departmentName": "sales"
+   "data": {
+      "departmentName": "sales"
+   }
 }
 ```
 
