@@ -150,3 +150,37 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
     msgBuilder.setEditor(appUser).setBlocks(withoutActionBlocks);
     return modify.getUpdater().finish(msgBuilder);
 };
+
+export const createDirectMessage = async (app: IApp, rid: string, read: IRead,  modify: IModify, message: any, sender: IUser): Promise<any> => {
+    if (!message) {
+        return;
+    }
+
+    const room = await read.getRoomReader().getById(rid);
+    if (!room) {
+        app.getLogger().error(`${Logs.INVALID_ROOM_ID} ${rid}`);
+        return;
+    }
+
+    const msg = modify.getCreator().startMessage().setRoom(room).setSender(sender);
+
+    const { text, blocks, attachment } = message;
+
+    if (text) {
+        msg.setText(text);
+    }
+
+    if (attachment) {
+        msg.addAttachment(attachment);
+    }
+
+    if (blocks) {
+        msg.addBlocks(blocks);
+    }
+
+    return new Promise(async (resolve) => {
+        modify.getCreator().finish(msg)
+        .then((result) => resolve(result))
+        .catch((error) => console.error(error));
+    });
+};

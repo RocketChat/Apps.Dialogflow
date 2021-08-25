@@ -22,19 +22,45 @@ export class PostMessageSentHandler {
         const { text, editedAt, room, token, sender } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
-        const { id: rid, type, servedBy, isOpen } = livechatRoom;
+        const { id: rid, type, servedBy, isOpen, userIds } = livechatRoom;
 
         const DialogflowBotUsername: string = await getAppSettingValue(this.read, AppSetting.DialogflowBotUsername);
 
-        if (!type || type !== RoomType.LIVE_CHAT) {
+        if (!type) {
             return;
         }
 
-        if (!isOpen || !token || editedAt || !text) {
-            return;
+        switch (type) {
+            case RoomType.LIVE_CHAT: {
+                if (!isOpen || !token) {
+                    return;
+                }
+                if (!servedBy || servedBy.username !== DialogflowBotUsername) {
+                    return;
+                }
+                break;
+            }
+            case RoomType.DIRECT_MESSAGE: {
+                const directMessageAllowed = await getAppSettingValue(this.read, AppSetting.DialogflowAllowDirectMessage);
+                if (!directMessageAllowed) {
+                    return;
+                }
+
+                // check if the DM is of the bot
+                if (!userIds) {
+                    return;
+                }
+                if (!userIds.some((userId) => sender.id === userId)) {
+                    return;
+                }
+                break;
+            }
+            default: {
+                return;
+            }
         }
 
-        if (!servedBy || servedBy.username !== DialogflowBotUsername) {
+        if (editedAt || !text) {
             return;
         }
 
