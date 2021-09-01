@@ -14,6 +14,10 @@ export enum AppSetting {
     DialogflowHideQuickReplies = 'dialogflow_hide_quick_replies',
 }
 
+export enum ServerSetting {
+    SITE_URL = 'Site_Url',
+}
+
 export enum DefaultMessage {
     DEFAULT_DialogflowServiceUnavailableMessage = 'Sorry, I\'m having trouble answering your question.',
     DEFAULT_DialogflowRequestFailedMessage = 'Sorry, something went wrong.',

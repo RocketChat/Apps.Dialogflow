@@ -6,7 +6,7 @@ import { AppSetting, DefaultMessage } from '../config/Settings';
 import { DialogflowRequestType, IDialogflowMessage } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
 import { Dialogflow } from '../lib/Dialogflow';
-import { createDialogflowMessage, createMessage } from '../lib/Message';
+import { createDialogflowMessage, createMessage, removeQuotedMessage } from '../lib/Message';
 import { getAppSettingValue } from '../lib/Settings';
 import { incFallbackIntent, resetFallbackIntent } from '../lib/SynchronousHandover';
 
@@ -19,7 +19,8 @@ export class PostMessageSentHandler {
                 private readonly modify: IModify) {}
 
     public async run() {
-        const { text, editedAt, room, token, sender } = this.message;
+        const { editedAt, room, token, sender } = this.message;
+        let { text } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
         const { id: rid, type, servedBy, isOpen } = livechatRoom;
@@ -45,6 +46,8 @@ export class PostMessageSentHandler {
         if (!text || (text && text.trim().length === 0)) {
             return;
         }
+
+        text = await removeQuotedMessage(this.read, room, text);
 
         let response: IDialogflowMessage;
         try {
