@@ -157,12 +157,15 @@ export const removeQuotedMessage = async (read: IRead, room: IRoom, message: str
         throw new Error('Error! message text undefined');
     }
 
-    let serverUrl: string = await getServerSettingValue(read, ServerSetting.SITE_URL);
+    let serverUrl: string | undefined = await getServerSettingValue(read, ServerSetting.SITE_URL);
+    serverUrl = serverUrl && serverUrl.trim();
     if (!serverUrl) {
         throw new Error('Error! Getting server url');
     }
 
-    serverUrl = serverUrl.trim().endsWith('/') ? serverUrl.trim().substr(0, serverUrl.length - 1) : serverUrl.trim();
+    serverUrl = serverUrl.endsWith('/') ?
+        serverUrl.substr(0, serverUrl.length - 1) :
+        serverUrl;
 
     const pattern  = new RegExp(`\\[\\s*\\]\\(${ escapeRegExp(serverUrl) }\\/live\\/${ escapeRegExp(room.id) }\\?msg=.*\\)`, 'gi');
 

@@ -19,8 +19,7 @@ export class PostMessageSentHandler {
                 private readonly modify: IModify) {}
 
     public async run() {
-        const { editedAt, room, token, sender } = this.message;
-        let { text } = this.message;
+        const { text, editedAt, room, token, sender } = this.message;
         const livechatRoom = room as ILivechatRoom;
 
         const { id: rid, type, servedBy, isOpen } = livechatRoom;
@@ -47,11 +46,12 @@ export class PostMessageSentHandler {
             return;
         }
 
-        text = await removeQuotedMessage(this.read, room, text);
+        let messageText = text;
+        messageText = await removeQuotedMessage(this.read, room, messageText);
 
         let response: IDialogflowMessage;
         try {
-            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, text, DialogflowRequestType.MESSAGE));
+            response = (await Dialogflow.sendRequest(this.http, this.read, this.modify, rid, messageText, DialogflowRequestType.MESSAGE));
         } catch (error) {
             this.app.getLogger().error(`${Logs.DIALOGFLOW_REST_API_ERROR} ${error.message}`);
 
