@@ -1,14 +1,15 @@
 import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
 import { IVisitor } from '@rocket.chat/apps-engine/definition/livechat';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { BlockElementType, BlockType, IActionsBlock, IBlock, IButtonElement, TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-import { AppSetting } from '../config/Settings';
+import { AppSetting, ServerSetting } from '../config/Settings';
 import { ActionIds } from '../enum/ActionIds';
 import { IDialogflowMessage, IDialogflowQuickReplies, IDialogflowQuickReplyOptions } from '../enum/Dialogflow';
 import { Logs } from '../enum/Logs';
-import { uuid } from './Helper';
-import { getAppSettingValue } from './Settings';
+import { escapeRegExp, uuid } from './Helper';
+import { getAppSettingValue, getServerSettingValue } from './Settings';
 
 export const createDialogflowMessage = async (app: IApp, rid: string, read: IRead,  modify: IModify, dialogflowMessage: IDialogflowMessage): Promise<any> => {
     const { messages = [] } = dialogflowMessage;
@@ -149,4 +150,27 @@ export const deleteAllActionBlocks = async (modify: IModify, appUser: IUser, msg
 
     msgBuilder.setEditor(appUser).setBlocks(withoutActionBlocks);
     return modify.getUpdater().finish(msgBuilder);
+};
+
+export const removeQuotedMessage = async (read: IRead, room: IRoom, message: string): Promise<string> => {
+    if (!message) {
+        throw new Error('Error! message text undefined');
+    }
+
+    let serverUrl: string | undefined = await getServerSettingValue(read, ServerSetting.SITE_URL);
+    serverUrl = serverUrl && serverUrl.trim();
+    if (!serverUrl) {
+        throw new Error('Error! Getting server url');
+    }
+
+    serverUrl = serverUrl.endsWith('/') ?
+        serverUrl.substr(0, serverUrl.length - 1) :
+        serverUrl;
+
+    const pattern  = new RegExp(`\\[\\s*\\]\\(${ escapeRegExp(serverUrl) }\\/live\\/${ escapeRegExp(room.id) }\\?msg=.*\\)`, 'gi');
+
+    if (message.match(pattern)) {
+        return message.replace(pattern, '');
+    }
+    return message;
 };
