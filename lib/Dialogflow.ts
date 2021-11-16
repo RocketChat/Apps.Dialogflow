@@ -32,9 +32,16 @@ class DialogflowClass {
 
         try {
             const response = await http.post(serverURL, httpRequestContent);
+            if (!response) {
+                throw new Error('Failed to get any response from the Dialogflow api. Please check if you server is able to connect to public n/w');
+            }
+            if (!response.statusCode.toString().startsWith('2') || !response.data) {
+                throw new Error(`Invalid response received from Dialogflow api. Response: ${ response.content }`);
+            }
+
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details: ${ error.message }. Raw Error: ${ JSON.stringify(error, Object.getOwnPropertyNames(error)) }`);
         }
     }
 
@@ -166,7 +173,7 @@ class DialogflowClass {
 
             return accessToken.token;
         } catch (error) {
-            throw Error(Logs.ACCESS_TOKEN_ERROR + error);
+            throw Error(`${ Logs.ACCESS_TOKEN_ERROR }. Raw Error: ${ JSON.stringify(error, Object.getOwnPropertyNames(error)) }`);
         }
     }
 
