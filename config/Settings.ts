@@ -47,7 +47,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowEnvironment,
         public: true,
         type: SettingType.STRING,
-        packageValue: '',
+        packageValue: 'draft',
         i18nLabel: 'dialogflow_environment',
         required: true,
     },
