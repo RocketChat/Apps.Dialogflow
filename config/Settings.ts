@@ -39,7 +39,7 @@ export const settings: Array<ISetting> = [
         id: AppSetting.DialogflowProjectId,
         public: true,
         type: SettingType.STRING,
-        packageValue: '',
+        packageValue: 'draft',
         i18nLabel: 'dialogflow_project_id',
         required: true,
     },
