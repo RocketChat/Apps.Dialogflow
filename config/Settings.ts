@@ -3,6 +3,7 @@ import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/setti
 export enum AppSetting {
     DialogflowBotUsername = 'dialogflow_bot_username',
     DialogflowProjectId = 'dialogflow_project_id',
+    DialogflowEnvironment = 'dialogflow_environment',
     DialogflowClientEmail = 'dialogflow_client_email',
     DialogFlowPrivateKey = 'dialogflow_private_key',
     DialogflowFallbackResponsesLimit = 'dialogflow_fallback_responses_limit',
@@ -40,6 +41,14 @@ export const settings: Array<ISetting> = [
         type: SettingType.STRING,
         packageValue: '',
         i18nLabel: 'dialogflow_project_id',
+        required: true,
+    },
+    {
+        id: AppSetting.DialogflowEnvironment,
+        public: true,
+        type: SettingType.STRING,
+        packageValue: '',
+        i18nLabel: 'dialogflow_environment',
         required: true,
     },
     {

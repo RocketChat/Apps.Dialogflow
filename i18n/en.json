@@ -1,6 +1,7 @@
 {
     "bot_username": "Bot Username",
     "dialogflow_project_id": "Project Id",
+    "dialogflow_environment": "Environment",
     "dialogflow_client_email": "Client Email",
     "dialogflow_private_key": "Private Key",
     "dialogflow_fallback_responses_limit": "Fallback Responses Limit",
