@@ -5,7 +5,7 @@ import { AppSetting } from '../config/Settings';
 import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
-import { base64urlEncode } from './Helper';
+import { base64urlEncode, stringifyError } from './Helper';
 import { createHttpRequest } from './Http';
 import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
@@ -41,7 +41,7 @@ class DialogflowClass {
 
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details: ${ error.message }. Raw Error: ${ JSON.stringify(error, Object.getOwnPropertyNames(error)) }`);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details: ${ error.message }. Raw Error: ${ stringifyError(error) }`);
         }
     }
 
@@ -173,7 +173,7 @@ class DialogflowClass {
 
             return accessToken.token;
         } catch (error) {
-            throw Error(`${ Logs.ACCESS_TOKEN_ERROR }. Raw Error: ${ JSON.stringify(error, Object.getOwnPropertyNames(error)) }`);
+            throw Error(`${ Logs.ACCESS_TOKEN_ERROR }. Raw Error: ${ stringifyError(error) }`);
         }
     }
 
