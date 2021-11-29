@@ -1,19 +1,16 @@
 {
-    "id": "21b7d3ba-031b-41d9-8ff2-fbbfa081ae90",
-    "version": "1.2.3",
-    "requiredApiVersion": "^1.17.0",
-    "iconFile": "icon.png",
-    "author": {
-        "name": "Rocket.Chat",
-        "homepage": "https://rocket.chat/",
-        "support": "support@rocket.chat"
-    },
-    "name": "Dialogflow",
-    "nameSlug": "dialogflow",
-    "classFile": "DialogflowApp.ts",
-    "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform",
-    "implements": [
-        "IPostMessageSent",
-        "IUIKitLivechatInteractionHandler"
-    ]
+	"id": "21b7d3ba-031b-41d9-8ff2-fbbfa081ae90",
+	"version": "1.2.3",
+	"requiredApiVersion": "^1.17.0",
+	"iconFile": "icon.png",
+	"author": {
+		"name": "Rocket.Chat",
+		"homepage": "https://rocket.chat/",
+		"support": "support@rocket.chat"
+	},
+	"name": "Dialogflow",
+	"nameSlug": "dialogflow",
+	"classFile": "DialogflowApp.ts",
+	"description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform",
+	"implements": ["IPostMessageSent", "IUIKitLivechatInteractionHandler"]
 }
