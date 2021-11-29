@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es2017",
+      "target": "es2018",
       "module": "commonjs",
       "moduleResolution": "node",
       "declaration": false,
@@ -10,6 +10,16 @@
       "noImplicitReturns": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
+
+      /* Strict Type-Checking Options */
+		  "strict": true,
+    	"strictPropertyInitialization": false,
+      "allowJs": false,
+      /* Additional Checks */
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": false,
+
     },
     "include": [
       "**/*.ts"

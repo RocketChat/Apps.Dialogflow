@@ -19,7 +19,7 @@ jobs:
         run: npm i -g @rocket.chat/apps-cli
 
       - name: Tslint check
-        run: npm run tslint
+        run: npm run lint
 
       - name: Bundle App
         run: rc-apps package
