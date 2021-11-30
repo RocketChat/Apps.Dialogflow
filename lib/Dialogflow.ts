@@ -5,7 +5,7 @@ import { AppSetting } from '../config/Settings';
 import { DialogflowJWT, DialogflowRequestType, DialogflowUrl, IDialogflowAccessToken, IDialogflowEvent, IDialogflowMessage, IDialogflowQuickReplies, LanguageCode } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
-import { base64urlEncode } from './Helper';
+import { base64urlEncode, stringifyError } from './Helper';
 import { createHttpRequest } from './Http';
 import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
@@ -32,9 +32,16 @@ class DialogflowClass {
 
         try {
             const response = await http.post(serverURL, httpRequestContent);
+            if (!response) {
+                throw new Error('Failed to get any response from the Dialogflow api. Please check if you server is able to connect to public n/w');
+            }
+            if (!response.statusCode.toString().startsWith('2') || !response.data) {
+                throw new Error(`Invalid response received from Dialogflow api. Response: ${ response.content }`);
+            }
+
             return this.parseRequest(response.data);
         } catch (error) {
-            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }`);
+            throw new Error(`${ Logs.HTTP_REQUEST_ERROR }. Details: ${ error.message }. Raw Error: ${ stringifyError(error) }`);
         }
     }
 
@@ -167,7 +174,7 @@ class DialogflowClass {
 
             return accessToken.token;
         } catch (error) {
-            throw Error(Logs.ACCESS_TOKEN_ERROR + error);
+            throw Error(`${ Logs.ACCESS_TOKEN_ERROR }. Raw Error: ${ stringifyError(error) }`);
         }
     }
 

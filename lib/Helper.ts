@@ -44,3 +44,5 @@ export const uuid = (): string => {
 export const escapeRegExp = (str: string): string => {
     return str.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&'); // $& means the whole matched string
 };
+
+export const stringifyError = (error: Error): string => (JSON.stringify(error, Object.getOwnPropertyNames(error)));
