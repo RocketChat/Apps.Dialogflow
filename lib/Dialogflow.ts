@@ -20,7 +20,7 @@ import {
 } from '../enum/Dialogflow';
 import { Headers } from '../enum/Http';
 import { Logs } from '../enum/Logs';
-import { base64urlEncode } from './Helper';
+import { base64urlEncode, stringifyError } from './Helper';
 import { createHttpRequest } from './Http';
 import { updateRoomCustomFields } from './Room';
 import { getAppSettingValue } from './Settings';
@@ -61,9 +61,27 @@ class DialogflowClass {
 
 		try {
 			const response = await http.post(serverURL, httpRequestContent);
+			if (!response) {
+				throw new Error(
+					'Failed to get any response from the Dialogflow api. Please check if you server is able to connect to public n/w',
+				);
+			}
+			if (
+				!response.statusCode.toString().startsWith('2') ||
+				!response.data
+			) {
+				throw new Error(
+					`Invalid response received from Dialogflow api. Response: ${response.content}`,
+				);
+			}
+
 			return this.parseRequest(response.data);
 		} catch (error) {
-			throw new Error(`${Logs.HTTP_REQUEST_ERROR}`);
+			throw new Error(
+				`${Logs.HTTP_REQUEST_ERROR}. Details: ${
+					(error as Error).message
+				}. Raw Error: ${stringifyError(error as Error)}`,
+			);
 		}
 	}
 
@@ -179,6 +197,10 @@ class DialogflowClass {
 			read,
 			AppSetting.DialogflowProjectId,
 		);
+		const environment = await getAppSettingValue(
+			read,
+			AppSetting.DialogflowEnvironment,
+		);
 
 		const accessToken = await this.getAccessToken(
 			read,
@@ -190,7 +212,7 @@ class DialogflowClass {
 			throw Error(Logs.ACCESS_TOKEN_ERROR);
 		}
 
-		return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
+		return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
 	}
 
 	private async getAccessToken(
@@ -249,7 +271,11 @@ class DialogflowClass {
 
 			return accessToken.token;
 		} catch (error) {
-			throw Error(Logs.ACCESS_TOKEN_ERROR + error);
+			throw Error(
+				`${Logs.ACCESS_TOKEN_ERROR}. Raw Error: ${stringifyError(
+					error as Error,
+				)}`,
+			);
 		}
 	}
 
