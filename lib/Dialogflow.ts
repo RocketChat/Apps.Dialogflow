@@ -43,12 +43,12 @@ class DialogflowClass {
 		);
 
 		const queryInput = {
-			...(requestType === DialogflowRequestType.EVENT && {
+			...requestType === DialogflowRequestType.EVENT && {
 				event: request,
-			}),
-			...(requestType === DialogflowRequestType.MESSAGE && {
+			},
+			...requestType === DialogflowRequestType.MESSAGE && {
 				text: { languageCode: LanguageCode.EN, text: request },
-			}),
+			},
 		};
 
 		const httpRequestContent: IHttpRequest = createHttpRequest(

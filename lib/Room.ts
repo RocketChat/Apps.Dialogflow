@@ -14,8 +14,7 @@ import { createMessage } from './Message';
 
 export const updateRoomCustomFields = async (
 	rid: string,
-	// eslint-disable-next-line
-	data: { [k: string]: any },
+	data: { [k: string]: unknown },
 	read: IRead,
 	modify: IModify,
 ): Promise<void> => {
@@ -45,11 +44,7 @@ export const updateRoomCustomFields = async (
 	const roomBuilder = await modify.getUpdater().room(rid, user);
 	roomBuilder.setCustomFields(customFields);
 
-	try {
-		await modify.getUpdater().finish(roomBuilder);
-	} catch (error) {
-		console.error(error);
-	}
+	return modify.getUpdater().finish(roomBuilder);
 };
 
 export const closeChat = async (modify: IModify, read: IRead, rid: string) => {

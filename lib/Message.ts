@@ -140,11 +140,7 @@ export const createMessage = async (
 		msg.addBlocks(blocks);
 	}
 
-	try {
-		return await modify.getCreator().finish(msg);
-	} catch (e) {
-		console.error(e);
-	}
+	return modify.getCreator().finish(msg);
 };
 
 export const createLivechatMessage = async (
@@ -190,11 +186,7 @@ export const createLivechatMessage = async (
 		msg.addAttachment(attachment);
 	}
 
-	try {
-		return await modify.getCreator().finish(msg);
-	} catch (e) {
-		console.error(e);
-	}
+	return modify.getCreator().finish(msg);
 };
 
 export const deleteAllActionBlocks = async (
