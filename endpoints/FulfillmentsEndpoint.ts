@@ -1,8 +1,6 @@
 import {
 	HttpStatusCode,
-	IHttp,
 	IModify,
-	IPersistence,
 	IRead,
 } from '@rocket.chat/apps-engine/definition/accessors';
 import {
@@ -23,16 +21,14 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
 
 	public async post(
 		request: IApiRequest,
-		endpoint: IApiEndpointInfo,
+		_endpoint: IApiEndpointInfo,
 		read: IRead,
 		modify: IModify,
-		http: IHttp,
-		persis: IPersistence,
 	): Promise<IApiResponse> {
 		this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 
 		try {
-			await this.processRequest(read, modify, persis, request);
+			await this.processRequest(read, modify, request);
 			return createHttpResponse(
 				HttpStatusCode.OK,
 				{ 'Content-Type': Headers.CONTENT_TYPE_JSON },
@@ -53,7 +49,6 @@ export class FulfillmentsEndpoint extends ApiEndpoint {
 	private async processRequest(
 		read: IRead,
 		modify: IModify,
-		persis: IPersistence,
 		request: IApiRequest,
 	) {
 		const message: IDialogflowMessage = Dialogflow.parseRequest(

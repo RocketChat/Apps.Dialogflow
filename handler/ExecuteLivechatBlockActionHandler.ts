@@ -1,7 +1,5 @@
 import {
-	IHttp,
 	IModify,
-	IPersistence,
 	IRead,
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
@@ -27,8 +25,6 @@ export class ExecuteLivechatBlockActionHandler {
 		private readonly app: IApp,
 		private context: UIKitLivechatBlockInteractionContext,
 		private read: IRead,
-		private http: IHttp,
-		private persistence: IPersistence,
 		private modify: IModify,
 	) {}
 

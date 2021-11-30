@@ -37,7 +37,7 @@ export class OnSettingUpdatedHandler {
 			);
 			this.app.getLogger().info(Logs.GOOGLE_AUTH_SUCCESS);
 		} catch (error) {
-			this.app.getLogger().error(error.message);
+			this.app.getLogger().error(error);
 		}
 	}
 }

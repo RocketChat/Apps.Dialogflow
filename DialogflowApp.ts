@@ -40,16 +40,14 @@ export class DialogflowApp
 	public async executeLivechatBlockActionHandler(
 		context: UIKitLivechatBlockInteractionContext,
 		read: IRead,
-		http: IHttp,
-		persistence: IPersistence,
+		_http: IHttp,
+		_persistence: IPersistence,
 		modify: IModify,
 	): Promise<IUIKitResponse> {
 		const handler = new ExecuteLivechatBlockActionHandler(
 			this,
 			context,
 			read,
-			http,
-			persistence,
 			modify,
 		);
 		return await handler.run();
@@ -59,7 +57,7 @@ export class DialogflowApp
 		message: ILivechatMessage,
 		read: IRead,
 		http: IHttp,
-		persis: IPersistence,
+		_persis: IPersistence,
 		modify: IModify,
 	): Promise<void> {
 		const handler = new PostMessageSentHandler(
@@ -67,15 +65,14 @@ export class DialogflowApp
 			message,
 			read,
 			http,
-			persis,
 			modify,
 		);
 		await handler.run();
 	}
 
 	public async onSettingUpdated(
-		setting: ISetting,
-		configurationModify: IConfigurationModify,
+		_setting: ISetting,
+		_configurationModify: IConfigurationModify,
 		read: IRead,
 		http: IHttp,
 	): Promise<void> {

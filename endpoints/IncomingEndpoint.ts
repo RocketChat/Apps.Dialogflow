@@ -28,11 +28,10 @@ export class IncomingEndpoint extends ApiEndpoint {
 
 	public async post(
 		request: IApiRequest,
-		endpoint: IApiEndpointInfo,
+		_endpoint: IApiEndpointInfo,
 		read: IRead,
 		modify: IModify,
 		http: IHttp,
-		// persis: IPersistence,
 	): Promise<IApiResponse> {
 		this.app.getLogger().info(Logs.ENDPOINT_RECEIVED_REQUEST);
 

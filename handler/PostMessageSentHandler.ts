@@ -1,7 +1,6 @@
 import {
 	IHttp,
 	IModify,
-	IPersistence,
 	IRead,
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { IApp } from '@rocket.chat/apps-engine/definition/IApp';
@@ -31,7 +30,6 @@ export class PostMessageSentHandler {
 		private readonly message: ILivechatMessage,
 		private readonly read: IRead,
 		private readonly http: IHttp,
-		private readonly persis: IPersistence,
 		private readonly modify: IModify,
 	) {}
 
