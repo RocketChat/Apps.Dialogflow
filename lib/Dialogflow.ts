@@ -129,11 +129,12 @@ class DialogflowClass {
 
     private async getServerURL(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
         const projectId = await getAppSettingValue(read, AppSetting.DialogflowProjectId);
+        const environment = await getAppSettingValue(read, AppSetting.DialogflowEnvironment);
 
         const accessToken = await this.getAccessToken(read, modify, http, sessionId);
         if (!accessToken) { throw Error(Logs.ACCESS_TOKEN_ERROR); }
 
-        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/draft/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
+        return `https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/environments/${environment}/users/-/sessions/${sessionId}:detectIntent?access_token=${accessToken}`;
     }
 
     private async getAccessToken(read: IRead, modify: IModify, http: IHttp, sessionId: string) {
