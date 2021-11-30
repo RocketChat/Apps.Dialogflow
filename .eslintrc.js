@@ -9,6 +9,7 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
     ],
     rules: {
-        "no-case-declarations": "off"
+        "no-case-declarations": "off",
+        "@typescript-eslint/no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }]
     },
 };

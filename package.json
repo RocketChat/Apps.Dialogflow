@@ -12,6 +12,7 @@
 	},
 	"scripts": {
 		"prepare": "husky install",
+		"typecheck": "tsc --noEmit --skipLibCheck",
 		"lint": "eslint -c .eslintrc.js --ext .ts .",
 		"prettier-format": "prettier --config .prettierrc '**.ts' --write"
 	}
