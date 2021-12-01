@@ -18,8 +18,11 @@ jobs:
       - name: Install Rocket.Chat Apps cli
         run: npm i -g @rocket.chat/apps-cli
 
-      - name: Tslint check
-        run: npm run tslint
+      - name: ESLint check
+        run: npm run lint
+
+      - name: Typescript check
+        run: npm run typecheck
 
       - name: Bundle App
         run: rc-apps package
