@@ -29,3 +29,6 @@ Temporary Items
 
 .editorconfig
 .vscode
+
+# related to rc-apps cli 
+.rcappsconfig

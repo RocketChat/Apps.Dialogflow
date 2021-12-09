@@ -11,7 +11,7 @@
     "name": "Dialogflow",
     "nameSlug": "dialogflow",
     "classFile": "DialogflowApp.ts",
-    "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform",
+    "description": "Integration between Rocket.Chat and the Dialogflow Chatbot platform. Relevant documentation of this app can be found [here](https://docs.rocket.chat/guides/app-guides/omnichannel-apps/dialogflow-app)",
     "implements": [
         "IPostMessageSent",
         "IUIKitLivechatInteractionHandler"
