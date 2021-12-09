@@ -111,6 +111,7 @@ export const settings: Array<ISetting> = [
         packageValue: 'en',
         value: 'en',
         i18nLabel: 'dialogflow_default_language',
+		i18nDescription: 'dialogflow_default_language_description',
 		required: false,
     },
 	{

@@ -20,6 +20,7 @@
     "dialogflow_handover_failed_message": "Handover Failed Message",
     "dialogflow_handover_failed_message_description": "The Bot will send this message to Visitor if the handover failed because no agents were online",
     "dialogflow_default_language": "Language",
+    "dialogflow_default_language_description": "Define the language in which you'd be interacting with the Bot",
     "dialogflow_chinese_simplified": "Chinese - Simplified",
     "dialogflow_danish": "Danish",
     "dialogflow_dutch": "Dutch",
