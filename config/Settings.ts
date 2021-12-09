@@ -23,7 +23,7 @@ export enum ServerSetting {
 }
 
 export enum DefaultMessage {
-	DEFAULT_DialogflowServiceUnavailableMessage = "Sorry, I'm having trouble answering your question.",
+	DEFAULT_DialogflowServiceUnavailableMessage = `Sorry, I'm having trouble answering your question.`,
 	DEFAULT_DialogflowRequestFailedMessage = 'Sorry, something went wrong.',
 	DEFAULT_DialogflowHandoverMessage = 'Transferring to an online agent',
 	DEFAULT_DialogflowCloseChatMessage = 'Closing the chat, Goodbye',
@@ -52,6 +52,7 @@ export const settings: Array<ISetting> = [
 		type: SettingType.STRING,
 		packageValue: 'draft',
 		i18nLabel: 'dialogflow_environment',
+		i18nDescription: 'dialogflow_environment_description',
 		required: true,
 	},
 	{
@@ -133,6 +134,6 @@ export const settings: Array<ISetting> = [
 		value: true,
 		i18nLabel: 'dialogflow_hide_quick_replies',
 		i18nDescription: 'dialogflow_hide_quick_replies_description',
-		required: true,
+		required: false,
 	},
 ];

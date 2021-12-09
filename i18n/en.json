@@ -2,6 +2,7 @@
     "bot_username": "Bot Username",
     "dialogflow_project_id": "Project Id",
     "dialogflow_environment": "Environment",
+    "dialogflow_environment_description": "Define the environment which you want your bot to use. More info about the Dialogflow Environments can be found [here](https://cloud.google.com/dialogflow/es/docs/agents-versions)",
     "dialogflow_client_email": "Client Email",
     "dialogflow_private_key": "Private Key",
     "dialogflow_fallback_responses_limit": "Fallback Responses Limit",
