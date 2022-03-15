@@ -67,6 +67,8 @@ export class PostMessageSentHandler {
 		let messageText = text;
 		messageText = await removeQuotedMessage(this.read, room, messageText);
 
+		this.app.getLogger().debug('Attempting to send following message to Dialogflow:', messageText);
+
 		let response: IDialogflowMessage;
 		try {
 			response = await Dialogflow.sendRequest(

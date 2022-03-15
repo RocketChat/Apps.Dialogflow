@@ -37,6 +37,7 @@ export interface IDialogflowQuickReplies {
 
 export interface IDialogflowQuickReplyOptions {
 	text: string;
+	url?: string;
 	actionId?: string;
 	buttonStyle?: ButtonStyle;
 	data?: {

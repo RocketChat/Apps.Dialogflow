@@ -39,6 +39,11 @@ export class ExecuteLivechatBlockActionHandler {
 				actionId,
 			} = interactionData;
 
+			if (!value) {
+				// most likely, this button has a url to open. So we don't need to do anything here.
+				return this.context.getInteractionResponder().successResponse();
+			}
+
 			if (type !== UIKitIncomingInteractionContainerType.MESSAGE) {
 				return this.context.getInteractionResponder().successResponse();
 			}

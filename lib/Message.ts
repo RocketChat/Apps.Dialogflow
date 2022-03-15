@@ -44,9 +44,13 @@ export const createDialogflowMessage = async (
 							text: payload.text,
 							type: TextObjectType.PLAINTEXT,
 						},
-						value: payload.text,
+						// if the button is a link, then we don't need to pass any value as clicking the button will open the link
+						value: payload.url ? '' : payload.text,
 						...(payload.buttonStyle && {
 							style: payload.buttonStyle,
+						}),
+						...(payload.url && {
+							url: payload.url,
 						}),
 					};
 
