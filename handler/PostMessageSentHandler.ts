@@ -34,7 +34,7 @@ export class PostMessageSentHandler {
 	) {}
 
 	public async run() {
-		const { text, editedAt, room, token, sender } = this.message;
+		const { text, editedAt, room, token, sender, id } = this.message;
 		const livechatRoom = room as ILivechatRoom;
 
 		const { id: rid, type, servedBy, isOpen } = livechatRoom;
@@ -67,7 +67,7 @@ export class PostMessageSentHandler {
 		let messageText = text;
 		messageText = await removeQuotedMessage(this.read, room, messageText);
 
-		this.app.getLogger().debug('Attempting to send following message to Dialogflow:', messageText);
+		this.app.getLogger().debug(`Attempting to send message with id ${ id } to Dialogflow`);
 
 		let response: IDialogflowMessage;
 		try {
