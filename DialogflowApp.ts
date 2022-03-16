@@ -29,12 +29,49 @@ import { ExecuteLivechatBlockActionHandler } from './handler/ExecuteLivechatBloc
 import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
+const wrapConsole = (logr: Console, str: string) => {
+	const newLog = { ...logr }
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.log = (...items: Array<any>) => {
+		logr.log(str, ...items);
+	};
+	// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.debug = (...items: Array<any>) => {
+		logr.debug(str, ...items);
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.info = (...items: Array<any>) => {
+		logr.info(str, ...items);
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.warn = (...items: Array<any>) => {
+		logr.warn(str, ...items);
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.error = (...items: Array<any>) => {
+		logr.error(str, ...items);
+	};
+	return newLog;
+};
+const wrapLogger = (logr: ILogger, str: string) => {
+	const newLog = wrapConsole(
+		logr as unknown as Console,
+		str,
+	) as unknown as ILogger;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	newLog.success = (...items: Array<any>) => {
+		logr.success(str, ...items);
+	};
+	return newLog;
+};
+console = wrapConsole(console, '[Dialogflow] ');
+
 export class DialogflowApp
 	extends App
 	implements IPostMessageSent, IUIKitLivechatInteractionHandler
 {
 	constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
-		super(info, logger, accessors);
+		super(info, wrapLogger(logger,'[Dialogflow] '), accessors);
 	}
 
 	public async executeLivechatBlockActionHandler(
