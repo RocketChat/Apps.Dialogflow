@@ -30,40 +30,30 @@ import { OnSettingUpdatedHandler } from './handler/OnSettingUpdatedHandler';
 import { PostMessageSentHandler } from './handler/PostMessageSentHandler';
 
 const wrapConsole = (logr: Console, str: string) => {
-	const newLog = { ...logr }
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.log = (...items: Array<any>) => {
-		logr.log(str, ...items);
+	const newLog = {...logr};
+	newLog.log = (...items) => {
+		logr.log(str,...items);
 	};
-	// // eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.debug = (...items: Array<any>) => {
-		logr.debug(str, ...items);
+	newLog.debug = (...items) => {
+		logr.debug(str,...items);
 	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.info = (...items: Array<any>) => {
-		logr.info(str, ...items);
+	newLog.info = (...items) => {
+		logr.info(str,...items);
 	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.warn = (...items: Array<any>) => {
-		logr.warn(str, ...items);
-	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.error = (...items: Array<any>) => {
-		logr.error(str, ...items);
+	newLog.warn = (...items) => {
+		logr.warn(str,...items);
+	};	newLog.error = (...items) => {
+		logr.error(str,...items);
 	};
 	return newLog;
 };
 const wrapLogger = (logr: ILogger, str: string) => {
-	const newLog = wrapConsole(
-		logr as unknown as Console,
-		str,
-	) as unknown as ILogger;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	newLog.success = (...items: Array<any>) => {
-		logr.success(str, ...items);
+	const newLog = wrapConsole(logr as unknown as Console,str) as unknown as ILogger;
+	newLog.success = (...items) => {
+		logr.success(str,...items);
 	};
 	return newLog;
-};
+}
 console = wrapConsole(console, '[Dialogflow] ');
 
 export class DialogflowApp
